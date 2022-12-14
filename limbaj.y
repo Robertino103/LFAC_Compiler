@@ -4,14 +4,19 @@ extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
 %}
-%token ID TIP BGIN END ASSIGN NR 
+%union {
+     int intval;
+}
+%token <intval> NR
+%type <intval> statement
+%token TIP BGIN END ASSIGN PRINT ID
 %start progr
 %%
-progr: declaratii bloc {printf("program corect sintactic\n");}
+progr: declaratii list {printf("program corect sintactic\n");}
      ;
 
-declaratii :  declaratie ';'
-	   | declaratii declaratie ';'
+declaratii : declaratie ';'
+	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID 
            | TIP ID '(' lista_param ')'
@@ -25,7 +30,7 @@ param : TIP ID
       ; 
       
 /* bloc */
-bloc : BGIN list END  
+bloc : BGIN list END
      ;
      
 /* lista instructiuni */
@@ -35,7 +40,8 @@ list :  statement ';'
 
 /* instructiune */
 statement: ID ASSIGN ID
-         | ID ASSIGN NR  		 
+         | ID ASSIGN NR {$1 = $3; }
+         | PRINT ID {printf("%d\n", $2);}
          | ID '(' lista_apel ')'
          ;
         
