@@ -1,0 +1,11 @@
+int @y;
+int @x;
+int @clau;
+@x = 69;
+@y = 5;
+@clau = 124719;
+print @clau;
+@clau = 148;
+@clau = 6999;
+print @x;
+print @clau;
