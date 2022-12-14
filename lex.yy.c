@@ -773,48 +773,49 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 #line 10 "limbaj.l"
-{return ID;}
+{   yylval.id = strdup(yytext);
+                            return ID;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 11 "limbaj.l"
+#line 12 "limbaj.l"
 {return ASSIGN;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 12 "limbaj.l"
+#line 13 "limbaj.l"
 {return PRINT;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 13 "limbaj.l"
+#line 14 "limbaj.l"
 {
-    yylval.intval = atoi(yytext);
+    yylval.int_val = atoi(yytext);
     return NR;
 }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 17 "limbaj.l"
+#line 18 "limbaj.l"
 ;
 	YY_BREAK
 case 9:
 /* rule 9 can match eol */
 YY_RULE_SETUP
-#line 18 "limbaj.l"
+#line 19 "limbaj.l"
 {yylineno++;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 19 "limbaj.l"
+#line 20 "limbaj.l"
 {return yytext[0];}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 20 "limbaj.l"
+#line 21 "limbaj.l"
 ECHO;
 	YY_BREAK
-#line 818 "lex.yy.c"
+#line 819 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1819,4 +1820,4 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 20 "limbaj.l"
+#line 21 "limbaj.l"
