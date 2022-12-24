@@ -56,7 +56,11 @@ extern int yydebug;
     BGIN = 262,
     END = 263,
     ASSIGN = 264,
-    PRINT = 265
+    PRINT = 265,
+    BGINGLOBAL = 266,
+    ENDGLOBAL = 267,
+    BGINFNCT = 268,
+    ENDFNCT = 269
   };
 #endif
 /* Tokens.  */
@@ -68,6 +72,10 @@ extern int yydebug;
 #define END 263
 #define ASSIGN 264
 #define PRINT 265
+#define BGINGLOBAL 266
+#define ENDGLOBAL 267
+#define BGINFNCT 268
+#define ENDFNCT 269
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -79,7 +87,7 @@ union YYSTYPE
      int int_val;
      char* str_val;
 
-#line 83 "y.tab.h"
+#line 91 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

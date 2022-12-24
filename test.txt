@@ -1,11 +1,12 @@
-int @y;
+begin_globaldef
 int @x;
-int @clau;
-@x = 69;
-@y = 5;
-@clau = 124719;
-print @clau;
-@clau = 148;
-@clau = 6999;
+int @y;
+end_globaldef
+
+int @zad;
+float @zak;
+
+begin_progr
+@x = 59;
 print @x;
-print @clau;
+end_progr
