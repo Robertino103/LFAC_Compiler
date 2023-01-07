@@ -21,11 +21,27 @@ int nr_symbols = 0;
 %token <int_val> NR
 %token <str_val> STRING
 %token <id> ID
-%token TIP BGIN END ASSIGN PRINT
+%token TIP BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT
 %start progr
 %%
-progr: declaratii list {printf("program corect sintactic\n");}
+progr: global function declaratii bloc {printf("program corect sintactic\n");}
      ;
+
+global : /* empty */ 
+       | BGINGLOBAL global_defs ENDGLOBAL
+       ;
+
+global_defs : declaratie ';'
+            | declaratii declaratie ';'
+            ;
+
+function : /* empty */
+         | BGINFNCT functions ENDFNCT
+         ;
+
+functions : TIP ID '(' lista_param ')'
+          | TIP ID '(' ')'
+          ;
 
 declaratii : declaratie ';'
 	      | declaratii declaratie ';'
@@ -33,6 +49,7 @@ declaratii : declaratie ';'
 declaratie : TIP ID 
            | TIP ID '(' lista_param ')'
            | TIP ID '(' ')'
+           | TIP ID '[' NR ']'
            ;
 lista_param : param
             | lista_param ','  param 
@@ -56,11 +73,13 @@ statement: ID ASSIGN ID
          | PRINT ID {    char *current_id = $2;
                          printf("%d\n", getValue(symbol, nr_symbols, current_id));}
          | ID '(' lista_apel ')'
+         | ID '[' NR ']' ASSIGN ID
+         | ID '[' NR ']' ASSIGN NR
          ;
         
 lista_apel : NR
            | lista_apel ',' NR
-           ;
+           ; 
 %%
 int yyerror(char * s){
 printf("eroare: %s la linia:%d\n",s,yylineno);
