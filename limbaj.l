@@ -17,6 +17,11 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return VID;}
 "=" {return ASSIGN;}
 "print" {return PRINT;}
+"group" {return GROUP;}
+"begin_fields" {return BGINFIELDS;}
+"end_fields" {return ENDFIELDS;}
+"begin_methods" {return BGINMETHODS;}
+"end_methods" {return ENDMETHODS;}
 [0-9]+ {
     yylval.int_val = atoi(yytext);
     return NR;

@@ -17,12 +17,31 @@ typedef struct{
 } vmap;
 vmap array[100];
 
+typedef struct{
+     char *method_name;
+} methodmap;
+methodmap method[100];
+
+typedef struct{
+     char *group_name;
+     int nr_methods;
+     int nr_vars;
+     int nr_arrays;
+     map group_vars[100];
+     vmap group_arrays[100];
+     methodmap group_methods[100];
+} groupmap;
+groupmap group[100];
+
+
 int getValue(map *m, int size, char *key);
 void assignValue(map*m, int size, char *key, int value);
 void assignArrValue(vmap*m, int size, char *key, int pos, int value);
 void printAll();
 int nr_vars = 0;
 int nr_arrays = 0;
+int nr_groups = 0;
+
 %}
 %union {
      char* id;
@@ -34,10 +53,11 @@ int nr_arrays = 0;
 %token <str_val> STRING
 %token <id> ID
 %token <id> VID
-%token TIP BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT
+%token TIP BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP
+%token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
 %start progr
 %%
-progr: global function declaratii bloc {printf("program corect sintactic\n");}
+progr: global function_def declaratii bloc {printf("program corect sintactic\n");}
      ;
 
 global : /* empty */ 
@@ -48,20 +68,49 @@ global_defs : declaratie ';'
             | declaratii declaratie ';'
             ;
 
-function : /* empty */
+function_def : /* empty */
          | BGINFNCT functions ENDFNCT
          ;
 
-functions : TIP ID '(' lista_param ')'
-          | TIP ID '(' ')'
+functions : function ';'
+          | functions function ';'
           ;
+
+function : TIP ID '(' lista_param ')'
+          ;
+
+methods : /* empty */
+        | method ';'
+        | methods method ';'
+        ;
+     
+
+method :  TIP ID ':' ID'('lista_param')'{
+          group[nr_groups].group_methods[group->nr_methods].method_name = $4;
+          group[nr_groups].nr_methods++;
+          }
+        ;
+
+fields : /* empty */
+       | field ';'
+       | fields field ';'
+       ;
+
+field : TIP ID { assignValue(group[nr_groups].group_vars, group->nr_vars, $2, 0);
+                 group->nr_vars++; }
+      | TIP VID'['NR']' { for(int i=0; i<$4; i++)
+                              assignArrValue(group[nr_groups].group_arrays, group[nr_groups].nr_arrays, $2, i, 0);
+                          group[nr_groups].group_arrays[group->nr_arrays].size = $4;
+                          group[nr_groups].nr_arrays++; 
+                        }
+      ;
 
 declaratii : /* empty */
            | declaratie ';'
 	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID { assignValue(variable, nr_vars, $2, 0);
-                      nr_vars++; }
+                      nr_vars++; } //TODO : Assign different type of values.
            | TIP ID '(' lista_param ')'
            | TIP ID '(' ')'
            | TIP VID'['NR']' {for(int i=0; i<$4; i++)
@@ -69,8 +118,16 @@ declaratie : TIP ID { assignValue(variable, nr_vars, $2, 0);
                               array[nr_arrays].size = $4;
                               nr_arrays++;     
                               }
+           | GROUP ID '{' BGINFIELDS fields ENDFIELDS BGINMETHODS methods ENDMETHODS '}' {
+               group[nr_groups].group_name = $2;
+               group[nr_groups].nr_vars = 0;
+               group[nr_groups].nr_arrays = 0;
+               group[nr_groups].nr_methods = 0;
+               nr_groups++;
+           }
            ;
-lista_param : param
+lista_param : /* empty */
+            | param
             | lista_param ','  param 
             ;
             
@@ -96,7 +153,6 @@ statement: ID ASSIGN ID
          | ID '(' lista_apel ')'
          | VID'['NR']' ASSIGN ID {assignArrValue(array, nr_arrays, $1, $3, getValue(variable, nr_vars, $6));}
          | VID'['NR']' ASSIGN NR {assignArrValue(array, nr_arrays, $1, $3, $6);}
-         | VID ASSIGN VID
          ;
         
 lista_apel : NR

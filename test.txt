@@ -1,9 +1,12 @@
+group $clasa {
+begin_fields
 int $x;
-int @z[5];
-int $z;
+end_fields
+begin_methods
+int $x : $y(int $x, float $z, char $pl);
+end_methods
+};
+
 begin_progr
-$x = 5;
-@z[1] = 69;
-print;
-$z = 24;
+
 end_progr
