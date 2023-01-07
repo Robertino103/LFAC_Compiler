@@ -1,12 +1,9 @@
-begin_globaldef
-int @x;
-int @y;
-end_globaldef
-
-int @zad;
-float @zak;
-
+int $x;
+int @z[5];
+int $z;
 begin_progr
-@x = 59;
-print @x;
+$x = 5;
+@z[1] = 69;
+print;
+$z = 24;
 end_progr

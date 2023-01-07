@@ -11,8 +11,10 @@
 "end_fnct" {return ENDFNCT;}
 "begin_progr" {return BGIN;}
 "end_progr" {return END;}
-@[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
+$[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return ID;}
+@[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
+                            return VID;}
 "=" {return ASSIGN;}
 "print" {return PRINT;}
 [0-9]+ {
