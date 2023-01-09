@@ -1,12 +1,17 @@
-begin_globaldef
-int @x;
-int @y;
-end_globaldef
+group $clasa {
+begin_fields
+int $x;
+end_fields
+begin_methods
+int $y (float $z)
+{
 
-int @zad;
-float @zak;
+};
+end_methods
+};
 
 begin_progr
-@x = 59;
-print @x;
+$clasa $clasamea;
+$clasamea.$y = 3;
+print;
 end_progr

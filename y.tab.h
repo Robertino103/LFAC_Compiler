@@ -52,42 +52,56 @@ extern int yydebug;
     NR = 258,
     STRING = 259,
     ID = 260,
-    TIP = 261,
-    BGIN = 262,
-    END = 263,
-    ASSIGN = 264,
-    PRINT = 265,
-    BGINGLOBAL = 266,
-    ENDGLOBAL = 267,
-    BGINFNCT = 268,
-    ENDFNCT = 269
+    VID = 261,
+    TIP = 262,
+    BGIN = 263,
+    END = 264,
+    ASSIGN = 265,
+    PRINT = 266,
+    BGINGLOBAL = 267,
+    ENDGLOBAL = 268,
+    BGINFNCT = 269,
+    ENDFNCT = 270,
+    GROUP = 271,
+    GROUP_ACCESS = 272,
+    BGINFIELDS = 273,
+    ENDFIELDS = 274,
+    BGINMETHODS = 275,
+    ENDMETHODS = 276
   };
 #endif
 /* Tokens.  */
 #define NR 258
 #define STRING 259
 #define ID 260
-#define TIP 261
-#define BGIN 262
-#define END 263
-#define ASSIGN 264
-#define PRINT 265
-#define BGINGLOBAL 266
-#define ENDGLOBAL 267
-#define BGINFNCT 268
-#define ENDFNCT 269
+#define VID 261
+#define TIP 262
+#define BGIN 263
+#define END 264
+#define ASSIGN 265
+#define PRINT 266
+#define BGINGLOBAL 267
+#define ENDGLOBAL 268
+#define BGINFNCT 269
+#define ENDFNCT 270
+#define GROUP 271
+#define GROUP_ACCESS 272
+#define BGINFIELDS 273
+#define ENDFIELDS 274
+#define BGINMETHODS 275
+#define ENDMETHODS 276
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "limbaj.y"
+#line 62 "limbaj.y"
 
      char* id;
      int int_val;
      char* str_val;
 
-#line 91 "y.tab.h"
+#line 105 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
