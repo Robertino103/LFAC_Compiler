@@ -3,10 +3,15 @@ begin_fields
 int $x;
 end_fields
 begin_methods
-int $x : $y(int $x, float $z, char $pl);
+int $y (float $z)
+{
+
+};
 end_methods
 };
 
 begin_progr
-
+$clasa $clasamea;
+$clasamea.$y = 3;
+print;
 end_progr

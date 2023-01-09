@@ -63,10 +63,11 @@ extern int yydebug;
     BGINFNCT = 269,
     ENDFNCT = 270,
     GROUP = 271,
-    BGINFIELDS = 272,
-    ENDFIELDS = 273,
-    BGINMETHODS = 274,
-    ENDMETHODS = 275
+    GROUP_ACCESS = 272,
+    BGINFIELDS = 273,
+    ENDFIELDS = 274,
+    BGINMETHODS = 275,
+    ENDMETHODS = 276
   };
 #endif
 /* Tokens.  */
@@ -84,22 +85,23 @@ extern int yydebug;
 #define BGINFNCT 269
 #define ENDFNCT 270
 #define GROUP 271
-#define BGINFIELDS 272
-#define ENDFIELDS 273
-#define BGINMETHODS 274
-#define ENDMETHODS 275
+#define GROUP_ACCESS 272
+#define BGINFIELDS 273
+#define ENDFIELDS 274
+#define BGINMETHODS 275
+#define ENDMETHODS 276
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 46 "limbaj.y"
+#line 62 "limbaj.y"
 
      char* id;
      int int_val;
      char* str_val;
 
-#line 103 "y.tab.h"
+#line 105 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
