@@ -1,11 +1,50 @@
-int @y;
-int @x;
-int @clau;
-@x = 69;
-@y = 5;
-@clau = 124719;
-print @clau;
-@clau = 148;
-@clau = 6999;
-print @x;
-print @clau;
+group student{
+	begin_fields
+		int $x;
+		int $y;
+		int $z;
+	end_fields
+	begin_methods
+		int $y (float $z)
+		{
+
+		};
+		float $getName(char $name, int $age, bool $sex){
+		
+		};
+	end_methods
+};
+
+group teacher{
+	begin_fields
+		int $age;
+		char $name;
+		int $salary;
+	end_fields
+	begin_methods
+		bool $isGay(){};
+	end_methods
+};
+
+int $age;
+int @x[40];
+int @vec[51];
+float $salary;
+int $n;
+
+begin_progr
+	student $x;
+	teacher $patrut;
+	$salary = 8;
+	$age = 2;
+	$n = $age;
+	student $s;
+	$s.$z = 3;
+	$patrut.$age = 69;
+	$patrut.$age = $salary;
+	$patrut.$salary = $s.$z;
+	@x[5] = 3;
+	@vec[2] = 12;
+	
+	print;
+end_progr
