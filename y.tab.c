@@ -1539,7 +1539,7 @@ yyreduce:
                             {
                int val = getInt((yyvsp[-1].val));
                if(val > 50)
-                    MyError("Sorry! We can't hold more than 50 elements in an array! Go try RUST!\n");
+                    MyError("Sorry! We can't hold more than 50 elements in an array ! Go try RUST!\n");
 
                array[nr_arrays].key = (yyvsp[-3].id);
                array[nr_arrays].size = val;

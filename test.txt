@@ -28,7 +28,7 @@ group teacher{
 
 int $age;
 int @x[40];
-int @vec[51];
+int @vec[5];
 float $salary;
 int $n;
 
