@@ -25,9 +25,11 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
 "begin_methods" {return BGINMETHODS;}
 "end_methods" {return ENDMETHODS;}
 [0-9]+ {
-    yylval.int_val = atoi(yytext);
+    yylval.val = strdup(yytext);
     return NR;
 }
+[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
+                            return GID;}
 [ \t] ;
 \n {yylineno++;}
 . {return yytext[0];}

@@ -70,6 +70,10 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 #define MAX_EL_ARRAY 1000
 extern FILE* yyin;
 extern char* yytext;
@@ -77,6 +81,7 @@ extern int yylineno;
 typedef struct{
      char *type;
      char *key;
+<<<<<<< HEAD
      int value;
 } map;
 map variable[100];
@@ -129,6 +134,49 @@ int nr_groups = 0;
 
 
 #line 132 "y.tab.c"
+=======
+     char *value;
+} varmap;
+varmap variable[100];
+
+typedef struct{
+     char *key;
+     int size;
+     char *type;
+     char *value[50];
+} vecmap;
+vecmap array[100];
+
+typedef struct{
+     char *name;
+     char *type;
+     int nr_params;
+    varmap params[100];
+} methodmap;
+methodmap method[100];
+
+typedef struct{
+     char *name;
+     int nr_methods;
+     int nr_vars;
+     int nr_arrays;
+     int nr_objects;
+     varmap vars[50][50];
+     vecmap arrays[50];
+     methodmap methods[100];
+     varmap object[100];
+} groupmap;
+groupmap group[100];
+
+void printAll();
+void MyError(char *err);
+int nr_vars = 0;
+int nr_arrays = 0;
+int nr_groups = 0;
+
+
+#line 122 "y.tab.c"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -177,8 +225,13 @@ extern int yydebug;
   enum yytokentype
   {
     NR = 258,
+<<<<<<< HEAD
     STRING = 259,
     ID = 260,
+=======
+    ID = 259,
+    GID = 260,
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
     VID = 261,
     TIP = 262,
     BGIN = 263,
@@ -199,8 +252,13 @@ extern int yydebug;
 #endif
 /* Tokens.  */
 #define NR 258
+<<<<<<< HEAD
 #define STRING 259
 #define ID 260
+=======
+#define ID 259
+#define GID 260
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 #define VID 261
 #define TIP 262
 #define BGIN 263
@@ -222,13 +280,20 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
+<<<<<<< HEAD
 #line 62 "limbaj.y"
+=======
+#line 52 "limbaj.y"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
      char* id;
-     int int_val;
-     char* str_val;
+     char* val;
 
+<<<<<<< HEAD
 #line 232 "y.tab.c"
+=======
+#line 221 "y.tab.c"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -547,16 +612,26 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
+<<<<<<< HEAD
 #define YYLAST   161
+=======
+#define YYLAST   170
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
+<<<<<<< HEAD
 #define YYNRULES  66
 /* YYNSTATES -- Number of states.  */
 #define YYNSTATES  142
+=======
+#define YYNRULES  67
+/* YYNSTATES -- Number of states.  */
+#define YYNSTATES  145
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   276
@@ -605,6 +680,7 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
+<<<<<<< HEAD
        0,    77,    77,    80,    81,    84,    85,    88,    89,    92,
       93,    96,    99,   100,   101,   105,   113,   114,   115,   118,
      120,   127,   128,   129,   131,   133,   134,   135,   140,   155,
@@ -612,6 +688,15 @@ static const yytype_int16 yyrline[] =
      201,   204,   210,   214,   215,   216,   220,   221,   222,   224,
      225,   226,   227,   228,   253,   254,   270,   271,   274,   275,
      276,   279,   280,   284,   285,   286,   288
+=======
+       0,    66,    66,    69,    70,    73,    74,    77,    78,    81,
+      82,    85,    88,    89,    90,    94,   101,   102,   103,   106,
+     113,   119,   120,   121,   123,   128,   129,   130,   142,   146,
+     169,   170,   171,   174,   177,   178,   179,   182,   189,   190,
+     191,   194,   200,   204,   205,   206,   210,   222,   230,   231,
+     232,   233,   234,   243,   255,   265,   274,   292,   293,   296,
+     297,   298,   301,   302,   304,   305,   306,   307
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 #endif
 
@@ -620,8 +705,13 @@ static const yytype_int16 yyrline[] =
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
+<<<<<<< HEAD
   "$end", "error", "$undefined", "NR", "STRING", "ID", "VID", "TIP",
   "BGIN", "END", "ASSIGN", "PRINT", "BGINGLOBAL", "ENDGLOBAL", "BGINFNCT",
+=======
+  "$end", "error", "$undefined", "NR", "ID", "GID", "VID", "TIP", "BGIN",
+  "END", "ASSIGN", "PRINT", "BGINGLOBAL", "ENDGLOBAL", "BGINFNCT",
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
   "ENDFNCT", "GROUP", "GROUP_ACCESS", "BGINFIELDS", "ENDFIELDS",
   "BGINMETHODS", "ENDMETHODS", "';'", "'('", "')'", "'{'", "'}'", "'['",
   "']'", "':'", "','", "$accept", "progr", "global", "global_defs",
@@ -659,6 +749,7 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
+<<<<<<< HEAD
       -8,     9,     8,     1,    56,    27,    52,     9,    44,   -11,
       32,     9,    15,    40,    45,   -11,    46,    59,    64,    11,
       51,     3,    53,    -2,    66,    71,    60,    63,    57,   -11,
@@ -674,6 +765,23 @@ static const yytype_int8 yypact[] =
      100,    31,   -11,   105,    97,   112,    -5,   101,    54,   102,
      -11,   -11,   104,   -11,   -11,   -11,    91,   -11,   110,    55,
      -11,   -11
+=======
+      -8,     1,    29,    24,    48,    20,    45,     1,     8,   -11,
+      36,     1,    19,    41,    44,   -11,    49,    60,    66,    17,
+      50,     5,    52,    -6,    71,    73,    62,    64,    55,   -11,
+      65,   -11,    30,    67,   -11,   -11,    75,   -11,    16,   -11,
+      58,    54,    76,    77,   -11,    -7,    81,    68,    82,    22,
+      69,   -11,   -11,   -11,    77,    83,   -11,    53,     4,    70,
+      21,    11,    84,    90,   -11,    91,   -11,   -11,    74,   -11,
+     -11,    93,    23,   -11,   -11,    72,    78,    79,   -11,   -11,
+     -11,   -11,    92,   -11,    25,    80,   -11,   -11,   -11,    83,
+      97,    96,   -11,    57,   -11,   101,    95,   -11,    85,   102,
+      -1,    87,   -11,    94,   -11,    59,   -11,    89,    88,    98,
+     -11,   103,   -11,   -11,   108,   -11,   -11,   -11,   106,    26,
+     -11,   -11,    99,   108,    33,   -11,   107,   100,   112,    -4,
+     104,    61,   115,   -11,   -11,   109,   -11,   -11,   -11,   105,
+     -11,   111,    63,   -11,   -11
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -685,6 +793,7 @@ static const yytype_int8 yydefact[] =
        0,    21,    24,     0,     0,     4,     0,    22,     0,     0,
        0,     0,     0,    30,     0,     0,     0,    23,     0,     8,
        0,     9,    43,     0,     2,    22,     0,    26,     0,    31,
+<<<<<<< HEAD
        0,     0,    16,    30,    10,     0,     0,    49,     0,     0,
       23,    33,    25,     0,    38,    27,     0,     0,     0,     0,
       53,     0,     0,     0,     0,    48,    42,     0,    44,    32,
@@ -696,22 +805,47 @@ static const yytype_int8 yydefact[] =
        0,    58,    36,     0,     0,    66,     0,     0,     0,     0,
       65,    15,     0,    59,    62,    61,     0,    60,     0,     0,
       64,    63
+=======
+       0,     0,    16,    30,    10,     0,     0,     0,    49,     0,
+       0,    23,    33,    25,     0,    38,    27,     0,     0,     0,
+       0,     0,     0,     0,    53,     0,    48,    42,     0,    44,
+      32,     0,     0,    39,    19,     0,     0,     0,    17,    11,
+      47,    46,     0,    57,     0,     0,    45,    41,    29,     0,
+       0,    12,    18,     0,    50,     0,     0,    40,     0,     0,
+       0,     0,    55,    54,    58,     0,    20,     0,     0,     0,
+      13,     0,    52,    51,    34,    28,    14,    56,     0,     0,
+      35,    37,     0,     0,    59,    36,     0,     0,    67,     0,
+       0,     0,     0,    66,    15,     0,    60,    63,    62,     0,
+      61,     0,     0,    65,    64
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
+<<<<<<< HEAD
      -11,   -11,   -11,   -11,   -11,   -11,   106,   -11,    23,   -11,
       34,   116,     2,   107,   108,   -11,   -10,   -11,    33,   -11,
      -11,   109,   -11,   -11,     4
+=======
+     -11,   -11,   -11,   -11,   -11,   -11,   110,   -11,    28,   -11,
+      86,   114,    -2,   113,   116,   -11,     0,   -11,    43,   -11,
+     -11,   117,   -11,   -11,   -10
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
-static const yytype_int8 yydefgoto[] =
+static const yytype_int16 yydefgoto[] =
 {
+<<<<<<< HEAD
       -1,     2,     3,     6,    11,    19,    20,    99,   100,    57,
       58,     7,     8,    38,    39,   116,   117,    71,    72,    34,
       48,    49,    83,   126,   127
+=======
+      -1,     2,     3,     6,    11,    19,    20,   100,   101,    58,
+      59,     7,     8,    38,    39,   119,   120,    72,    73,    34,
+      49,    50,    84,   129,   130
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -719,6 +853,7 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
+<<<<<<< HEAD
      123,   124,    60,    98,     1,    36,   125,    61,     9,    16,
        4,    32,    56,    22,    62,    10,     4,   107,    18,     5,
       63,   131,    37,    33,    75,     5,    29,    45,    46,    45,
@@ -736,10 +871,31 @@ static const yytype_int16 yytable[] =
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
       59,     0,     0,     0,     0,     0,     0,    67,     0,     0,
        0,    69
+=======
+     126,    36,   127,    61,     1,    16,    99,   128,     4,    22,
+      62,    57,     4,    32,    80,    81,    63,     5,    37,    33,
+     108,     5,   134,    76,    18,    14,    45,    46,    47,     9,
+      17,    67,    29,    48,    45,    46,    47,   126,    10,   127,
+      53,    48,    23,    18,   128,    79,    54,    88,    24,    94,
+     122,    54,    12,    89,    13,    95,   123,    74,    15,    75,
+     102,   103,   112,   113,   137,   138,   143,   144,    25,    26,
+      28,    27,    31,    -5,    35,    40,    41,    -6,    43,    52,
+      42,    55,    56,    57,    36,    64,    66,    44,    82,    51,
+      71,    69,    78,    83,    85,    65,    86,    87,    91,    90,
+      98,    92,    93,    99,   104,   105,   107,   117,    96,   110,
+     121,   111,   114,   106,   115,   118,   133,   131,   139,   135,
+     116,   142,     0,   125,   124,    21,   136,   132,   109,    30,
+       0,   140,    97,   141,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,    77,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    60,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,    68,     0,     0,     0,
+      70
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
-static const yytype_int8 yycheck[] =
+static const yytype_int16 yycheck[] =
 {
+<<<<<<< HEAD
        5,     6,     5,     7,    12,     7,    11,    10,     0,     7,
        7,     8,     7,    11,    17,    14,     7,    21,     7,    16,
       23,    26,    24,    21,    19,    16,    15,     5,     6,     5,
@@ -757,6 +913,26 @@ static const yytype_int8 yycheck[] =
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
       43,    -1,    -1,    -1,    -1,    -1,    -1,    48,    -1,    -1,
       -1,    53
+=======
+       4,     7,     6,    10,    12,     7,     7,    11,     7,    11,
+      17,     7,     7,     8,     3,     4,    23,    16,    24,    21,
+      21,    16,    26,    19,     7,     5,     4,     5,     6,     0,
+      22,     9,    15,    11,     4,     5,     6,     4,    14,     6,
+      24,    11,    23,     7,    11,    24,    30,    24,    29,    24,
+      24,    30,     4,    30,     6,    30,    30,     4,    13,     6,
+       3,     4,     3,     4,     3,     4,     3,     4,    27,    25,
+       4,    22,    22,    13,    22,     4,     3,    13,    23,     4,
+      18,    23,    28,     7,     7,     4,     4,    22,     4,    22,
+       7,    22,    22,     3,     3,    27,    22,     4,    20,    27,
+       3,    22,    10,     7,     3,    10,     4,     4,    28,    22,
+       4,    17,    23,    28,    26,     7,     4,    10,     3,   129,
+      22,    10,    -1,   123,    25,    11,    22,    27,   100,    19,
+      -1,    22,    89,    28,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    58,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    43,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    49,    -1,    -1,    -1,
+      54
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -764,6 +940,7 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,    12,    32,    33,     7,    16,    34,    42,    43,     0,
+<<<<<<< HEAD
       14,    35,     5,     6,     5,    13,    43,    22,     7,    36,
       37,    42,    43,    23,    29,    27,    25,    22,     5,    15,
       37,    22,     8,    43,    50,    22,     7,    24,    44,    45,
@@ -778,6 +955,22 @@ static const yytype_int8 yystos[] =
       30,    25,    47,     5,     6,    11,    54,    55,    10,    27,
        5,    26,    55,    22,     3,     5,     3,    22,    28,    10,
        3,     5
+=======
+      14,    35,     4,     6,     5,    13,    43,    22,     7,    36,
+      37,    42,    43,    23,    29,    27,    25,    22,     4,    15,
+      37,    22,     8,    43,    50,    22,     7,    24,    44,    45,
+       4,     3,    18,    23,    22,     4,     5,     6,    11,    51,
+      52,    22,     4,    24,    30,    23,    28,     7,    40,    41,
+      44,    10,    17,    23,     4,    27,     4,     9,    52,    22,
+      45,     7,    48,    49,     4,     6,    19,    41,    22,    24,
+       3,     4,     4,     3,    53,     3,    22,     4,    24,    30,
+      27,    20,    22,    10,    24,    30,    28,    49,     3,     7,
+      38,    39,     3,     4,     3,    10,    28,     4,    21,    39,
+      22,    17,     3,     4,    23,    26,    22,     4,     7,    46,
+      47,     4,    24,    30,    25,    47,     4,     6,    11,    54,
+      55,    10,    27,     4,    26,    55,    22,     3,     4,     3,
+      22,    28,    10,     3,     4
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -788,8 +981,13 @@ static const yytype_int8 yyr1[] =
       41,    42,    42,    42,    43,    43,    43,    43,    43,    43,
       44,    44,    44,    45,    46,    46,    46,    47,    48,    48,
       48,    49,    50,    51,    51,    51,    52,    52,    52,    52,
+<<<<<<< HEAD
       52,    52,    52,    52,    52,    52,    53,    53,    54,    54,
       54,    55,    55,    55,    55,    55,    55
+=======
+      52,    52,    52,    52,    52,    52,    52,    53,    53,    54,
+      54,    54,    55,    55,    55,    55,    55,    55
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -800,8 +998,13 @@ static const yytype_int8 yyr2[] =
        5,     0,     2,     3,     2,     5,     4,     5,    10,     7,
        0,     1,     3,     2,     0,     1,     3,     2,     0,     1,
        3,     2,     3,     0,     2,     3,     3,     3,     2,     1,
+<<<<<<< HEAD
        4,     6,     6,     2,     5,     5,     1,     3,     0,     2,
        3,     3,     3,     6,     6,     2,     1
+=======
+       4,     6,     6,     2,     5,     5,     7,     1,     3,     0,
+       2,     3,     3,     3,     6,     6,     2,     1
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 };
 
 
@@ -1497,6 +1700,7 @@ yyreduce:
   switch (yyn)
     {
   case 2:
+<<<<<<< HEAD
 #line 77 "limbaj.y"
                                            {printf("program corect sintactic\n");}
 #line 1503 "y.tab.c"
@@ -1569,17 +1773,101 @@ yyreduce:
 
   case 29:
 #line 155 "limbaj.y"
+=======
+#line 66 "limbaj.y"
+                                           {printf("\nSuccesfully compiled!\n");}
+#line 1494 "y.tab.c"
+    break;
+
+  case 15:
+#line 94 "limbaj.y"
+                                                                 {
+         group[nr_groups].methods[group[nr_groups].nr_methods].name = (yyvsp[-6].id);
+         group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
+         group[nr_groups].nr_methods++;
+         }
+#line 1504 "y.tab.c"
+    break;
+
+  case 19:
+#line 106 "limbaj.y"
+               {
+          for(int i = 0; i < 50; i++){
+               group[nr_groups].vars[i][group[nr_groups].nr_vars].type = (yyvsp[-1].id);
+               group[nr_groups].vars[i][group[nr_groups].nr_vars].key = (yyvsp[0].id);
+          }
+          group[nr_groups].nr_vars++; 
+          }
+#line 1516 "y.tab.c"
+    break;
+
+  case 20:
+#line 113 "limbaj.y"
+                        { 
+               group[nr_groups].arrays[group[nr_groups].nr_arrays].size = (yyvsp[-1].val);
+               group[nr_groups].nr_arrays++;
+          }
+#line 1525 "y.tab.c"
+    break;
+
+  case 24:
+#line 123 "limbaj.y"
+                    {
+               variable[nr_vars].type = (yyvsp[-1].id);
+               variable[nr_vars].key = (yyvsp[0].id);
+               nr_vars++;     
+          }
+#line 1535 "y.tab.c"
+    break;
+
+  case 27:
+#line 130 "limbaj.y"
+                            {
+               int val = getInt((yyvsp[-1].val));
+               if(val > 50)
+                    MyError("Sorry! We can't hold more than 50 elements in an array! Go try RUST!\n");
+
+               array[nr_arrays].key = (yyvsp[-3].id);
+               array[nr_arrays].size = val;
+               array[nr_arrays].type = (yyvsp[-4].id);
+               for(int i = 0; i < val; i++)
+                    array[nr_arrays].value[i] = "0";
+               nr_arrays++;
+           }
+#line 1552 "y.tab.c"
+    break;
+
+  case 28:
+#line 142 "limbaj.y"
+                                                                                          {
+               group[nr_groups].name = (yyvsp[-8].id);
+               nr_groups++;
+           }
+#line 1561 "y.tab.c"
+    break;
+
+  case 29:
+#line 146 "limbaj.y"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
                                                        {
                bool found_class = 0;
                bool found_method = 0;
                for(int i=0; i<nr_groups; i++)
                {
+<<<<<<< HEAD
                     if(strcmp((yyvsp[-5].id), group[i].group_name) == 0)
+=======
+                    if(strcmp((yyvsp[-5].id), group[i].name) == 0)
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
                     {
                          found_class = 1;
                          for(int j=0; j<group[nr_groups].nr_methods; j++)
                          {
+<<<<<<< HEAD
                               if(strcmp((yyvsp[-3].id), group[i].group_methods[j].method_name) == 0)
+=======
+                              if(strcmp((yyvsp[-3].id), group[i].methods[j].name) == 0)
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
                               {
                                    found_method = 1;
                                    break;
@@ -1591,6 +1879,7 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
+<<<<<<< HEAD
 #line 1595 "y.tab.c"
     break;
 
@@ -1647,11 +1936,88 @@ yyreduce:
   case 53:
 #line 228 "limbaj.y"
                  {
+=======
+#line 1588 "y.tab.c"
+    break;
+
+  case 37:
+#line 182 "limbaj.y"
+                      {
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = (yyvsp[-1].id);
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
+     group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
+}
+#line 1598 "y.tab.c"
+    break;
+
+  case 41:
+#line 194 "limbaj.y"
+                            {
+     
+}
+#line 1606 "y.tab.c"
+    break;
+
+  case 46:
+#line 210 "limbaj.y"
+                        {
+               int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
+               int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
+               if(id == -1)
+                    MyError("First variable not found!\n");
+               else if(id2 == -1)
+                    MyError("Second variable not found!\n");
+               else if(variable[id2].value == NULL)
+                    MyError("Second variable does not store a value!\n");
+               else
+                    variable[id].value = variable[id2].value;
+          }
+#line 1623 "y.tab.c"
+    break;
+
+  case 47:
+#line 222 "limbaj.y"
+                        {
+               int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
+               if(id == -1)
+                    MyError("Variable not found!\n");
+               else
+                    variable[id].value = (yyvsp[0].val);
+                        
+          }
+#line 1636 "y.tab.c"
+    break;
+
+  case 49:
+#line 231 "limbaj.y"
+                 { printAll(variable, nr_vars); }
+#line 1642 "y.tab.c"
+    break;
+
+  case 52:
+#line 234 "limbaj.y"
+                                 {
+               int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
+               int index = getInt((yyvsp[-3].val));
+               if(vid == -1)
+                    MyError("Array not found!\n");
+               if(index < 0 || index >= array[vid].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               array[vid].value[index] = (yyvsp[0].val);
+         }
+#line 1656 "y.tab.c"
+    break;
+
+  case 53:
+#line 243 "limbaj.y"
+                  {
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
                {
                     MyError("No such group defined!");
                }
+<<<<<<< HEAD
                else
                {
                     group[group_id].object[group[group_id].nr_objects].name = (yyvsp[0].id);
@@ -1729,6 +2095,88 @@ yyreduce:
 
 
 #line 1732 "y.tab.c"
+=======
+               else{
+                    group[group_id].object[group[group_id].nr_objects].key = (yyvsp[0].id);
+                    group[group_id].object[group[group_id].nr_objects].type = (yyvsp[-1].id);
+                    group[group_id].nr_objects++;
+               }
+         }
+#line 1673 "y.tab.c"
+    break;
+
+  case 54:
+#line 255 "limbaj.y"
+                                        {
+               int group_id = getObjGroupId((yyvsp[-4].id));
+               int obj_id = getObjId((yyvsp[-4].id), group_id);
+               int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
+               int assign_id = getVarId(variable, nr_vars, (yyvsp[0].id));
+               if(assign_id == -1)
+                    MyError("Can't assign that becah doesnt not exist!\n");
+               else
+                    group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
+         }
+#line 1688 "y.tab.c"
+    break;
+
+  case 55:
+#line 265 "limbaj.y"
+                                        {
+               int group_id = getObjGroupId((yyvsp[-4].id));
+               int obj_id = getObjId((yyvsp[-4].id), group_id);
+               int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the variable does not not exist!\n");
+               else
+                    group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
+         }
+#line 1702 "y.tab.c"
+    break;
+
+  case 56:
+#line 274 "limbaj.y"
+                                                        {
+               int group_id = getObjGroupId((yyvsp[-6].id));
+               int obj_id = getObjId((yyvsp[-6].id), group_id);
+               int var_id = getObjVarId((yyvsp[-4].id), group_id, obj_id);
+               
+               int group_id2 = getObjGroupId((yyvsp[-2].id));
+               int obj_id2 = getObjId((yyvsp[-2].id), group_id2);
+               int var_id2 = getObjVarId((yyvsp[0].id), group_id2, obj_id2);
+
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the first variable does not not exist!\n");
+               else if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
+                    MyError("Can't assign that becah the second variable does not not exist!\n");
+               else
+                    group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
+         }
+#line 1723 "y.tab.c"
+    break;
+
+  case 63:
+#line 302 "limbaj.y"
+                               {
+                               }
+#line 1730 "y.tab.c"
+    break;
+
+  case 64:
+#line 304 "limbaj.y"
+                                        {}
+#line 1736 "y.tab.c"
+    break;
+
+  case 65:
+#line 305 "limbaj.y"
+                                        {}
+#line 1742 "y.tab.c"
+    break;
+
+
+#line 1746 "y.tab.c"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
       default: break;
     }
@@ -1960,12 +2408,17 @@ yyreturn:
 #endif
   return yyresult;
 }
+<<<<<<< HEAD
 #line 292 "limbaj.y"
+=======
+#line 311 "limbaj.y"
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 
 int yyerror(char * s){
-printf("eroare: %s la linia:%d\n",s,yylineno);
+     printf("eroare: %s la linia:%d\n",s,yylineno);
 }
 
+<<<<<<< HEAD
 int MyError(char *s)
 {
      printf("[line %d] -- %s\n", yylineno, s);
@@ -1978,16 +2431,131 @@ int getValue(map *m, int size, char *key) {
         }
     }
     return -1;
+=======
+void MyError(char *s){
+     printf("\n[line %d error] -- %s\n", yylineno, s);
+     exit(EXIT_FAILURE);
 }
 
-void assignValue(map *m, int size, char *key, int value)
-{
-     for (int i = 0; i < size ; i++) {
-        if (strcmp(m[i].key, key) == 0) {
-               m[i].value = value;
-               return;
-        }
+void printAll(){
+     printf("----  identifiers  ----\n\n");
+     for(int i=0; i<nr_vars; i++)
+     {
+          if(variable[i].value == NULL)
+               printf("    %s %s\n", variable[i].type, variable[i].key);
+          else
+               printf("    %s %s = %s\n", variable[i].type, variable[i].key, variable[i].value);
      }
+     for(int i = 0; i < nr_arrays; i++)
+     {
+          printf("    %s[%d] = {", array[i].key, array[i].size);
+          if(array[i].size == 1){
+               printf("%s}\n", array[i].value[0]);
+          }
+          else{
+               int j;
+               for(j = 0; j < array[i].size-1; j++)
+                    printf("%s, ", array[i].value[j]);
+               printf("%s}\n", array[i].value[j]);
+          }
+     }
+     for(int i = 0; i < nr_groups; i++){
+          for(int j = 0; j < group[i].nr_objects; j++)
+               printf("    %s %s\n", group[i].object[j].type, group[i].object[j].key);
+     }
+     for(int i = 0; i < nr_groups; i++){
+          for(int k = 0; k < group[i].nr_objects; k++)
+               for(int j = 0; j < group[i].nr_vars; j++)
+                    if(group[i].vars[k][j].value != NULL)
+                         printf("    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
+                    else
+                         printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
+          for(int j = 0; j < group[i].nr_arrays; j++)
+               ; //TODO
+     }
+     printf("\n----  methods  ----\n\n");
+     for(int i = 0; i < nr_groups; i++){
+          printf("%s:\n", group[i].name);
+          for(int j = 0; j < group[i].nr_methods; j++){
+               printf("    %s %s(", group[i].methods[j].type, group[i].methods[j].name);
+               if(group[i].methods[j].nr_params == 1)
+                    printf("%s %s)\n", group[i].methods[j].params[0].type, group[i].methods[j].params[0].key);
+               else if(group[i].methods[j].nr_params == 0)
+                    printf(")\n");
+               else{
+                    int k = 0;
+                    for(k = 0; k < group[i].methods[j].nr_params - 1; k++)
+                         printf("%s %s, ", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key);
+                    printf("%s %s)\n", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key) ;
+               }
+          }
+     }
+     printf("\n");
+}
+
+int getInt(char *var){
+     const char *s = var;
+     int int_val;
+     sscanf(s, "%d", &int_val);
+     return int_val;
+}
+
+int getVecId(vecmap *m, int size, char *vec){
+     for(int i = 0; i < size; i++)
+          if(strcmp(vec, m[i].key) == 0)
+               return i;
+     return -1;
+}
+
+int getVarId(varmap *m, int size, char *var){
+     for(int i = 0; i < size; i++)
+          if(strcmp(var, m[i].key) == 0)
+               return i;
+     return -1;
+}
+
+int getObjVarId(char *name, int group_id, int obj_id){
+     for(int i = 0; i < group[group_id].nr_vars; i++)
+          if(strcmp(name, group[group_id].vars[obj_id][i].key) == 0)
+               return i;
+     return -1;
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
+}
+
+int getObjId(char *name, int group_id){
+     for(int i = 0; i < group[group_id].nr_objects; i++)
+          if(strcmp(name, group[group_id].object[i].key) == 0)
+               return i;
+     return -1;
+}
+
+int getObjGroupId(char *name){
+     for(int i = 0; i < nr_groups; i++)
+          for(int j = 0; j < group[i].nr_objects; j++)
+               if(strcmp(name, group[i].object[j].key) == 0)
+                    return i;
+     return -1;
+}
+
+int getGroupId(char *name){
+     for(int i = 0; i < nr_groups; i++){
+          if(strcmp(name, group[i].name) == 0)
+               return i;
+     }
+     return -1;
+}
+
+
+int IsMethod(char *method, int id)
+{
+     for(int i=0; i<group[id].nr_methods; i++)
+     {
+          if(strcmp(method, group[id].methods[i].name) == 0)
+          {
+               return 1;
+          }
+     }
+<<<<<<< HEAD
      m[nr_vars].key = key;
      m[nr_vars].value = value;
      //nr_vars++;
@@ -2081,6 +2649,8 @@ int IsMethod(char *method, int id)
                return 1;
           }
      }
+=======
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
      return 0;
 }
 

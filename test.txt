@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 group $clasa {
 begin_fields
 int $x;
@@ -14,4 +15,55 @@ begin_progr
 $clasa $clasamea;
 $clasamea.$y = 3;
 print;
+=======
+group student{
+	begin_fields
+		int $x;
+		int $y;
+		int $z;
+	end_fields
+	begin_methods
+		int $y (float $z)
+		{
+
+		};
+		float $getName(char $name, int $age, bool $sex){
+		
+		};
+	end_methods
+};
+
+group teacher{
+	begin_fields
+		int $age;
+		char $name;
+		int $salary;
+	end_fields
+	begin_methods
+		bool $isGay(){};
+	end_methods
+};
+
+int $age;
+int @x[40];
+int @vec[51];
+float $salary;
+int $n;
+
+begin_progr
+	student $x;
+	teacher $patrut;
+	$salary = 8;
+	$age = 2;
+	$n = $age;
+	student $s;
+	$s.$z = 3;
+	$patrut.$age = 69;
+	$patrut.$age = $salary;
+	$patrut.$salary = $s.$z;
+	@x[5] = 3;
+	@vec[2] = 12;
+	
+	print;
+>>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 end_progr
