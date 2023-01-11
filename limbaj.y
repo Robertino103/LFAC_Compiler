@@ -36,7 +36,7 @@ typedef struct{
      int nr_arrays;
      int nr_objects;
      varmap vars[50][50];
-     vecmap arrays[50];
+     vecmap arrays[50][50];
      methodmap methods[100];
      varmap object[100];
 } groupmap;
@@ -92,11 +92,15 @@ methods : /* empty */
      
 
 method : TIP ID'('method_list_param')' '{'group_statement_list'}'{
+         if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, $2))
+         {
+               MyError("Method already defined!");
+         }
          group[nr_groups].methods[group[nr_groups].nr_methods].name = $2;
          group[nr_groups].methods[group[nr_groups].nr_methods].type = $1;
          group[nr_groups].nr_methods++;
          }
-        ;
+         ;
 
 fields : /* empty */
        | field ';'
@@ -104,15 +108,29 @@ fields : /* empty */
        ;
 
 field : TIP ID {
+          if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, $2))
+          {
+               MyError("Field variable already declared!");
+          }
           for(int i = 0; i < 50; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = $1;
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = $2;
           }
           group[nr_groups].nr_vars++; 
           }
-      | TIP VID'['NR']' { 
-               group[nr_groups].arrays[group[nr_groups].nr_arrays].size = $4;
-               group[nr_groups].nr_arrays++;
+      | TIP VID'['NR']' {
+
+          for(int i = 0; i < 50; i++)
+          {
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = $1;
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].key = $2;
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].size = getInt($4);
+               for(int j = 0 ; j < getInt($4); j++)
+               {
+                    group[nr_groups].arrays[i][group[nr_groups].nr_arrays].value[j] = "0";
+               }
+          }
+          group[nr_groups].nr_arrays++;
           }
       ;
 
@@ -121,6 +139,10 @@ declaratii : /* empty */
 	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID {
+               if(checkVar(variable, nr_vars, $2))
+               {
+                    MyError("Variable already declared!");
+               }
                variable[nr_vars].type = $1;
                variable[nr_vars].key = $2;
                nr_vars++;     
@@ -180,10 +202,23 @@ method_list_param : /* empty */
                   ;
 
 method_param : TIP ID {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
-}
+     }
+             | TIP VID '['NR']' {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
+     group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
+     }
              ;
 
 method_check_list_param : /* empty */
@@ -351,7 +386,24 @@ void printAll(){
                          printf("    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
                     else
                          printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
-          for(int j = 0; j < group[i].nr_arrays; j++)
+          for(int k = 0; k < group[i].nr_objects; k++)
+               for(int j = 0; j < group[i].nr_arrays; j++)
+               {
+                    printf("    %s %s.%s[%d] = {", group[i].arrays[k][j].type, group[i].object[k].key, group[i].arrays[k][j].key, group[i].arrays[k][j].size);
+                    if(group[i].arrays[k][j].size == 1)
+                    {
+                         printf("%s}", group[i].arrays[k][j].value[0]);
+                    }
+                    else
+                    {
+                         int z;
+                         for(z = 0; z < group[i].arrays[k][j].size - 1; z++)
+                         {
+                              printf("%s, ", group[i].arrays[k][j].value[z]);
+                         }
+                         printf("%s}\n", group[i].arrays[k][j].value[z]);
+                    }
+               }
                ; //TODO
      }
      printf("\n----  methods  ----\n\n");
@@ -431,6 +483,30 @@ int IsMethod(char *method, int id)
      for(int i=0; i<group[id].nr_methods; i++)
      {
           if(strcmp(method, group[id].methods[i].name) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkVar(varmap *m, int size, char *var)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, var) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkMethod(methodmap *m, int size, char *method)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, method) == 0)
           {
                return 1;
           }

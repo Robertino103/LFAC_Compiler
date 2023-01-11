@@ -105,7 +105,7 @@ typedef struct{
      int nr_arrays;
      int nr_objects;
      varmap vars[50][50];
-     vecmap arrays[50];
+     vecmap arrays[50][50];
      methodmap methods[100];
      varmap object[100];
 } groupmap;
@@ -536,16 +536,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   170
+#define YYLAST   172
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  25
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  67
+#define YYNRULES  68
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  145
+#define YYNSTATES  149
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   276
@@ -595,12 +595,12 @@ static const yytype_int8 yytranslate[] =
 static const yytype_int16 yyrline[] =
 {
        0,    66,    66,    69,    70,    73,    74,    77,    78,    81,
-      82,    85,    88,    89,    90,    94,   101,   102,   103,   106,
-     113,   119,   120,   121,   123,   128,   129,   130,   142,   146,
-     169,   170,   171,   174,   177,   178,   179,   182,   189,   190,
-     191,   194,   200,   204,   205,   206,   210,   222,   230,   231,
-     232,   233,   234,   243,   255,   265,   274,   292,   293,   296,
-     297,   298,   301,   302,   304,   305,   306,   307
+      82,    85,    88,    89,    90,    94,   105,   106,   107,   110,
+     121,   137,   138,   139,   141,   150,   151,   152,   164,   168,
+     191,   192,   193,   196,   199,   200,   201,   204,   213,   224,
+     225,   226,   229,   235,   239,   240,   241,   245,   257,   265,
+     266,   267,   268,   269,   278,   290,   300,   309,   327,   328,
+     331,   332,   333,   336,   337,   339,   340,   341,   342
 };
 #endif
 
@@ -648,21 +648,21 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -8,     1,    29,    24,    48,    20,    45,     1,     8,   -11,
-      36,     1,    19,    41,    44,   -11,    49,    60,    66,    17,
-      50,     5,    52,    -6,    71,    73,    62,    64,    55,   -11,
-      65,   -11,    30,    67,   -11,   -11,    75,   -11,    16,   -11,
-      58,    54,    76,    77,   -11,    -7,    81,    68,    82,    22,
-      69,   -11,   -11,   -11,    77,    83,   -11,    53,     4,    70,
-      21,    11,    84,    90,   -11,    91,   -11,   -11,    74,   -11,
-     -11,    93,    23,   -11,   -11,    72,    78,    79,   -11,   -11,
-     -11,   -11,    92,   -11,    25,    80,   -11,   -11,   -11,    83,
-      97,    96,   -11,    57,   -11,   101,    95,   -11,    85,   102,
-      -1,    87,   -11,    94,   -11,    59,   -11,    89,    88,    98,
-     -11,   103,   -11,   -11,   108,   -11,   -11,   -11,   106,    26,
-     -11,   -11,    99,   108,    33,   -11,   107,   100,   112,    -4,
-     104,    61,   115,   -11,   -11,   109,   -11,   -11,   -11,   105,
-     -11,   111,    63,   -11,   -11
+      -8,     1,    29,    24,    48,    20,    56,     1,     8,   -11,
+      36,     1,    19,    43,    46,   -11,    50,    61,    69,    17,
+      55,     5,    57,    -6,    71,    73,    63,    65,    59,   -11,
+      66,   -11,    30,    67,   -11,   -11,    76,   -11,    16,   -11,
+      68,    70,    77,    78,   -11,    -7,    79,    72,    82,    22,
+      74,   -11,   -11,   -11,    78,    80,   -11,    53,     4,    75,
+      21,    11,    86,    89,   -11,    90,   -11,   -11,    81,   -11,
+     -11,    91,    23,   -11,   -11,    83,    84,    85,   -11,   -11,
+     -11,   -11,    92,   -11,    25,    87,   -11,   -11,   -11,    80,
+      97,    94,   -11,    58,   -11,   102,    96,   -11,    88,   104,
+      -1,    95,   -11,   101,   -11,    60,   -11,    98,    93,   100,
+     -11,   105,   -11,   -11,   106,   -11,   -11,   -11,    54,    26,
+     -11,   -11,    99,   103,   106,   108,    33,   -11,   107,   110,
+     109,   119,    -4,   111,   -11,    62,   121,   -11,   -11,   112,
+     -11,   -11,   -11,   113,   -11,   115,    64,   -11,   -11
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -673,26 +673,26 @@ static const yytype_int8 yydefact[] =
        3,     0,     0,     7,     0,     0,     0,     0,     0,     1,
        0,    21,    24,     0,     0,     4,     0,    22,     0,     0,
        0,     0,     0,    30,     0,     0,     0,    23,     0,     8,
-       0,     9,    43,     0,     2,    22,     0,    26,     0,    31,
-       0,     0,    16,    30,    10,     0,     0,     0,    49,     0,
-       0,    23,    33,    25,     0,    38,    27,     0,     0,     0,
-       0,     0,     0,     0,    53,     0,    48,    42,     0,    44,
-      32,     0,     0,    39,    19,     0,     0,     0,    17,    11,
-      47,    46,     0,    57,     0,     0,    45,    41,    29,     0,
-       0,    12,    18,     0,    50,     0,     0,    40,     0,     0,
-       0,     0,    55,    54,    58,     0,    20,     0,     0,     0,
-      13,     0,    52,    51,    34,    28,    14,    56,     0,     0,
-      35,    37,     0,     0,    59,    36,     0,     0,    67,     0,
-       0,     0,     0,    66,    15,     0,    60,    63,    62,     0,
-      61,     0,     0,    65,    64
+       0,     9,    44,     0,     2,    22,     0,    26,     0,    31,
+       0,     0,    16,    30,    10,     0,     0,     0,    50,     0,
+       0,    23,    33,    25,     0,    39,    27,     0,     0,     0,
+       0,     0,     0,     0,    54,     0,    49,    43,     0,    45,
+      32,     0,     0,    40,    19,     0,     0,     0,    17,    11,
+      48,    47,     0,    58,     0,     0,    46,    42,    29,     0,
+       0,    12,    18,     0,    51,     0,     0,    41,     0,     0,
+       0,     0,    56,    55,    59,     0,    20,     0,     0,     0,
+      13,     0,    53,    52,    34,    28,    14,    57,     0,     0,
+      35,    37,     0,     0,     0,     0,    60,    36,     0,     0,
+       0,    68,     0,     0,    38,     0,     0,    67,    15,     0,
+      61,    64,    63,     0,    62,     0,     0,    66,    65
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -11,   -11,   -11,   -11,   -11,   -11,   110,   -11,    28,   -11,
-      86,   114,    -2,   113,   116,   -11,     0,   -11,    43,   -11,
-     -11,   117,   -11,   -11,   -10
+     -11,   -11,   -11,   -11,   -11,   -11,   118,   -11,    12,   -11,
+     114,   116,    -2,    51,   117,   -11,   -10,   -11,    40,   -11,
+     -11,   120,   -11,   -11,     0
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -700,7 +700,7 @@ static const yytype_int16 yydefgoto[] =
 {
       -1,     2,     3,     6,    11,    19,    20,   100,   101,    58,
       59,     7,     8,    38,    39,   119,   120,    72,    73,    34,
-      49,    50,    84,   129,   130
+      49,    50,    84,   132,   133
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -708,24 +708,24 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-     126,    36,   127,    61,     1,    16,    99,   128,     4,    22,
+     129,    36,   130,    61,     1,    16,    99,   131,     4,    22,
       62,    57,     4,    32,    80,    81,    63,     5,    37,    33,
-     108,     5,   134,    76,    18,    14,    45,    46,    47,     9,
-      17,    67,    29,    48,    45,    46,    47,   126,    10,   127,
-      53,    48,    23,    18,   128,    79,    54,    88,    24,    94,
-     122,    54,    12,    89,    13,    95,   123,    74,    15,    75,
-     102,   103,   112,   113,   137,   138,   143,   144,    25,    26,
-      28,    27,    31,    -5,    35,    40,    41,    -6,    43,    52,
-      42,    55,    56,    57,    36,    64,    66,    44,    82,    51,
-      71,    69,    78,    83,    85,    65,    86,    87,    91,    90,
-      98,    92,    93,    99,   104,   105,   107,   117,    96,   110,
-     121,   111,   114,   106,   115,   118,   133,   131,   139,   135,
-     116,   142,     0,   125,   124,    21,   136,   132,   109,    30,
-       0,   140,    97,   141,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    77,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    60,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    68,     0,     0,     0,
-      70
+     108,     5,   138,    76,    18,    14,    45,    46,    47,     9,
+      17,    67,    29,    48,    45,    46,    47,   129,    10,   130,
+      53,    48,    23,    18,   131,    79,    54,    88,    24,    94,
+     123,    54,    12,    89,    13,    95,   124,    74,   121,    75,
+     122,   102,   103,   112,   113,   141,   142,   147,   148,    15,
+      25,    26,    27,    28,    -5,    40,    41,    31,    -6,    35,
+      52,    42,    43,    64,    57,    36,    66,    71,    44,    51,
+      82,    55,    83,    85,    60,    87,    69,    78,    56,    65,
+      98,    99,    93,    86,    91,   104,   105,    92,   107,   117,
+      90,   128,   109,   118,   127,    96,   106,   110,   111,   115,
+     135,   114,   116,   137,   143,   146,   125,    21,   126,    97,
+       0,     0,   139,   140,   144,   134,   136,    30,     0,     0,
+       0,   145,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,    68,
+       0,    70,    77
 };
 
 static const yytype_int16 yycheck[] =
@@ -735,19 +735,19 @@ static const yytype_int16 yycheck[] =
       21,    16,    26,    19,     7,     5,     4,     5,     6,     0,
       22,     9,    15,    11,     4,     5,     6,     4,    14,     6,
       24,    11,    23,     7,    11,    24,    30,    24,    29,    24,
-      24,    30,     4,    30,     6,    30,    30,     4,    13,     6,
-       3,     4,     3,     4,     3,     4,     3,     4,    27,    25,
-       4,    22,    22,    13,    22,     4,     3,    13,    23,     4,
-      18,    23,    28,     7,     7,     4,     4,    22,     4,    22,
-       7,    22,    22,     3,     3,    27,    22,     4,    20,    27,
-       3,    22,    10,     7,     3,    10,     4,     4,    28,    22,
-       4,    17,    23,    28,    26,     7,     4,    10,     3,   129,
-      22,    10,    -1,   123,    25,    11,    22,    27,   100,    19,
-      -1,    22,    89,    28,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    58,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    43,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    49,    -1,    -1,    -1,
-      54
+      24,    30,     4,    30,     6,    30,    30,     4,     4,     6,
+       6,     3,     4,     3,     4,     3,     4,     3,     4,    13,
+      27,    25,    22,     4,    13,     4,     3,    22,    13,    22,
+       4,    18,    23,     4,     7,     7,     4,     7,    22,    22,
+       4,    23,     3,     3,    43,     4,    22,    22,    28,    27,
+       3,     7,    10,    22,    20,     3,    10,    22,     4,     4,
+      27,     3,   100,     7,   124,    28,    28,    22,    17,    26,
+      10,    23,    22,     4,     3,    10,    27,    11,    25,    89,
+      -1,    -1,   132,    22,    22,    28,    27,    19,    -1,    -1,
+      -1,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    49,
+      -1,    54,    58
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -766,9 +766,9 @@ static const yytype_int8 yystos[] =
       27,    20,    22,    10,    24,    30,    28,    49,     3,     7,
       38,    39,     3,     4,     3,    10,    28,     4,    21,    39,
       22,    17,     3,     4,    23,    26,    22,     4,     7,    46,
-      47,     4,    24,    30,    25,    47,     4,     6,    11,    54,
-      55,    10,    27,     4,    26,    55,    22,     3,     4,     3,
-      22,    28,    10,     3,     4
+      47,     4,     6,    24,    30,    27,    25,    47,     3,     4,
+       6,    11,    54,    55,    28,    10,    27,     4,    26,    55,
+      22,     3,     4,     3,    22,    28,    10,     3,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -777,10 +777,10 @@ static const yytype_int8 yyr1[] =
        0,    31,    32,    33,    33,    34,    34,    35,    35,    36,
       36,    37,    38,    38,    38,    39,    40,    40,    40,    41,
       41,    42,    42,    42,    43,    43,    43,    43,    43,    43,
-      44,    44,    44,    45,    46,    46,    46,    47,    48,    48,
-      48,    49,    50,    51,    51,    51,    52,    52,    52,    52,
-      52,    52,    52,    52,    52,    52,    52,    53,    53,    54,
-      54,    54,    55,    55,    55,    55,    55,    55
+      44,    44,    44,    45,    46,    46,    46,    47,    47,    48,
+      48,    48,    49,    50,    51,    51,    51,    52,    52,    52,
+      52,    52,    52,    52,    52,    52,    52,    52,    53,    53,
+      54,    54,    54,    55,    55,    55,    55,    55,    55
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -789,10 +789,10 @@ static const yytype_int8 yyr2[] =
        0,     2,     4,     0,     3,     2,     3,     0,     3,     2,
        3,     5,     0,     2,     3,     8,     0,     2,     3,     2,
        5,     0,     2,     3,     2,     5,     4,     5,    10,     7,
-       0,     1,     3,     2,     0,     1,     3,     2,     0,     1,
-       3,     2,     3,     0,     2,     3,     3,     3,     2,     1,
-       4,     6,     6,     2,     5,     5,     7,     1,     3,     0,
-       2,     3,     3,     3,     6,     6,     2,     1
+       0,     1,     3,     2,     0,     1,     3,     2,     5,     0,
+       1,     3,     2,     3,     0,     2,     3,     3,     3,     2,
+       1,     4,     6,     6,     2,     5,     5,     7,     1,     3,
+       0,     2,     3,     3,     3,     6,     6,     2,     1
 };
 
 
@@ -1496,46 +1496,68 @@ yyreduce:
   case 15:
 #line 94 "limbaj.y"
                                                                  {
+         if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, (yyvsp[-6].id)))
+         {
+               MyError("Method already defined!");
+         }
          group[nr_groups].methods[group[nr_groups].nr_methods].name = (yyvsp[-6].id);
          group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
          group[nr_groups].nr_methods++;
          }
-#line 1504 "y.tab.c"
+#line 1508 "y.tab.c"
     break;
 
   case 19:
-#line 106 "limbaj.y"
+#line 110 "limbaj.y"
                {
+          if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, (yyvsp[0].id)))
+          {
+               MyError("Field variable already declared!");
+          }
           for(int i = 0; i < 50; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = (yyvsp[-1].id);
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = (yyvsp[0].id);
           }
           group[nr_groups].nr_vars++; 
           }
-#line 1516 "y.tab.c"
+#line 1524 "y.tab.c"
     break;
 
   case 20:
-#line 113 "limbaj.y"
-                        { 
-               group[nr_groups].arrays[group[nr_groups].nr_arrays].size = (yyvsp[-1].val);
-               group[nr_groups].nr_arrays++;
+#line 121 "limbaj.y"
+                        {
+
+          for(int i = 0; i < 50; i++)
+          {
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = (yyvsp[-4].id);
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].key = (yyvsp[-3].id);
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].size = getInt((yyvsp[-1].val));
+               for(int j = 0 ; j < getInt((yyvsp[-1].val)); j++)
+               {
+                    group[nr_groups].arrays[i][group[nr_groups].nr_arrays].value[j] = "0";
+               }
           }
-#line 1525 "y.tab.c"
+          group[nr_groups].nr_arrays++;
+          }
+#line 1543 "y.tab.c"
     break;
 
   case 24:
-#line 123 "limbaj.y"
+#line 141 "limbaj.y"
                     {
+               if(checkVar(variable, nr_vars, (yyvsp[0].id)))
+               {
+                    MyError("Variable already declared!");
+               }
                variable[nr_vars].type = (yyvsp[-1].id);
                variable[nr_vars].key = (yyvsp[0].id);
                nr_vars++;     
           }
-#line 1535 "y.tab.c"
+#line 1557 "y.tab.c"
     break;
 
   case 27:
-#line 130 "limbaj.y"
+#line 152 "limbaj.y"
                             {
                int val = getInt((yyvsp[-1].val));
                if(val > 50)
@@ -1548,20 +1570,20 @@ yyreduce:
                     array[nr_arrays].value[i] = "0";
                nr_arrays++;
            }
-#line 1552 "y.tab.c"
+#line 1574 "y.tab.c"
     break;
 
   case 28:
-#line 142 "limbaj.y"
+#line 164 "limbaj.y"
                                                                                           {
                group[nr_groups].name = (yyvsp[-8].id);
                nr_groups++;
            }
-#line 1561 "y.tab.c"
+#line 1583 "y.tab.c"
     break;
 
   case 29:
-#line 146 "limbaj.y"
+#line 168 "limbaj.y"
                                                        {
                bool found_class = 0;
                bool found_method = 0;
@@ -1584,29 +1606,47 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
-#line 1588 "y.tab.c"
+#line 1610 "y.tab.c"
     break;
 
   case 37:
-#line 182 "limbaj.y"
+#line 204 "limbaj.y"
                       {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[0].id)))
+     {
+          MyError("Duplicate parameter used!");
+     }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = (yyvsp[-1].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
-}
-#line 1598 "y.tab.c"
+     }
+#line 1624 "y.tab.c"
     break;
 
-  case 41:
-#line 194 "limbaj.y"
+  case 38:
+#line 213 "limbaj.y"
+                                {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[-3].id)))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = (yyvsp[-4].id);
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[-3].id);
+     group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
+     }
+#line 1638 "y.tab.c"
+    break;
+
+  case 42:
+#line 229 "limbaj.y"
                             {
      
 }
-#line 1606 "y.tab.c"
+#line 1646 "y.tab.c"
     break;
 
-  case 46:
-#line 210 "limbaj.y"
+  case 47:
+#line 245 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
@@ -1619,11 +1659,11 @@ yyreduce:
                else
                     variable[id].value = variable[id2].value;
           }
-#line 1623 "y.tab.c"
+#line 1663 "y.tab.c"
     break;
 
-  case 47:
-#line 222 "limbaj.y"
+  case 48:
+#line 257 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                if(id == -1)
@@ -1632,17 +1672,17 @@ yyreduce:
                     variable[id].value = (yyvsp[0].val);
                         
           }
-#line 1636 "y.tab.c"
+#line 1676 "y.tab.c"
     break;
 
-  case 49:
-#line 231 "limbaj.y"
+  case 50:
+#line 266 "limbaj.y"
                  { printAll(variable, nr_vars); }
-#line 1642 "y.tab.c"
+#line 1682 "y.tab.c"
     break;
 
-  case 52:
-#line 234 "limbaj.y"
+  case 53:
+#line 269 "limbaj.y"
                                  {
                int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int index = getInt((yyvsp[-3].val));
@@ -1652,11 +1692,11 @@ yyreduce:
                     MyError("Segmentation fault! (core dumped)\n");
                array[vid].value[index] = (yyvsp[0].val);
          }
-#line 1656 "y.tab.c"
+#line 1696 "y.tab.c"
     break;
 
-  case 53:
-#line 243 "limbaj.y"
+  case 54:
+#line 278 "limbaj.y"
                   {
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
@@ -1669,11 +1709,11 @@ yyreduce:
                     group[group_id].nr_objects++;
                }
          }
-#line 1673 "y.tab.c"
+#line 1713 "y.tab.c"
     break;
 
-  case 54:
-#line 255 "limbaj.y"
+  case 55:
+#line 290 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1684,11 +1724,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
-#line 1688 "y.tab.c"
+#line 1728 "y.tab.c"
     break;
 
-  case 55:
-#line 265 "limbaj.y"
+  case 56:
+#line 300 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1698,11 +1738,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
          }
-#line 1702 "y.tab.c"
+#line 1742 "y.tab.c"
     break;
 
-  case 56:
-#line 274 "limbaj.y"
+  case 57:
+#line 309 "limbaj.y"
                                                         {
                int group_id = getObjGroupId((yyvsp[-6].id));
                int obj_id = getObjId((yyvsp[-6].id), group_id);
@@ -1719,30 +1759,30 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 1723 "y.tab.c"
-    break;
-
-  case 63:
-#line 302 "limbaj.y"
-                               {
-                               }
-#line 1730 "y.tab.c"
+#line 1763 "y.tab.c"
     break;
 
   case 64:
-#line 304 "limbaj.y"
-                                        {}
-#line 1736 "y.tab.c"
+#line 337 "limbaj.y"
+                               {
+                               }
+#line 1770 "y.tab.c"
     break;
 
   case 65:
-#line 305 "limbaj.y"
+#line 339 "limbaj.y"
                                         {}
-#line 1742 "y.tab.c"
+#line 1776 "y.tab.c"
+    break;
+
+  case 66:
+#line 340 "limbaj.y"
+                                        {}
+#line 1782 "y.tab.c"
     break;
 
 
-#line 1746 "y.tab.c"
+#line 1786 "y.tab.c"
 
       default: break;
     }
@@ -1974,7 +2014,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 311 "limbaj.y"
+#line 346 "limbaj.y"
 
 int yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s,yylineno);
@@ -2018,7 +2058,25 @@ void printAll(){
                          printf("    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
                     else
                          printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
-          for(int j = 0; j < group[i].nr_arrays; j++)
+          for(int k = 0; k < group[i].nr_objects; k++)
+               for(int j = 0; j < group[i].nr_arrays; j++)
+               {
+                    printf("    %s %s.%s[%d] = {", group[i].arrays[k][j].type, group[i].object[k].key, group[i].arrays[k][j].key, group[i].arrays[k][j].size);
+                    if(group[i].arrays[k][j].size == 1)
+                    {
+                         printf("%s}", group[i].arrays[k][j].value[0]);
+                    }
+                    else
+                    {
+                         int z;
+                         for(z = 0; z < group[i].arrays[k][j].size - 1; z++)
+                         {
+                              printf("%s, ", group[i].arrays[k][j].value[z]);
+                         }
+                         printf("%s}\n", group[i].arrays[k][j].value[z]);
+                    }
+                    printf("iteratie la nr_arrays\n");
+               }
                ; //TODO
      }
      printf("\n----  methods  ----\n\n");
@@ -2098,6 +2156,30 @@ int IsMethod(char *method, int id)
      for(int i=0; i<group[id].nr_methods; i++)
      {
           if(strcmp(method, group[id].methods[i].name) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkVar(varmap *m, int size, char *var)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, var) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkMethod(methodmap *m, int size, char *method)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, method) == 0)
           {
                return 1;
           }
