@@ -71,7 +71,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#define MAX_EL_ARRAY 1000
+#include <string.h>
+
+#define MAX_VARIABLES 100
+#define MAX_ARRAYS 100
+#define MAX_EL_ARRAY 100
+#define MAX_OBJECTS 50
+#define MAX_METHODS 100
+#define MAX_PARAMS 100
+#define MAX_GROUPS 100
+#define MAX_MSG 100
+#define MAX_MSG_DIGITS 5
+
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
@@ -80,23 +91,23 @@ typedef struct{
      char *key;
      char *value;
 } varmap;
-varmap variable[100];
+varmap variable[MAX_VARIABLES];
 
 typedef struct{
      char *key;
      int size;
      char *type;
-     char *value[50];
+     char *value[MAX_EL_ARRAY];
 } vecmap;
-vecmap array[100];
+vecmap array[MAX_ARRAYS];
 
 typedef struct{
      char *name;
      char *type;
      int nr_params;
-    varmap params[100];
+    varmap params[MAX_PARAMS];
 } methodmap;
-methodmap method[100];
+methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
@@ -104,12 +115,12 @@ typedef struct{
      int nr_vars;
      int nr_arrays;
      int nr_objects;
-     varmap vars[50][50];
-     vecmap arrays[50][50];
-     methodmap methods[100];
-     varmap object[100];
+     varmap vars[MAX_OBJECTS][MAX_VARIABLES];
+     vecmap arrays[MAX_OBJECTS][MAX_ARRAYS];
+     methodmap methods[MAX_METHODS];
+     varmap object[MAX_OBJECTS];
 } groupmap;
-groupmap group[100];
+groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
@@ -118,7 +129,7 @@ int nr_arrays = 0;
 int nr_groups = 0;
 
 
-#line 122 "y.tab.c"
+#line 133 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -212,12 +223,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 52 "limbaj.y"
+#line 63 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 221 "y.tab.c"
+#line 232 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -594,13 +605,13 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    66,    66,    69,    70,    73,    74,    77,    78,    81,
-      82,    85,    88,    89,    90,    94,   105,   106,   107,   110,
-     121,   137,   138,   139,   141,   150,   151,   152,   164,   168,
-     191,   192,   193,   196,   199,   200,   201,   204,   213,   224,
-     225,   226,   229,   235,   239,   240,   241,   245,   257,   265,
-     266,   267,   268,   269,   278,   290,   300,   309,   327,   328,
-     331,   332,   333,   336,   337,   339,   340,   341,   342
+       0,    77,    77,    80,    81,    84,    85,    88,    89,    92,
+      93,    96,    99,   100,   101,   105,   116,   117,   118,   121,
+     132,   158,   159,   160,   162,   171,   172,   173,   193,   197,
+     220,   221,   222,   225,   228,   229,   230,   233,   242,   253,
+     254,   255,   258,   264,   268,   269,   270,   274,   286,   294,
+     295,   296,   297,   298,   307,   319,   329,   338,   356,   357,
+     360,   361,   362,   365,   366,   368,   369,   370,   371
 };
 #endif
 
@@ -1488,13 +1499,13 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 66 "limbaj.y"
+#line 77 "limbaj.y"
                                            {printf("\nSuccesfully compiled!\n");}
-#line 1494 "y.tab.c"
+#line 1505 "y.tab.c"
     break;
 
   case 15:
-#line 94 "limbaj.y"
+#line 105 "limbaj.y"
                                                                  {
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, (yyvsp[-6].id)))
          {
@@ -1504,30 +1515,40 @@ yyreduce:
          group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
          group[nr_groups].nr_methods++;
          }
-#line 1508 "y.tab.c"
+#line 1519 "y.tab.c"
     break;
 
   case 19:
-#line 110 "limbaj.y"
+#line 121 "limbaj.y"
                {
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, (yyvsp[0].id)))
           {
                MyError("Field variable already declared!");
           }
-          for(int i = 0; i < 50; i++){
+          for(int i = 0; i < MAX_OBJECTS; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = (yyvsp[-1].id);
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = (yyvsp[0].id);
           }
           group[nr_groups].nr_vars++; 
           }
-#line 1524 "y.tab.c"
+#line 1535 "y.tab.c"
     break;
 
   case 20:
-#line 121 "limbaj.y"
+#line 132 "limbaj.y"
                         {
+          if(getInt((yyvsp[-1].val)) > MAX_EL_ARRAY)
+          {
+               char err[MAX_MSG] = "Sorry! We can't hold more than ";
+               char max_el[MAX_MSG_DIGITS];
+               sprintf(max_el, "%d", MAX_EL_ARRAY);
+               max_el[strlen(max_el)] = '\0';
+               strcat(err, max_el);
+               strcat(err, " elements in an array ! Go try writing in RUST! \n");
+               MyError(err); 
+          }
 
-          for(int i = 0; i < 50; i++)
+          for(int i = 0; i < MAX_OBJECTS; i++)
           {
                group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = (yyvsp[-4].id);
                group[nr_groups].arrays[i][group[nr_groups].nr_arrays].key = (yyvsp[-3].id);
@@ -1539,11 +1560,11 @@ yyreduce:
           }
           group[nr_groups].nr_arrays++;
           }
-#line 1543 "y.tab.c"
+#line 1564 "y.tab.c"
     break;
 
   case 24:
-#line 141 "limbaj.y"
+#line 162 "limbaj.y"
                     {
                if(checkVar(variable, nr_vars, (yyvsp[0].id)))
                {
@@ -1553,15 +1574,23 @@ yyreduce:
                variable[nr_vars].key = (yyvsp[0].id);
                nr_vars++;     
           }
-#line 1557 "y.tab.c"
+#line 1578 "y.tab.c"
     break;
 
   case 27:
-#line 152 "limbaj.y"
+#line 173 "limbaj.y"
                             {
                int val = getInt((yyvsp[-1].val));
-               if(val > 50)
-                    MyError("Sorry! We can't hold more than 50 elements in an array ! Go try RUST!\n");
+               if(val > MAX_EL_ARRAY)
+               {
+                    char err[MAX_MSG] = "Sorry! We can't hold more than ";
+                    char max_el[MAX_MSG_DIGITS];
+                    sprintf(max_el, "%d", MAX_EL_ARRAY);
+                    max_el[strlen(max_el)] = '\0';
+                    strcat(err, max_el);
+                    strcat(err, " elements in an array ! Go try writing in RUST! \n");
+                    MyError(err);
+               }
 
                array[nr_arrays].key = (yyvsp[-3].id);
                array[nr_arrays].size = val;
@@ -1570,20 +1599,20 @@ yyreduce:
                     array[nr_arrays].value[i] = "0";
                nr_arrays++;
            }
-#line 1574 "y.tab.c"
+#line 1603 "y.tab.c"
     break;
 
   case 28:
-#line 164 "limbaj.y"
+#line 193 "limbaj.y"
                                                                                           {
                group[nr_groups].name = (yyvsp[-8].id);
                nr_groups++;
            }
-#line 1583 "y.tab.c"
+#line 1612 "y.tab.c"
     break;
 
   case 29:
-#line 168 "limbaj.y"
+#line 197 "limbaj.y"
                                                        {
                bool found_class = 0;
                bool found_method = 0;
@@ -1606,11 +1635,11 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
-#line 1610 "y.tab.c"
+#line 1639 "y.tab.c"
     break;
 
   case 37:
-#line 204 "limbaj.y"
+#line 233 "limbaj.y"
                       {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[0].id)))
      {
@@ -1620,11 +1649,11 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1624 "y.tab.c"
+#line 1653 "y.tab.c"
     break;
 
   case 38:
-#line 213 "limbaj.y"
+#line 242 "limbaj.y"
                                 {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[-3].id)))
      {
@@ -1634,19 +1663,19 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[-3].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1638 "y.tab.c"
+#line 1667 "y.tab.c"
     break;
 
   case 42:
-#line 229 "limbaj.y"
+#line 258 "limbaj.y"
                             {
      
 }
-#line 1646 "y.tab.c"
+#line 1675 "y.tab.c"
     break;
 
   case 47:
-#line 245 "limbaj.y"
+#line 274 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
@@ -1659,11 +1688,11 @@ yyreduce:
                else
                     variable[id].value = variable[id2].value;
           }
-#line 1663 "y.tab.c"
+#line 1692 "y.tab.c"
     break;
 
   case 48:
-#line 257 "limbaj.y"
+#line 286 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                if(id == -1)
@@ -1672,17 +1701,17 @@ yyreduce:
                     variable[id].value = (yyvsp[0].val);
                         
           }
-#line 1676 "y.tab.c"
+#line 1705 "y.tab.c"
     break;
 
   case 50:
-#line 266 "limbaj.y"
+#line 295 "limbaj.y"
                  { printAll(variable, nr_vars); }
-#line 1682 "y.tab.c"
+#line 1711 "y.tab.c"
     break;
 
   case 53:
-#line 269 "limbaj.y"
+#line 298 "limbaj.y"
                                  {
                int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int index = getInt((yyvsp[-3].val));
@@ -1692,11 +1721,11 @@ yyreduce:
                     MyError("Segmentation fault! (core dumped)\n");
                array[vid].value[index] = (yyvsp[0].val);
          }
-#line 1696 "y.tab.c"
+#line 1725 "y.tab.c"
     break;
 
   case 54:
-#line 278 "limbaj.y"
+#line 307 "limbaj.y"
                   {
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
@@ -1709,11 +1738,11 @@ yyreduce:
                     group[group_id].nr_objects++;
                }
          }
-#line 1713 "y.tab.c"
+#line 1742 "y.tab.c"
     break;
 
   case 55:
-#line 290 "limbaj.y"
+#line 319 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1724,11 +1753,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
-#line 1728 "y.tab.c"
+#line 1757 "y.tab.c"
     break;
 
   case 56:
-#line 300 "limbaj.y"
+#line 329 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1738,11 +1767,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
          }
-#line 1742 "y.tab.c"
+#line 1771 "y.tab.c"
     break;
 
   case 57:
-#line 309 "limbaj.y"
+#line 338 "limbaj.y"
                                                         {
                int group_id = getObjGroupId((yyvsp[-6].id));
                int obj_id = getObjId((yyvsp[-6].id), group_id);
@@ -1759,30 +1788,30 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 1763 "y.tab.c"
+#line 1792 "y.tab.c"
     break;
 
   case 64:
-#line 337 "limbaj.y"
+#line 366 "limbaj.y"
                                {
                                }
-#line 1770 "y.tab.c"
+#line 1799 "y.tab.c"
     break;
 
   case 65:
-#line 339 "limbaj.y"
+#line 368 "limbaj.y"
                                         {}
-#line 1776 "y.tab.c"
+#line 1805 "y.tab.c"
     break;
 
   case 66:
-#line 340 "limbaj.y"
+#line 369 "limbaj.y"
                                         {}
-#line 1782 "y.tab.c"
+#line 1811 "y.tab.c"
     break;
 
 
-#line 1786 "y.tab.c"
+#line 1815 "y.tab.c"
 
       default: break;
     }
@@ -2014,7 +2043,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 346 "limbaj.y"
+#line 375 "limbaj.y"
 
 int yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s,yylineno);
@@ -2075,9 +2104,8 @@ void printAll(){
                          }
                          printf("%s}\n", group[i].arrays[k][j].value[z]);
                     }
-                    printf("iteratie la nr_arrays\n");
                }
-               ; //TODO
+               ;
      }
      printf("\n----  methods  ----\n\n");
      for(int i = 0; i < nr_groups; i++){

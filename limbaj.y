@@ -2,7 +2,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#define MAX_EL_ARRAY 1000
+#include <string.h>
+
+#define MAX_VARIABLES 100
+#define MAX_ARRAYS 100
+#define MAX_EL_ARRAY 100
+#define MAX_OBJECTS 50
+#define MAX_METHODS 100
+#define MAX_PARAMS 100
+#define MAX_GROUPS 100
+#define MAX_MSG 100
+#define MAX_MSG_DIGITS 5
+
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
@@ -11,23 +22,23 @@ typedef struct{
      char *key;
      char *value;
 } varmap;
-varmap variable[100];
+varmap variable[MAX_VARIABLES];
 
 typedef struct{
      char *key;
      int size;
      char *type;
-     char *value[50];
+     char *value[MAX_EL_ARRAY];
 } vecmap;
-vecmap array[100];
+vecmap array[MAX_ARRAYS];
 
 typedef struct{
      char *name;
      char *type;
      int nr_params;
-    varmap params[100];
+    varmap params[MAX_PARAMS];
 } methodmap;
-methodmap method[100];
+methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
@@ -35,12 +46,12 @@ typedef struct{
      int nr_vars;
      int nr_arrays;
      int nr_objects;
-     varmap vars[50][50];
-     vecmap arrays[50][50];
-     methodmap methods[100];
-     varmap object[100];
+     varmap vars[MAX_OBJECTS][MAX_VARIABLES];
+     vecmap arrays[MAX_OBJECTS][MAX_ARRAYS];
+     methodmap methods[MAX_METHODS];
+     varmap object[MAX_OBJECTS];
 } groupmap;
-groupmap group[100];
+groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
@@ -112,15 +123,25 @@ field : TIP ID {
           {
                MyError("Field variable already declared!");
           }
-          for(int i = 0; i < 50; i++){
+          for(int i = 0; i < MAX_OBJECTS; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = $1;
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = $2;
           }
           group[nr_groups].nr_vars++; 
           }
       | TIP VID'['NR']' {
+          if(getInt($4) > MAX_EL_ARRAY)
+          {
+               char err[MAX_MSG] = "Sorry! We can't hold more than ";
+               char max_el[MAX_MSG_DIGITS];
+               sprintf(max_el, "%d", MAX_EL_ARRAY);
+               max_el[strlen(max_el)] = '\0';
+               strcat(err, max_el);
+               strcat(err, " elements in an array ! Go try writing in RUST! \n");
+               MyError(err); 
+          }
 
-          for(int i = 0; i < 50; i++)
+          for(int i = 0; i < MAX_OBJECTS; i++)
           {
                group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = $1;
                group[nr_groups].arrays[i][group[nr_groups].nr_arrays].key = $2;
@@ -151,8 +172,16 @@ declaratie : TIP ID {
            | TIP ID '(' ')'
            | TIP VID'['NR']'{
                int val = getInt($4);
-               if(val > 50)
-                    MyError("Sorry! We can't hold more than 50 elements in an array ! Go try RUST!\n");
+               if(val > MAX_EL_ARRAY)
+               {
+                    char err[MAX_MSG] = "Sorry! We can't hold more than ";
+                    char max_el[MAX_MSG_DIGITS];
+                    sprintf(max_el, "%d", MAX_EL_ARRAY);
+                    max_el[strlen(max_el)] = '\0';
+                    strcat(err, max_el);
+                    strcat(err, " elements in an array ! Go try writing in RUST! \n");
+                    MyError(err);
+               }
 
                array[nr_arrays].key = $2;
                array[nr_arrays].size = val;
@@ -334,12 +363,10 @@ group_statement_list : /* empty */
                      ;
 
 group_statement : ID ASSIGN ID
-                | ID ASSIGN NR {
-                               }
+                | ID ASSIGN NR {}
                 | VID'['NR']' ASSIGN ID {}
                 | VID'['NR']' ASSIGN NR {}
                 | PRINT ID 
-                | PRINT 
                 ;
 
 
@@ -404,7 +431,7 @@ void printAll(){
                          printf("%s}\n", group[i].arrays[k][j].value[z]);
                     }
                }
-               ; //TODO
+               ;
      }
      printf("\n----  methods  ----\n\n");
      for(int i = 0; i < nr_groups; i++){
