@@ -79,7 +79,7 @@ extern int yydebug;
 #define BGIN 263
 #define END 264
 #define ASSIGN 265
-#define PRINT 266
+#define PRINT 265
 #define BGINGLOBAL 267
 #define ENDGLOBAL 268
 #define BGINFNCT 269
@@ -95,7 +95,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 52 "limbaj.y"
+#line 63 "limbaj.y"
 
      char* id;
      char* val;

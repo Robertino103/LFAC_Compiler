@@ -1,50 +1,52 @@
 group student{
-	begin_fields
-		int $x;
-		int $y;
-		int $z;
-	end_fields
-	begin_methods
-		int $y (float $z)
-		{
+    begin_fields
+        int $x;
+        int $y;
+        int $z;
+    end_fields
+    begin_methods
+        int $y (float $z)
+        {
 
-		};
-		float $getName(char $name, int $age, bool $sex){
-		
-		};
-	end_methods
+        };
+        float $getName(char $name, int $age, bool $sex){
+
+        };
+    end_methods
 };
 
 group teacher{
-	begin_fields
-		int $age;
-		char $name;
-		int $salary;
-	end_fields
-	begin_methods
-		bool $isGay(){};
-	end_methods
+    begin_fields
+        int $age;
+        char $name;
+        int $salary;
+        float @teacharr[56];
+    end_fields
+    begin_methods
+        bool $isGay(int @x[99]){};
+        float $getSalary(){};
+    end_methods
 };
 
 int $age;
-int @x[40];
+int @x[58];
 int @vec[5];
 float $salary;
 int $n;
 
 begin_progr
-	student $x;
-	teacher $patrut;
-	$salary = 8;
-	$age = 2;
-	$n = $age;
-	student $s;
-	$s.$z = 3;
-	$patrut.$age = 69;
-	$patrut.$age = $salary;
-	$patrut.$salary = $s.$z;
-	@x[5] = 3;
-	@vec[2] = 12;
-	
-	print;
+    student $x;
+    teacher $patrut;
+    $salary = 8;
+    $age = 2;
+    $n = $age;
+    student $s;
+    $s.$z = 3;
+    $patrut.$age = 69;
+    $patrut.$age = $salary;
+    $patrut.$salary = $s.$z;
+    @x[5] = 3;
+    @vec[2] = 12;
+
+    print;
 end_progr

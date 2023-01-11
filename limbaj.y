@@ -2,7 +2,18 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#define MAX_EL_ARRAY 1000
+#include <string.h>
+
+#define MAX_VARIABLES 100
+#define MAX_ARRAYS 100
+#define MAX_EL_ARRAY 100
+#define MAX_OBJECTS 50
+#define MAX_METHODS 100
+#define MAX_PARAMS 100
+#define MAX_GROUPS 100
+#define MAX_MSG 100
+#define MAX_MSG_DIGITS 5
+
 extern FILE* yyin;
 extern char* yytext;
 extern int yylineno;
@@ -11,23 +22,23 @@ typedef struct{
      char *key;
      char *value;
 } varmap;
-varmap variable[100];
+varmap variable[MAX_VARIABLES];
 
 typedef struct{
      char *key;
      int size;
      char *type;
-     char *value[50];
+     char *value[MAX_EL_ARRAY];
 } vecmap;
-vecmap array[100];
+vecmap array[MAX_ARRAYS];
 
 typedef struct{
      char *name;
      char *type;
      int nr_params;
-    varmap params[100];
+    varmap params[MAX_PARAMS];
 } methodmap;
-methodmap method[100];
+methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
@@ -35,12 +46,12 @@ typedef struct{
      int nr_vars;
      int nr_arrays;
      int nr_objects;
-     varmap vars[50][50];
-     vecmap arrays[50];
-     methodmap methods[100];
-     varmap object[100];
+     varmap vars[MAX_OBJECTS][MAX_VARIABLES];
+     vecmap arrays[MAX_OBJECTS][MAX_ARRAYS];
+     methodmap methods[MAX_METHODS];
+     varmap object[MAX_OBJECTS];
 } groupmap;
-groupmap group[100];
+groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
@@ -92,11 +103,15 @@ methods : /* empty */
      
 
 method : TIP ID'('method_list_param')' '{'group_statement_list'}'{
+         if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, $2))
+         {
+               MyError("Method already defined!");
+         }
          group[nr_groups].methods[group[nr_groups].nr_methods].name = $2;
          group[nr_groups].methods[group[nr_groups].nr_methods].type = $1;
          group[nr_groups].nr_methods++;
          }
-        ;
+         ;
 
 fields : /* empty */
        | field ';'
@@ -104,15 +119,39 @@ fields : /* empty */
        ;
 
 field : TIP ID {
-          for(int i = 0; i < 50; i++){
+          if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, $2))
+          {
+               MyError("Field variable already declared!");
+          }
+          for(int i = 0; i < MAX_OBJECTS; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = $1;
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = $2;
           }
           group[nr_groups].nr_vars++; 
           }
-      | TIP VID'['NR']' { 
-               group[nr_groups].arrays[group[nr_groups].nr_arrays].size = $4;
-               group[nr_groups].nr_arrays++;
+      | TIP VID'['NR']' {
+          if(getInt($4) > MAX_EL_ARRAY)
+          {
+               char err[MAX_MSG] = "Sorry! We can't hold more than ";
+               char max_el[MAX_MSG_DIGITS];
+               sprintf(max_el, "%d", MAX_EL_ARRAY);
+               max_el[strlen(max_el)] = '\0';
+               strcat(err, max_el);
+               strcat(err, " elements in an array ! Go try writing in RUST! \n");
+               MyError(err); 
+          }
+
+          for(int i = 0; i < MAX_OBJECTS; i++)
+          {
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = $1;
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].key = $2;
+               group[nr_groups].arrays[i][group[nr_groups].nr_arrays].size = getInt($4);
+               for(int j = 0 ; j < getInt($4); j++)
+               {
+                    group[nr_groups].arrays[i][group[nr_groups].nr_arrays].value[j] = "0";
+               }
+          }
+          group[nr_groups].nr_arrays++;
           }
       ;
 
@@ -121,6 +160,10 @@ declaratii : /* empty */
 	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID {
+               if(checkVar(variable, nr_vars, $2))
+               {
+                    MyError("Variable already declared!");
+               }
                variable[nr_vars].type = $1;
                variable[nr_vars].key = $2;
                nr_vars++;     
@@ -129,8 +172,16 @@ declaratie : TIP ID {
            | TIP ID '(' ')'
            | TIP VID'['NR']'{
                int val = getInt($4);
-               if(val > 50)
-                    MyError("Sorry! We can't hold more than 50 elements in an array ! Go try RUST!\n");
+               if(val > MAX_EL_ARRAY)
+               {
+                    char err[MAX_MSG] = "Sorry! We can't hold more than ";
+                    char max_el[MAX_MSG_DIGITS];
+                    sprintf(max_el, "%d", MAX_EL_ARRAY);
+                    max_el[strlen(max_el)] = '\0';
+                    strcat(err, max_el);
+                    strcat(err, " elements in an array ! Go try writing in RUST! \n");
+                    MyError(err);
+               }
 
                array[nr_arrays].key = $2;
                array[nr_arrays].size = val;
@@ -180,10 +231,23 @@ method_list_param : /* empty */
                   ;
 
 method_param : TIP ID {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
-}
+     }
+             | TIP VID '['NR']' {
+     if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
+     group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
+     }
              ;
 
 method_check_list_param : /* empty */
@@ -299,12 +363,10 @@ group_statement_list : /* empty */
                      ;
 
 group_statement : ID ASSIGN ID
-                | ID ASSIGN NR {
-                               }
+                | ID ASSIGN NR {}
                 | VID'['NR']' ASSIGN ID {}
                 | VID'['NR']' ASSIGN NR {}
                 | PRINT ID 
-                | PRINT 
                 ;
 
 
@@ -351,8 +413,25 @@ void printAll(){
                          printf("    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
                     else
                          printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
-          for(int j = 0; j < group[i].nr_arrays; j++)
-               ; //TODO
+          for(int k = 0; k < group[i].nr_objects; k++)
+               for(int j = 0; j < group[i].nr_arrays; j++)
+               {
+                    printf("    %s %s.%s[%d] = {", group[i].arrays[k][j].type, group[i].object[k].key, group[i].arrays[k][j].key, group[i].arrays[k][j].size);
+                    if(group[i].arrays[k][j].size == 1)
+                    {
+                         printf("%s}", group[i].arrays[k][j].value[0]);
+                    }
+                    else
+                    {
+                         int z;
+                         for(z = 0; z < group[i].arrays[k][j].size - 1; z++)
+                         {
+                              printf("%s, ", group[i].arrays[k][j].value[z]);
+                         }
+                         printf("%s}\n", group[i].arrays[k][j].value[z]);
+                    }
+               }
+               ;
      }
      printf("\n----  methods  ----\n\n");
      for(int i = 0; i < nr_groups; i++){
@@ -431,6 +510,30 @@ int IsMethod(char *method, int id)
      for(int i=0; i<group[id].nr_methods; i++)
      {
           if(strcmp(method, group[id].methods[i].name) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkVar(varmap *m, int size, char *var)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, var) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int checkMethod(methodmap *m, int size, char *method)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, method) == 0)
           {
                return 1;
           }
