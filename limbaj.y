@@ -13,6 +13,7 @@
 #define MAX_GROUPS 100
 #define MAX_MSG 100
 #define MAX_MSG_DIGITS 5
+#define MAX_FUNCTIONS 100
 
 extern FILE* yyin;
 extern char* yytext;
@@ -42,6 +43,14 @@ methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
+     char *type;
+     int nr_params;
+     varmap params[MAX_PARAMS];
+} fnctmap;
+fnctmap function[MAX_FUNCTIONS];
+
+typedef struct{
+     char *name;
      int nr_methods;
      int nr_vars;
      int nr_arrays;
@@ -55,9 +64,14 @@ groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
+char* getVarType(varmap *m, int size, int index);
+char* getArrType(vecmap *m, int size, int index);
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
+int nr_functions = 0;
+int param_no = 0;
+int fnctId = -1;
 
 %}
 %union {
@@ -93,8 +107,49 @@ functions : function ';'
           | functions function ';'
           ;
 
-function : TIP ID '(' lista_param ')'
-          ;
+function : TIP ID '(' fnct_list_param ')' {
+     if(checkFunction(function, nr_functions, $2))
+     {
+          MyError("A function with the same name was already declared !");
+     }
+     function[nr_functions].type = $1;
+     function[nr_functions].name = $2;
+     nr_functions++;
+}
+         ;
+
+fnct_list_param : /* empty */
+                | fnct_param
+                | fnct_list_param ',' fnct_param
+                ;
+
+fnct_param : TIP ID { 
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = $1;
+     function[nr_functions].params[function[nr_functions].nr_params].key = $2;
+     function[nr_functions].nr_params++;
+}
+           | TIP VID '['NR']' {
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = $1;
+     function[nr_functions].params[function[nr_functions].nr_params].key = $2;
+     function[nr_functions].nr_params++;
+}
+           ;
+
+lista_param : /* empty */
+            | param
+            | lista_param ','  param 
+            ;
+            
+param : TIP ID
+      ;
 
 methods : /* empty */
         | method ';'
@@ -171,6 +226,10 @@ declaratie : TIP ID {
            | TIP ID '(' lista_param ')'
            | TIP ID '(' ')'
            | TIP VID'['NR']'{
+               if(checkArr(array, nr_arrays, $2))
+               {
+                    MyError("Array already declared!");
+               }
                int val = getInt($4);
                if(val > MAX_EL_ARRAY)
                {
@@ -217,13 +276,6 @@ declaratie : TIP ID {
                else if (found_method == 0) MyError("No such method found!");
            }
            ;
-lista_param : /* empty */
-            | param
-            | lista_param ','  param 
-            ;
-            
-param : TIP ID
-      ;
 
 method_list_param : /* empty */
                   | method_param
@@ -293,7 +345,13 @@ statement: ID ASSIGN ID {
           }
          | PRINT ID
          | PRINT { printAll(variable, nr_vars); }
-         | ID '(' lista_apel ')'
+         | ID { fnctId = getFunctionId(function, nr_functions, $1); } '(' lista_apel ')' {
+               if(checkFunction(function, nr_functions, $1))
+               {
+                    MyError("Called function has not been defined in the function definition section!");
+               }
+               param_no = 0;
+         }
          | VID'['NR']' ASSIGN ID
          | VID'['NR']' ASSIGN NR {
                int vid = getVecId(array, nr_arrays, $1);
@@ -353,9 +411,66 @@ statement: ID ASSIGN ID {
          }
          ;
         
-lista_apel : NR
-           | lista_apel ',' NR
+lista_apel : /* empty */
+           | apel
+           | lista_apel ',' apel
            ;
+apel : NR {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if (strcmp(def_type, "char") == 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          else if (strcmp(def_type, "bool") == 0)
+          {
+               int nr_int = getInt($1);
+               if (nr_int != 0 && nr_int != 1)
+               {
+                    MyError("The type of the variable in the function call does not match the function definition!");
+               }
+          }
+          param_no++;
+     }
+     | ID {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkVar(variable, nr_vars, $1) == 0)
+          {
+               MyError("The variable used in the function call is not declared!");
+          }
+          int current_var_id = getVarId(variable, nr_vars, $1);
+          char *current_type = getVarType(variable, nr_vars, current_var_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
+     | VID {
+          if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkArr(array, nr_arrays, $1) == 0)
+          {
+               MyError("The array used in the function call is not declared!");
+          }
+          int current_arr_id = getVecId(array, nr_arrays, $1);
+          char *current_type = getArrType(array, nr_arrays, current_arr_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the array in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
 
 group_statement_list : /* empty */
                      | group_statement ';'
@@ -381,7 +496,17 @@ void MyError(char *s){
 }
 
 void printAll(){
-     printf("----  identifiers  ----\n\n");
+     printf("----  functions  ----\n\n");
+     for(int i=0; i<nr_functions; i++)
+     {
+          printf("%s -> %s\n", function[i].name, function[i].type);
+          for(int j=0; j<function[i].nr_params; j++)
+          {
+               printf("     %s %s = %s\n", function[i].params[j].type, function[i].params[j].key, function[i].params[j].value);
+          }
+     }
+
+     printf("\n----  identifiers  ----\n\n");
      for(int i=0; i<nr_vars; i++)
      {
           if(variable[i].value == NULL)
@@ -529,6 +654,18 @@ int checkVar(varmap *m, int size, char *var)
      return 0;
 }
 
+int checkArr(vecmap *m, int size, char *arr)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, arr) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
 int checkMethod(methodmap *m, int size, char *method)
 {
      for(int i=0; i<size; i++)
@@ -539,6 +676,47 @@ int checkMethod(methodmap *m, int size, char *method)
           }
      }
      return 0;
+}
+
+int checkFunction(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int getFunctionId(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return i;
+          }
+     }
+     return -1;
+}
+
+char* getVarType(varmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+char* getArrType(vecmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+int isArray(varmap *m, int size, int index)
+{
+     char *varname = m[index].key;
+     if(varname[0]=='@') return 1;
+          else return 0;
 }
 
 int main(int argc, char** argv){
