@@ -1,3 +1,8 @@
+begin_fnct
+int $function (int @z[50]);
+int $scndfnct (float $z, bool $bl);
+end_fnct
+
 group student{
     begin_fields
         int $x;
@@ -47,6 +52,6 @@ begin_progr
     $patrut.$salary = $s.$z;
     @x[5] = 3;
     @vec[2] = 12;
-
+    $function(@vec);
     print;
 end_progr

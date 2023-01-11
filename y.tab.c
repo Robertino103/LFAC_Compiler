@@ -82,6 +82,7 @@
 #define MAX_GROUPS 100
 #define MAX_MSG 100
 #define MAX_MSG_DIGITS 5
+#define MAX_FUNCTIONS 100
 
 extern FILE* yyin;
 extern char* yytext;
@@ -111,6 +112,14 @@ methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
+     char *type;
+     int nr_params;
+     varmap params[MAX_PARAMS];
+} fnctmap;
+fnctmap function[MAX_FUNCTIONS];
+
+typedef struct{
+     char *name;
      int nr_methods;
      int nr_vars;
      int nr_arrays;
@@ -124,12 +133,17 @@ groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
+char* getVarType(varmap *m, int size, int index);
+char* getArrType(vecmap *m, int size, int index);
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
+int nr_functions = 0;
+int param_no = 0;
+int fnctId = -1;
 
 
-#line 133 "y.tab.c"
+#line 147 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -223,12 +237,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 63 "limbaj.y"
+#line 77 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 232 "y.tab.c"
+#line 246 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -547,16 +561,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   172
+#define YYLAST   183
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  31
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  25
+#define YYNNTS  29
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  68
+#define YYNRULES  77
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  149
+#define YYNSTATES  162
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   276
@@ -575,15 +589,15 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      23,    24,     2,     2,    30,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,    29,    22,
+      23,    24,     2,     2,    25,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,    30,    22,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,    27,     2,    28,     2,     2,     2,     2,     2,     2,
+       2,    26,     2,    27,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,    25,     2,    26,     2,     2,     2,     2,
+       2,     2,     2,    28,     2,    29,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -605,13 +619,14 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    77,    77,    80,    81,    84,    85,    88,    89,    92,
-      93,    96,    99,   100,   101,   105,   116,   117,   118,   121,
-     132,   158,   159,   160,   162,   171,   172,   173,   193,   197,
-     220,   221,   222,   225,   228,   229,   230,   233,   242,   253,
-     254,   255,   258,   264,   268,   269,   270,   274,   286,   294,
-     295,   296,   297,   298,   307,   319,   329,   338,   356,   357,
-     360,   361,   362,   365,   366,   368,   369,   370,   371
+       0,    91,    91,    94,    95,    98,    99,   102,   103,   106,
+     107,   110,   121,   122,   123,   126,   135,   146,   147,   148,
+     151,   154,   155,   156,   160,   171,   172,   173,   176,   187,
+     213,   214,   215,   217,   226,   227,   228,   252,   256,   280,
+     281,   282,   285,   294,   305,   306,   307,   310,   316,   320,
+     321,   322,   326,   338,   346,   347,   348,   348,   357,   358,
+     367,   379,   389,   398,   416,   417,   418,   420,   440,   458,
+     477,   478,   479,   482,   483,   484,   485,   486
 };
 #endif
 
@@ -623,13 +638,14 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "NR", "ID", "GID", "VID", "TIP", "BGIN",
   "END", "ASSIGN", "PRINT", "BGINGLOBAL", "ENDGLOBAL", "BGINFNCT",
   "ENDFNCT", "GROUP", "GROUP_ACCESS", "BGINFIELDS", "ENDFIELDS",
-  "BGINMETHODS", "ENDMETHODS", "';'", "'('", "')'", "'{'", "'}'", "'['",
-  "']'", "':'", "','", "$accept", "progr", "global", "global_defs",
-  "function_def", "functions", "function", "methods", "method", "fields",
-  "field", "declaratii", "declaratie", "lista_param", "param",
-  "method_list_param", "method_param", "method_check_list_param",
-  "method_check_param", "bloc", "list", "statement", "lista_apel",
-  "group_statement_list", "group_statement", YY_NULLPTR
+  "BGINMETHODS", "ENDMETHODS", "';'", "'('", "')'", "','", "'['", "']'",
+  "'{'", "'}'", "':'", "$accept", "progr", "global", "global_defs",
+  "function_def", "functions", "function", "fnct_list_param", "fnct_param",
+  "lista_param", "param", "methods", "method", "fields", "field",
+  "declaratii", "declaratie", "method_list_param", "method_param",
+  "method_check_list_param", "method_check_param", "bloc", "list",
+  "statement", "$@1", "lista_apel", "apel", "group_statement_list",
+  "group_statement", YY_NULLPTR
 };
 #endif
 
@@ -640,12 +656,12 @@ static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,    59,    40,    41,   123,   125,    91,    93,    58,
-      44
+     275,   276,    59,    40,    41,    44,    91,    93,   123,   125,
+      58
 };
 # endif
 
-#define YYPACT_NINF (-11)
+#define YYPACT_NINF (-21)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -659,21 +675,23 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -8,     1,    29,    24,    48,    20,    56,     1,     8,   -11,
-      36,     1,    19,    43,    46,   -11,    50,    61,    69,    17,
-      55,     5,    57,    -6,    71,    73,    63,    65,    59,   -11,
-      66,   -11,    30,    67,   -11,   -11,    76,   -11,    16,   -11,
-      68,    70,    77,    78,   -11,    -7,    79,    72,    82,    22,
-      74,   -11,   -11,   -11,    78,    80,   -11,    53,     4,    75,
-      21,    11,    86,    89,   -11,    90,   -11,   -11,    81,   -11,
-     -11,    91,    23,   -11,   -11,    83,    84,    85,   -11,   -11,
-     -11,   -11,    92,   -11,    25,    87,   -11,   -11,   -11,    80,
-      97,    94,   -11,    58,   -11,   102,    96,   -11,    88,   104,
-      -1,    95,   -11,   101,   -11,    60,   -11,    98,    93,   100,
-     -11,   105,   -11,   -11,   106,   -11,   -11,   -11,    54,    26,
-     -11,   -11,    99,   103,   106,   108,    33,   -11,   107,   110,
-     109,   119,    -4,   111,   -11,    62,   121,   -11,   -11,   112,
-     -11,   -11,   -11,   113,   -11,   115,    64,   -11,   -11
+       3,     1,    11,    15,    40,    38,    41,     1,    51,   -21,
+      67,     1,   -20,    49,    24,   -21,    54,    65,    73,     7,
+      57,     5,    59,    -6,    76,    79,    66,    70,    63,   -21,
+      69,   -21,    30,    71,   -21,   -21,    81,   -21,    31,   -21,
+      72,    60,    82,    83,   -21,    28,    84,    74,    88,    22,
+      75,   -21,   -21,   -21,    87,    89,   -21,    43,    -3,    77,
+      44,    33,   -21,    20,    94,    78,   -21,    99,   -21,   -21,
+      85,   -21,   -21,   100,    35,   -21,   -21,    80,    90,    86,
+     -21,   -21,    91,   -21,    83,   -21,   -21,    93,    36,    92,
+     -21,   -21,   -21,    89,   102,   104,   -21,   106,   -21,    58,
+     -21,   -21,   -21,    39,   -21,   103,   -21,    95,   108,    -1,
+      96,    97,   -21,    98,   -21,    36,    62,   -21,   105,   101,
+     107,   -21,   -21,   110,   -21,   -21,   -21,   109,   -21,   -21,
+     -21,    47,    45,   -21,   -21,   111,   112,   109,   117,    26,
+     -21,   114,   113,   116,   121,    -4,   122,   -21,    64,   118,
+     -21,   -21,   123,   -21,   -21,   -21,   119,   -21,   124,    68,
+     -21,   -21
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -682,36 +700,38 @@ static const yytype_int8 yypact[] =
 static const yytype_int8 yydefact[] =
 {
        3,     0,     0,     7,     0,     0,     0,     0,     0,     1,
-       0,    21,    24,     0,     0,     4,     0,    22,     0,     0,
-       0,     0,     0,    30,     0,     0,     0,    23,     0,     8,
-       0,     9,    44,     0,     2,    22,     0,    26,     0,    31,
-       0,     0,    16,    30,    10,     0,     0,     0,    50,     0,
-       0,    23,    33,    25,     0,    39,    27,     0,     0,     0,
-       0,     0,     0,     0,    54,     0,    49,    43,     0,    45,
-      32,     0,     0,    40,    19,     0,     0,     0,    17,    11,
-      48,    47,     0,    58,     0,     0,    46,    42,    29,     0,
-       0,    12,    18,     0,    51,     0,     0,    41,     0,     0,
-       0,     0,    56,    55,    59,     0,    20,     0,     0,     0,
-      13,     0,    53,    52,    34,    28,    14,    57,     0,     0,
-      35,    37,     0,     0,     0,     0,    60,    36,     0,     0,
-       0,    68,     0,     0,    38,     0,     0,    67,    15,     0,
-      61,    64,    63,     0,    62,     0,     0,    66,    65
+       0,    30,    33,     0,     0,     4,     0,    31,     0,     0,
+       0,     0,     0,    17,     0,     0,     0,    32,     0,     8,
+       0,     9,    49,     0,     2,    31,     0,    35,     0,    18,
+       0,     0,    25,    12,    10,    56,     0,     0,    55,     0,
+       0,    32,    20,    34,     0,    44,    36,     0,     0,     0,
+       0,     0,    13,     0,     0,     0,    60,     0,    54,    48,
+       0,    50,    19,     0,     0,    45,    28,     0,     0,     0,
+      26,    15,     0,    11,     0,    53,    52,     0,    64,     0,
+      51,    47,    38,     0,     0,    21,    27,     0,    14,     0,
+      67,    68,    69,     0,    65,     0,    46,     0,     0,     0,
+       0,     0,    62,    61,    57,     0,     0,    29,     0,     0,
+       0,    22,    16,     0,    66,    59,    58,    39,    37,    23,
+      63,     0,     0,    40,    42,     0,     0,     0,     0,    70,
+      41,     0,     0,     0,     0,     0,     0,    43,     0,     0,
+      77,    24,     0,    71,    74,    73,     0,    72,     0,     0,
+      76,    75
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -11,   -11,   -11,   -11,   -11,   -11,   118,   -11,    12,   -11,
-     114,   116,    -2,    51,   117,   -11,   -10,   -11,    40,   -11,
-     -11,   120,   -11,   -11,     0
+     -21,   -21,   -21,   -21,   -21,   -21,   120,   -21,    42,   -21,
+     115,   -21,    18,   -21,   125,   127,    -2,   -21,    -5,   -21,
+      50,   -21,   -21,   126,   -21,   -21,    16,   -21,   -12
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
-      -1,     2,     3,     6,    11,    19,    20,   100,   101,    58,
-      59,     7,     8,    38,    39,   119,   120,    72,    73,    34,
-      49,    50,    84,   132,   133
+      -1,     2,     3,     6,    11,    19,    20,    61,    62,    38,
+      39,   109,   110,    58,    59,     7,     8,   132,   133,    74,
+      75,    34,    49,    50,    65,   103,   104,   145,   146
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -719,91 +739,97 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-     129,    36,   130,    61,     1,    16,    99,   131,     4,    22,
-      62,    57,     4,    32,    80,    81,    63,     5,    37,    33,
-     108,     5,   138,    76,    18,    14,    45,    46,    47,     9,
-      17,    67,    29,    48,    45,    46,    47,   129,    10,   130,
-      53,    48,    23,    18,   131,    79,    54,    88,    24,    94,
-     123,    54,    12,    89,    13,    95,   124,    74,   121,    75,
-     122,   102,   103,   112,   113,   141,   142,   147,   148,    15,
-      25,    26,    27,    28,    -5,    40,    41,    31,    -6,    35,
-      52,    42,    43,    64,    57,    36,    66,    71,    44,    51,
-      82,    55,    83,    85,    60,    87,    69,    78,    56,    65,
-      98,    99,    93,    86,    91,   104,   105,    92,   107,   117,
-      90,   128,   109,   118,   127,    96,   106,   110,   111,   115,
-     135,   114,   116,   137,   143,   146,   125,    21,   126,    97,
-       0,     0,   139,   140,   144,   134,   136,    30,     0,     0,
-       0,   145,     0,     0,     0,     0,     0,     0,     0,     0,
+     142,    36,   143,    23,    57,    16,   108,   144,     4,    22,
+      24,     9,     4,    32,    18,     1,    78,     5,    37,    33,
+     119,     5,    29,    85,    86,   151,    45,    46,    47,    10,
+     142,    69,   143,    48,    45,    46,    47,   144,    63,   100,
+     101,    48,   102,    14,    12,    64,    13,    76,    81,    77,
+      82,   134,    26,   135,    15,    53,    54,    83,    84,    92,
+      93,   112,   113,   114,   115,   125,   126,   154,   155,   136,
+     137,   160,   161,    17,    18,    25,    27,    28,    -5,    31,
+      40,    35,    41,    -6,    42,    52,    43,    56,    66,    57,
+      60,    44,    68,    51,    36,    55,    73,    71,    87,    80,
+      67,    88,    89,    99,    91,   107,    94,    90,    96,   111,
+      95,   108,   118,   116,   130,   123,   131,    97,   121,   105,
+     141,   156,   117,   148,   122,   150,    98,   120,   127,   129,
+     128,   124,   140,   152,   159,     0,     0,   138,    21,    30,
+     139,   147,   149,   106,   153,   157,   158,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,    68,
-       0,    70,    77
+       0,     0,     0,     0,     0,     0,     0,     0,     0,    72,
+       0,     0,     0,     0,     0,    70,     0,     0,     0,     0,
+       0,     0,     0,    79
 };
 
 static const yytype_int16 yycheck[] =
 {
-       4,     7,     6,    10,    12,     7,     7,    11,     7,    11,
-      17,     7,     7,     8,     3,     4,    23,    16,    24,    21,
-      21,    16,    26,    19,     7,     5,     4,     5,     6,     0,
-      22,     9,    15,    11,     4,     5,     6,     4,    14,     6,
-      24,    11,    23,     7,    11,    24,    30,    24,    29,    24,
-      24,    30,     4,    30,     6,    30,    30,     4,     4,     6,
-       6,     3,     4,     3,     4,     3,     4,     3,     4,    13,
-      27,    25,    22,     4,    13,     4,     3,    22,    13,    22,
-       4,    18,    23,     4,     7,     7,     4,     7,    22,    22,
-       4,    23,     3,     3,    43,     4,    22,    22,    28,    27,
-       3,     7,    10,    22,    20,     3,    10,    22,     4,     4,
-      27,     3,   100,     7,   124,    28,    28,    22,    17,    26,
-      10,    23,    22,     4,     3,    10,    27,    11,    25,    89,
-      -1,    -1,   132,    22,    22,    28,    27,    19,    -1,    -1,
-      -1,    28,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+       4,     7,     6,    23,     7,     7,     7,    11,     7,    11,
+      30,     0,     7,     8,     7,    12,    19,    16,    24,    21,
+      21,    16,    15,     3,     4,    29,     4,     5,     6,    14,
+       4,     9,     6,    11,     4,     5,     6,    11,    10,     3,
+       4,    11,     6,     5,     4,    17,     6,     4,     4,     6,
+       6,     4,    28,     6,    13,    24,    25,    24,    25,    24,
+      25,     3,     4,    24,    25,     3,     4,     3,     4,    24,
+      25,     3,     4,    22,     7,    26,    22,     4,    13,    22,
+       4,    22,     3,    13,    18,     4,    23,    27,     4,     7,
+       7,    22,     4,    22,     7,    23,     7,    22,     4,    22,
+      26,    23,     3,    10,     4,     3,    26,    22,    22,     3,
+      20,     7,     4,    10,     4,    17,     7,    26,    22,    27,
+       3,     3,    27,    10,    27,     4,    84,   109,    23,    22,
+      29,   115,   137,   145,    10,    -1,    -1,    26,    11,    19,
+      28,    27,    26,    93,    22,    22,    27,    -1,    -1,    -1,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    49,
-      -1,    54,    58
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    54,
+      -1,    -1,    -1,    -1,    -1,    49,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    58
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,    12,    32,    33,     7,    16,    34,    42,    43,     0,
-      14,    35,     4,     6,     5,    13,    43,    22,     7,    36,
-      37,    42,    43,    23,    29,    27,    25,    22,     4,    15,
-      37,    22,     8,    43,    50,    22,     7,    24,    44,    45,
-       4,     3,    18,    23,    22,     4,     5,     6,    11,    51,
-      52,    22,     4,    24,    30,    23,    28,     7,    40,    41,
-      44,    10,    17,    23,     4,    27,     4,     9,    52,    22,
-      45,     7,    48,    49,     4,     6,    19,    41,    22,    24,
-       3,     4,     4,     3,    53,     3,    22,     4,    24,    30,
-      27,    20,    22,    10,    24,    30,    28,    49,     3,     7,
-      38,    39,     3,     4,     3,    10,    28,     4,    21,    39,
-      22,    17,     3,     4,    23,    26,    22,     4,     7,    46,
-      47,     4,     6,    24,    30,    27,    25,    47,     3,     4,
-       6,    11,    54,    55,    28,    10,    27,     4,    26,    55,
-      22,     3,     4,     3,    22,    28,    10,     3,     4
+       0,    12,    32,    33,     7,    16,    34,    46,    47,     0,
+      14,    35,     4,     6,     5,    13,    47,    22,     7,    36,
+      37,    46,    47,    23,    30,    26,    28,    22,     4,    15,
+      37,    22,     8,    47,    52,    22,     7,    24,    40,    41,
+       4,     3,    18,    23,    22,     4,     5,     6,    11,    53,
+      54,    22,     4,    24,    25,    23,    27,     7,    44,    45,
+       7,    38,    39,    10,    17,    55,     4,    26,     4,     9,
+      54,    22,    41,     7,    50,    51,     4,     6,    19,    45,
+      22,     4,     6,    24,    25,     3,     4,     4,    23,     3,
+      22,     4,    24,    25,    26,    20,    22,    26,    39,    10,
+       3,     4,     6,    56,    57,    27,    51,     3,     7,    42,
+      43,     3,     3,     4,    24,    25,    10,    27,     4,    21,
+      43,    22,    27,    17,    57,     3,     4,    23,    29,    22,
+       4,     7,    48,    49,     4,     6,    24,    25,    26,    28,
+      49,     3,     4,     6,    11,    58,    59,    27,    10,    26,
+       4,    29,    59,    22,     3,     4,     3,    22,    27,    10,
+       3,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    31,    32,    33,    33,    34,    34,    35,    35,    36,
-      36,    37,    38,    38,    38,    39,    40,    40,    40,    41,
-      41,    42,    42,    42,    43,    43,    43,    43,    43,    43,
-      44,    44,    44,    45,    46,    46,    46,    47,    47,    48,
-      48,    48,    49,    50,    51,    51,    51,    52,    52,    52,
-      52,    52,    52,    52,    52,    52,    52,    52,    53,    53,
-      54,    54,    54,    55,    55,    55,    55,    55,    55
+      36,    37,    38,    38,    38,    39,    39,    40,    40,    40,
+      41,    42,    42,    42,    43,    44,    44,    44,    45,    45,
+      46,    46,    46,    47,    47,    47,    47,    47,    47,    48,
+      48,    48,    49,    49,    50,    50,    50,    51,    52,    53,
+      53,    53,    54,    54,    54,    54,    55,    54,    54,    54,
+      54,    54,    54,    54,    56,    56,    56,    57,    57,    57,
+      58,    58,    58,    59,    59,    59,    59,    59
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     4,     0,     3,     2,     3,     0,     3,     2,
-       3,     5,     0,     2,     3,     8,     0,     2,     3,     2,
-       5,     0,     2,     3,     2,     5,     4,     5,    10,     7,
-       0,     1,     3,     2,     0,     1,     3,     2,     5,     0,
-       1,     3,     2,     3,     0,     2,     3,     3,     3,     2,
-       1,     4,     6,     6,     2,     5,     5,     7,     1,     3,
-       0,     2,     3,     3,     3,     6,     6,     2,     1
+       3,     5,     0,     1,     3,     2,     5,     0,     1,     3,
+       2,     0,     2,     3,     8,     0,     2,     3,     2,     5,
+       0,     2,     3,     2,     5,     4,     5,    10,     7,     0,
+       1,     3,     2,     5,     0,     1,     3,     2,     3,     0,
+       2,     3,     3,     3,     2,     1,     0,     5,     6,     6,
+       2,     5,     5,     7,     0,     1,     3,     1,     1,     1,
+       0,     2,     3,     3,     3,     6,     6,     2
 };
 
 
@@ -1499,13 +1525,55 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 77 "limbaj.y"
+#line 91 "limbaj.y"
                                            {printf("\nSuccesfully compiled!\n");}
-#line 1505 "y.tab.c"
+#line 1531 "y.tab.c"
+    break;
+
+  case 11:
+#line 110 "limbaj.y"
+                                          {
+     if(checkFunction(function, nr_functions, (yyvsp[-3].id)))
+     {
+          MyError("A function with the same name was already declared !");
+     }
+     function[nr_functions].type = (yyvsp[-4].id);
+     function[nr_functions].name = (yyvsp[-3].id);
+     nr_functions++;
+}
+#line 1545 "y.tab.c"
     break;
 
   case 15:
-#line 105 "limbaj.y"
+#line 126 "limbaj.y"
+                    { 
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[0].id)))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = (yyvsp[-1].id);
+     function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[0].id);
+     function[nr_functions].nr_params++;
+}
+#line 1559 "y.tab.c"
+    break;
+
+  case 16:
+#line 135 "limbaj.y"
+                              {
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[-3].id)))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = (yyvsp[-4].id);
+     function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[-3].id);
+     function[nr_functions].nr_params++;
+}
+#line 1573 "y.tab.c"
+    break;
+
+  case 24:
+#line 160 "limbaj.y"
                                                                  {
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, (yyvsp[-6].id)))
          {
@@ -1515,11 +1583,11 @@ yyreduce:
          group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
          group[nr_groups].nr_methods++;
          }
-#line 1519 "y.tab.c"
+#line 1587 "y.tab.c"
     break;
 
-  case 19:
-#line 121 "limbaj.y"
+  case 28:
+#line 176 "limbaj.y"
                {
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, (yyvsp[0].id)))
           {
@@ -1531,11 +1599,11 @@ yyreduce:
           }
           group[nr_groups].nr_vars++; 
           }
-#line 1535 "y.tab.c"
+#line 1603 "y.tab.c"
     break;
 
-  case 20:
-#line 132 "limbaj.y"
+  case 29:
+#line 187 "limbaj.y"
                         {
           if(getInt((yyvsp[-1].val)) > MAX_EL_ARRAY)
           {
@@ -1560,11 +1628,11 @@ yyreduce:
           }
           group[nr_groups].nr_arrays++;
           }
-#line 1564 "y.tab.c"
+#line 1632 "y.tab.c"
     break;
 
-  case 24:
-#line 162 "limbaj.y"
+  case 33:
+#line 217 "limbaj.y"
                     {
                if(checkVar(variable, nr_vars, (yyvsp[0].id)))
                {
@@ -1574,12 +1642,16 @@ yyreduce:
                variable[nr_vars].key = (yyvsp[0].id);
                nr_vars++;     
           }
-#line 1578 "y.tab.c"
+#line 1646 "y.tab.c"
     break;
 
-  case 27:
-#line 173 "limbaj.y"
+  case 36:
+#line 228 "limbaj.y"
                             {
+               if(checkArr(array, nr_arrays, (yyvsp[-3].id)))
+               {
+                    MyError("Array already declared!");
+               }
                int val = getInt((yyvsp[-1].val));
                if(val > MAX_EL_ARRAY)
                {
@@ -1599,20 +1671,20 @@ yyreduce:
                     array[nr_arrays].value[i] = "0";
                nr_arrays++;
            }
-#line 1603 "y.tab.c"
+#line 1675 "y.tab.c"
     break;
 
-  case 28:
-#line 193 "limbaj.y"
+  case 37:
+#line 252 "limbaj.y"
                                                                                           {
                group[nr_groups].name = (yyvsp[-8].id);
                nr_groups++;
            }
-#line 1612 "y.tab.c"
+#line 1684 "y.tab.c"
     break;
 
-  case 29:
-#line 197 "limbaj.y"
+  case 38:
+#line 256 "limbaj.y"
                                                        {
                bool found_class = 0;
                bool found_method = 0;
@@ -1635,11 +1707,11 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
-#line 1639 "y.tab.c"
+#line 1711 "y.tab.c"
     break;
 
-  case 37:
-#line 233 "limbaj.y"
+  case 42:
+#line 285 "limbaj.y"
                       {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[0].id)))
      {
@@ -1649,11 +1721,11 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1653 "y.tab.c"
+#line 1725 "y.tab.c"
     break;
 
-  case 38:
-#line 242 "limbaj.y"
+  case 43:
+#line 294 "limbaj.y"
                                 {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[-3].id)))
      {
@@ -1663,19 +1735,19 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[-3].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1667 "y.tab.c"
-    break;
-
-  case 42:
-#line 258 "limbaj.y"
-                            {
-     
-}
-#line 1675 "y.tab.c"
+#line 1739 "y.tab.c"
     break;
 
   case 47:
-#line 274 "limbaj.y"
+#line 310 "limbaj.y"
+                            {
+     
+}
+#line 1747 "y.tab.c"
+    break;
+
+  case 52:
+#line 326 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
@@ -1688,11 +1760,11 @@ yyreduce:
                else
                     variable[id].value = variable[id2].value;
           }
-#line 1692 "y.tab.c"
+#line 1764 "y.tab.c"
     break;
 
-  case 48:
-#line 286 "limbaj.y"
+  case 53:
+#line 338 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                if(id == -1)
@@ -1701,17 +1773,37 @@ yyreduce:
                     variable[id].value = (yyvsp[0].val);
                         
           }
-#line 1705 "y.tab.c"
+#line 1777 "y.tab.c"
     break;
 
-  case 50:
-#line 295 "limbaj.y"
+  case 55:
+#line 347 "limbaj.y"
                  { printAll(variable, nr_vars); }
-#line 1711 "y.tab.c"
+#line 1783 "y.tab.c"
     break;
 
-  case 53:
-#line 298 "limbaj.y"
+  case 56:
+#line 348 "limbaj.y"
+              { fnctId = getFunctionId(function, nr_functions, (yyvsp[0].id)); }
+#line 1789 "y.tab.c"
+    break;
+
+  case 57:
+#line 348 "limbaj.y"
+                                                                                         {
+               if(checkFunction(function, nr_functions, (yyvsp[-4].id)))
+               {
+                    MyError("Called function has not been defined in the function definition section!");
+               }
+               //TODO
+               
+               param_no = 0;
+         }
+#line 1803 "y.tab.c"
+    break;
+
+  case 59:
+#line 358 "limbaj.y"
                                  {
                int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int index = getInt((yyvsp[-3].val));
@@ -1721,11 +1813,11 @@ yyreduce:
                     MyError("Segmentation fault! (core dumped)\n");
                array[vid].value[index] = (yyvsp[0].val);
          }
-#line 1725 "y.tab.c"
+#line 1817 "y.tab.c"
     break;
 
-  case 54:
-#line 307 "limbaj.y"
+  case 60:
+#line 367 "limbaj.y"
                   {
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
@@ -1738,11 +1830,11 @@ yyreduce:
                     group[group_id].nr_objects++;
                }
          }
-#line 1742 "y.tab.c"
+#line 1834 "y.tab.c"
     break;
 
-  case 55:
-#line 319 "limbaj.y"
+  case 61:
+#line 379 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1753,11 +1845,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
-#line 1757 "y.tab.c"
+#line 1849 "y.tab.c"
     break;
 
-  case 56:
-#line 329 "limbaj.y"
+  case 62:
+#line 389 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
@@ -1767,11 +1859,11 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
          }
-#line 1771 "y.tab.c"
+#line 1863 "y.tab.c"
     break;
 
-  case 57:
-#line 338 "limbaj.y"
+  case 63:
+#line 398 "limbaj.y"
                                                         {
                int group_id = getObjGroupId((yyvsp[-6].id));
                int obj_id = getObjId((yyvsp[-6].id), group_id);
@@ -1788,30 +1880,100 @@ yyreduce:
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 1792 "y.tab.c"
+#line 1884 "y.tab.c"
     break;
 
-  case 64:
-#line 366 "limbaj.y"
-                               {
-                               }
-#line 1799 "y.tab.c"
+  case 67:
+#line 420 "limbaj.y"
+          {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if (strcmp(def_type, "char") == 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          else if (strcmp(def_type, "bool") == 0)
+          {
+               int nr_int = getInt((yyvsp[0].val));
+               if (nr_int != 0 && nr_int != 1)
+               {
+                    MyError("The type of the variable in the function call does not match the function definition!");
+               }
+          }
+          param_no++;
+     }
+#line 1909 "y.tab.c"
     break;
 
-  case 65:
-#line 368 "limbaj.y"
+  case 68:
+#line 440 "limbaj.y"
+          {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkVar(variable, nr_vars, (yyvsp[0].id)) == 0)
+          {
+               MyError("The variable used in the function call is not declared!");
+          }
+          int current_var_id = getVarId(variable, nr_vars, (yyvsp[0].id));
+          char *current_type = getVarType(variable, nr_vars, current_var_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
+#line 1932 "y.tab.c"
+    break;
+
+  case 69:
+#line 458 "limbaj.y"
+           {
+          if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkArr(array, nr_arrays, (yyvsp[0].id)) == 0)
+          {
+               MyError("The array used in the function call is not declared!");
+          }
+          int current_arr_id = getArrId(array, nr_arrays, (yyvsp[0].id));
+          char *current_type = getArrType(array, nr_arrays, current_arr_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the array in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
+#line 1955 "y.tab.c"
+    break;
+
+  case 74:
+#line 483 "limbaj.y"
+                               {}
+#line 1961 "y.tab.c"
+    break;
+
+  case 75:
+#line 484 "limbaj.y"
                                         {}
-#line 1805 "y.tab.c"
+#line 1967 "y.tab.c"
     break;
 
-  case 66:
-#line 369 "limbaj.y"
+  case 76:
+#line 485 "limbaj.y"
                                         {}
-#line 1811 "y.tab.c"
+#line 1973 "y.tab.c"
     break;
 
 
-#line 1815 "y.tab.c"
+#line 1977 "y.tab.c"
 
       default: break;
     }
@@ -2043,7 +2205,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 375 "limbaj.y"
+#line 490 "limbaj.y"
 
 int yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s,yylineno);
@@ -2055,7 +2217,17 @@ void MyError(char *s){
 }
 
 void printAll(){
-     printf("----  identifiers  ----\n\n");
+     printf("----  functions  ----\n\n");
+     for(int i=0; i<nr_functions; i++)
+     {
+          printf("%s -> %s\n", function[i].name, function[i].type);
+          for(int j=0; j<function[i].nr_params; j++)
+          {
+               printf("     %s %s = %s\n", function[i].params[j].type, function[i].params[j].key, function[i].params[j].value);
+          }
+     }
+
+     printf("\n----  identifiers  ----\n\n");
      for(int i=0; i<nr_vars; i++)
      {
           if(variable[i].value == NULL)
@@ -2148,6 +2320,13 @@ int getVarId(varmap *m, int size, char *var){
      return -1;
 }
 
+int getArrId(vecmap *m, int size, char *arr){
+     for(int i=0; i<size; i++)
+          if(strcmp(arr, m[i].key) == 0)
+               return i;
+     return -1;
+}
+
 int getObjVarId(char *name, int group_id, int obj_id){
      for(int i = 0; i < group[group_id].nr_vars; i++)
           if(strcmp(name, group[group_id].vars[obj_id][i].key) == 0)
@@ -2203,6 +2382,18 @@ int checkVar(varmap *m, int size, char *var)
      return 0;
 }
 
+int checkArr(vecmap *m, int size, char *arr)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, arr) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
 int checkMethod(methodmap *m, int size, char *method)
 {
      for(int i=0; i<size; i++)
@@ -2213,6 +2404,47 @@ int checkMethod(methodmap *m, int size, char *method)
           }
      }
      return 0;
+}
+
+int checkFunction(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int getFunctionId(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return i;
+          }
+     }
+     return -1;
+}
+
+char* getVarType(varmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+char* getArrType(vecmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+int isArray(varmap *m, int size, int index)
+{
+     char *varname = m[index].key;
+     if(varname[0]=='@') return 1;
+          else return 0;
 }
 
 int main(int argc, char** argv){
