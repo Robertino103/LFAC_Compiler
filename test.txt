@@ -20,9 +20,11 @@ group teacher{
         int $age;
         char $name;
         int $salary;
+        float @teacharr[22];
     end_fields
     begin_methods
-        bool $isGay(){};
+        bool $isGay(int @x[50]){};
+        float $getSalary(){};
     end_methods
 };
 
