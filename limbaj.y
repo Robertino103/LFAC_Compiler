@@ -14,6 +14,8 @@
 #define MAX_MSG 100
 #define MAX_MSG_DIGITS 5
 #define MAX_FUNCTIONS 100
+#define MAX_EXPRESSIONS 100
+#define MAX_EXP_SIZE 100
 
 extern FILE* yyin;
 extern char* yytext;
@@ -62,17 +64,30 @@ typedef struct{
 } groupmap;
 groupmap group[MAX_GROUPS];
 
+typedef struct{
+     char *type;
+     char expr[MAX_EXP_SIZE];
+     char *value;
+} expmap;
+expmap expression[MAX_EXPRESSIONS];
+
+
 void printAll();
 void MyError(char *err);
 char* getVarType(varmap *m, int size, int index);
 char* getArrType(vecmap *m, int size, int index);
 void createSymbolTable();
+void checkExprType(char* var_name);
+void addExpression();
+
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
 int nr_functions = 0;
+int nr_expr = 0;
 int param_no = 0;
 int fnctId = -1;
+char *expr_current_type;
 
 %}
 %union {
@@ -85,7 +100,7 @@ int fnctId = -1;
 %token <id> GID
 %token <id> VID
 %token <id> TIP
-%token BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
+%token BGIN END ASSIGN ASSIGNEXP PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
 %token IF FOR WHILE CHECK LE GE LT GT
 %token PLUS MINUS TIMES DIVIDE
@@ -193,14 +208,9 @@ field : TIP ID {
           group[nr_groups].nr_vars++; 
           }
       | TIP VID'['NR']' {
-          if(getInt($4) > MAX_EL_ARRAY)
-          {
-               char err[MAX_MSG] = "Sorry! We can't hold more than ";
-               char max_el[MAX_MSG_DIGITS];
-               sprintf(max_el, "%d", MAX_EL_ARRAY);
-               max_el[strlen(max_el)] = '\0';
-               strcat(err, max_el);
-               strcat(err, " elements in an array ! Go try writing in RUST! \n");
+          if(getInt($4) > MAX_EL_ARRAY){
+               char err[MAX_MSG];
+               sprintf(err, "Sorry! We can't hold more than %d elements in an array ! Go try writing in RUST! \n", MAX_EL_ARRAY);
                MyError(err); 
           }
 
@@ -336,15 +346,21 @@ expression : arithmetic
            | expression arithmetic
            ;
 
-arithmetic : NR
-           | arithmetic PLUS arithmetic
-           | arithmetic MINUS arithmetic
-           | arithmetic TIMES arithmetic
-           | arithmetic DIVIDE arithmetic
-           | LPAREN arithmetic RPAREN
+arithmetic : NR {strcat(expression[nr_expr].expr, $1);}
+           | ID {checkExprType($1); strcat(expression[nr_expr].expr, $1);}
+           | arithmetic PLUS {strcat(expression[nr_expr].expr, "+");} arithmetic
+           | arithmetic MINUS {strcat(expression[nr_expr].expr, "-");} arithmetic
+           | arithmetic TIMES {strcat(expression[nr_expr].expr, "*");} arithmetic
+           | arithmetic DIVIDE {strcat(expression[nr_expr].expr, "/");} arithmetic
+           | LPAREN {strcat(expression[nr_expr].expr, "((");} arithmetic RPAREN {strcat(expression[nr_expr].expr, "))");} 
            ;
 
 statement: expression
+         | ID ASSIGNEXP expression {
+                                    expression[nr_expr].type = expr_current_type;
+                                    expr_current_type = NULL;
+                                    nr_expr++;
+                                    };
          | ID ASSIGN ID {
                int id = getVarId(variable, nr_vars, $1);
                int id2 = getVarId(variable, nr_vars, $3);
@@ -933,7 +949,6 @@ void createSymbolTable(){
                }
                ;
      }
-     fclose(var_file);
 
      fun_file = fopen("./symbol_table_functions.txt", "w");
      if(fun_file == NULL){
@@ -974,7 +989,13 @@ void createSymbolTable(){
                }
      }
 
+
+     fprintf(var_file, "\nUsed expressions:\n");
+     for(int i = 0; i < nr_expr; i++)
+          fprintf(var_file, "    %s   (type: %s)\n", expression[i].expr, expression[i].type);
+
      fclose(fun_file);
+     fclose(var_file);
 }
 
 int getInt(char *var){
@@ -1123,6 +1144,21 @@ int isArray(varmap *m, int size, int index)
      char *varname = m[index].key;
      if(varname[0]=='@') return 1;
           else return 0;
+}
+
+void checkExprType(char *var_name) {
+     int id = getVarId(variable, nr_vars, var_name);
+     if(expr_current_type == NULL)
+          expr_current_type = variable[id].type;
+     else if(strcmp(variable[id].type, expr_current_type) != 0){
+          char errMsg[100];
+          sprintf(errMsg,"Variable '%s' has type '%s' but expected '%s'\n", var_name, variable[id].type, expr_current_type);
+          MyError(errMsg);
+     }
+}
+
+void addExpression(){
+
 }
 
 int main(int argc, char** argv){
