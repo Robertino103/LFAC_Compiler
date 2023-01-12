@@ -50,13 +50,8 @@ extern int yydebug;
   enum yytokentype
   {
     NR = 258,
-<<<<<<< HEAD
-    STRING = 259,
-    ID = 260,
-=======
     ID = 259,
     GID = 260,
->>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
     VID = 261,
     TIP = 262,
     BGIN = 263,
@@ -72,18 +67,21 @@ extern int yydebug;
     BGINFIELDS = 273,
     ENDFIELDS = 274,
     BGINMETHODS = 275,
-    ENDMETHODS = 276
+    ENDMETHODS = 276,
+    IF = 277,
+    FOR = 278,
+    WHILE = 279,
+    CHECK = 280,
+    LE = 281,
+    GE = 282,
+    LT = 283,
+    GT = 284
   };
 #endif
 /* Tokens.  */
 #define NR 258
-<<<<<<< HEAD
-#define STRING 259
-#define ID 260
-=======
 #define ID 259
 #define GID 260
->>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
 #define VID 261
 #define TIP 262
 #define BGIN 263
@@ -100,25 +98,25 @@ extern int yydebug;
 #define ENDFIELDS 274
 #define BGINMETHODS 275
 #define ENDMETHODS 276
+#define IF 277
+#define FOR 278
+#define WHILE 279
+#define CHECK 280
+#define LE 281
+#define GE 282
+#define LT 283
+#define GT 284
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-<<<<<<< HEAD
-#line 62 "limbaj.y"
-=======
-#line 52 "limbaj.y"
->>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
+#line 77 "limbaj.y"
 
      char* id;
      char* val;
 
-<<<<<<< HEAD
-#line 105 "y.tab.h"
-=======
-#line 104 "y.tab.h"
->>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
