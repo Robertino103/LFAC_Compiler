@@ -1,3 +1,8 @@
+begin_fnct
+int $function (int $integer);
+int $scndfunction (float @vector[70]);
+end_fnct
+
 group student{
     begin_fields
         int $x;
@@ -31,7 +36,7 @@ group teacher{
 
 int $age;
 int @x[58];
-int @vec[5];
+float @vec[5];
 float $salary;
 int $n;
 
@@ -49,15 +54,6 @@ begin_progr
     $patrut.$salary = $s.$z;
     @x[5] = 2222;
     @vec[2] = 12;
-    
-    $patrut.@teacharr[0] = 12;
-    $patrut.@teacharr[1] = $n;
-    $patrut.@teacharr[2] = $s.$z;
-    $moc.@studarr[2] = 50;
-    $patrut.@teacharr[3] = $moc.@studarr[2];
-    @x[0] = 4;
-    @x[1] = $n;
-    @x[2] = @vec[2];
-    @x[3] = $s.$z;
-    @x[4] = $patrut.@teacharr[3];
+    $scndfunction (@vec);
+    print;
 end_progr

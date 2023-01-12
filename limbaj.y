@@ -13,6 +13,7 @@
 #define MAX_GROUPS 100
 #define MAX_MSG 100
 #define MAX_MSG_DIGITS 5
+#define MAX_FUNCTIONS 100
 
 extern FILE* yyin;
 extern char* yytext;
@@ -42,6 +43,14 @@ methodmap method[MAX_METHODS];
 
 typedef struct{
      char *name;
+     char *type;
+     int nr_params;
+     varmap params[MAX_PARAMS];
+} fnctmap;
+fnctmap function[MAX_FUNCTIONS];
+
+typedef struct{
+     char *name;
      int nr_methods;
      int nr_vars;
      int nr_arrays;
@@ -61,6 +70,9 @@ void createSymbolTable();
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
+int nr_functions = 0;
+int param_no = 0;
+int fnctId = -1;
 
 %}
 %union {
@@ -75,6 +87,7 @@ int nr_groups = 0;
 %token <id> TIP
 %token BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
+%token IF FOR WHILE CHECK LE GE LT GT
 %start progr
 %%
 progr: global function_def declaratii bloc {printf("\nSuccesfully compiled!\n"); createSymbolTable();}
@@ -96,8 +109,49 @@ functions : function ';'
           | functions function ';'
           ;
 
-function : TIP ID '(' lista_param ')'
-          ;
+function : TIP ID '(' fnct_list_param ')' {
+     if(checkFunction(function, nr_functions, $2))
+     {
+          MyError("A function with the same name was already declared !");
+     }
+     function[nr_functions].type = $1;
+     function[nr_functions].name = $2;
+     nr_functions++;
+}
+         ;
+
+fnct_list_param : /* empty */
+                | fnct_param
+                | fnct_list_param ',' fnct_param
+                ;
+
+fnct_param : TIP ID { 
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = $1;
+     function[nr_functions].params[function[nr_functions].nr_params].key = $2;
+     function[nr_functions].nr_params++;
+}
+           | TIP VID '['NR']' {
+     if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
+     {
+          MyError("Duplicate parameter used!");
+     }
+     function[nr_functions].params[function[nr_functions].nr_params].type = $1;
+     function[nr_functions].params[function[nr_functions].nr_params].key = $2;
+     function[nr_functions].nr_params++;
+}
+           ;
+
+lista_param : /* empty */
+            | param
+            | lista_param ','  param 
+            ;
+            
+param : TIP ID
+      ;
 
 methods : /* empty */
         | method ';'
@@ -106,15 +160,22 @@ methods : /* empty */
      
 
 method : TIP ID'('method_list_param')' '{'group_statement_list'}'{
+<<<<<<<<< Temporary merge branch 1
+=========
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, $2))
          {
                MyError("Method already defined!");
          }
+>>>>>>>>> Temporary merge branch 2
          group[nr_groups].methods[group[nr_groups].nr_methods].name = $2;
          group[nr_groups].methods[group[nr_groups].nr_methods].type = $1;
          group[nr_groups].nr_methods++;
          }
+<<<<<<<<< Temporary merge branch 1
+        ;
+=========
          ;
+>>>>>>>>> Temporary merge branch 2
 
 fields : /* empty */
        | field ';'
@@ -122,16 +183,25 @@ fields : /* empty */
        ;
 
 field : TIP ID {
+<<<<<<<<< Temporary merge branch 1
+          for(int i = 0; i < 50; i++){
+=========
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, $2))
           {
                MyError("Field variable already declared!");
           }
           for(int i = 0; i < MAX_OBJECTS; i++){
+>>>>>>>>> Temporary merge branch 2
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = $1;
                group[nr_groups].vars[i][group[nr_groups].nr_vars].key = $2;
           }
           group[nr_groups].nr_vars++; 
           }
+<<<<<<<<< Temporary merge branch 1
+      | TIP VID'['NR']' { 
+               group[nr_groups].arrays[group[nr_groups].nr_arrays].size = $4;
+               group[nr_groups].nr_arrays++;
+=========
       | TIP VID'['NR']' {
           if(getInt($4) > MAX_EL_ARRAY)
           {
@@ -155,6 +225,7 @@ field : TIP ID {
                }
           }
           group[nr_groups].nr_arrays++;
+>>>>>>>>> Temporary merge branch 2
           }
       ;
 
@@ -163,10 +234,13 @@ declaratii : /* empty */
 	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID {
+<<<<<<<<< Temporary merge branch 1
+=========
                if(checkVar(variable, nr_vars, $2))
                {
                     MyError("Variable already declared!");
                }
+>>>>>>>>> Temporary merge branch 2
                variable[nr_vars].type = $1;
                variable[nr_vars].key = $2;
                nr_vars++;     
@@ -174,7 +248,15 @@ declaratie : TIP ID {
            | TIP ID '(' lista_param ')'
            | TIP ID '(' ')'
            | TIP VID'['NR']'{
+               if(checkArr(array, nr_arrays, $2))
+               {
+                    MyError("Array already declared!");
+               }
                int val = getInt($4);
+<<<<<<<<< Temporary merge branch 1
+               if(val > 50)
+                    MyError("Sorry! We can't hold more than 50 elements in an array ! Go try RUST!\n");
+=========
                if(val > MAX_EL_ARRAY)
                {
                     char err[MAX_MSG] = "Sorry! We can't hold more than ";
@@ -185,6 +267,7 @@ declaratie : TIP ID {
                     strcat(err, " elements in an array ! Go try writing in RUST! \n");
                     MyError(err);
                }
+>>>>>>>>> Temporary merge branch 2
 
                array[nr_arrays].key = $2;
                array[nr_arrays].size = val;
@@ -220,13 +303,6 @@ declaratie : TIP ID {
                else if (found_method == 0) MyError("No such method found!");
            }
            ;
-lista_param : /* empty */
-            | param
-            | lista_param ','  param 
-            ;
-            
-param : TIP ID
-      ;
 
 method_list_param : /* empty */
                   | method_param
@@ -234,6 +310,12 @@ method_list_param : /* empty */
                   ;
 
 method_param : TIP ID {
+<<<<<<<<< Temporary merge branch 1
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
+     group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
+     group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
+}
+=========
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
      {
           MyError("Duplicate parameter used!");
@@ -251,6 +333,7 @@ method_param : TIP ID {
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
+>>>>>>>>> Temporary merge branch 2
              ;
 
 method_check_list_param : /* empty */
@@ -296,7 +379,9 @@ statement: ID ASSIGN ID {
                         
           }
          | PRINT ID
+         | PRINT { printAll(variable, nr_vars); }
          | ID '(' lista_apel ')'
+         | VID'['NR']' ASSIGN ID
          | VID'['NR']' ASSIGN NR {
                int vid = getVecId(array, nr_arrays, $1);
                int index = getInt($3);
@@ -423,81 +508,222 @@ statement: ID ASSIGN ID {
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-         | ID GROUP_ACCESS VID'['NR']' ASSIGN NR{
-               int group_id = getObjGroupId($1);
-               int obj_id = getObjId($1, group_id);
-               int arr_id = getObjVecId($3, group_id, obj_id);
-               int index = getInt($5);
-
-               if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
-               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
-               else
-                    group[group_id].arrays[obj_id][arr_id].value[index] = $8;
-         }
-         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID{
-               int group_id = getObjGroupId($1);
-               int obj_id = getObjId($1, group_id);
-               int arr_id = getObjVecId($3, group_id, obj_id);
-               int index = getInt($5);
-               int assign_id = getVarId(variable, nr_vars, $8);
-
-               if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
-               if(assign_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
-               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
-               else
-                    group[group_id].arrays[obj_id][arr_id].value[index] = variable[assign_id].value;
-         }
-         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID GROUP_ACCESS ID {
-               int group_id = getObjGroupId($1);
-               int obj_id = getObjId($1, group_id);
-               int arr_id = getObjVecId($3, group_id, obj_id);
-               int index = getInt($5);
-
-               int group_id2 = getObjGroupId($8);
-               int obj_id2 = getObjId($8, group_id2);
-               int var_id2 = getObjVarId($10, group_id2, obj_id2);
-
-               if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
-               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
-               if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
-               else
-                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].vars[obj_id2][var_id2].value;
-         }
-         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID GROUP_ACCESS VID'['NR']' {
-               int group_id = getObjGroupId($1);
-               int obj_id = getObjId($1, group_id);
-               int arr_id = getObjVecId($3, group_id, obj_id);
-               int index = getInt($5);
-
-               int group_id2 = getObjGroupId($8);
-               int obj_id2 = getObjId($8, group_id2);
-               int arr_id2 = getObjVecId($10, group_id2, obj_id2);
-               int index2 = getInt($12);
-
-               if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
-               if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
-               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
-               if(index2 < 0 || index2 > group[group_id].arrays[obj_id][arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
-               else
-                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].arrays[obj_id2][arr_id2].value[index2];
-         }
          ;
+
+for_statement : ID ASSIGN ID ',' ID {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $5))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              | ID ASSIGN NR ',' NR
+              | ID ASSIGN ID ',' NR {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              | ID ASSIGN NR ',' ID {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $5))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              ;
         
-lista_apel : NR
-           | lista_apel ',' NR
+ctrl_statement : ID CHECK ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID CHECK NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR CHECK ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR CHECK NR
+               | ID LT ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID LT NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LT ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LT NR
+               | ID LE ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID LE NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LE ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LE NR
+               | ID GT ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID GT NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GT ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GT NR
+               | ID GE ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID GE NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GE ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GE NR
+               ;
+
+lista_apel : /* empty */
+           | apel
+           | lista_apel ',' apel
            ;
+apel : NR {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if (strcmp(def_type, "char") == 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          else if (strcmp(def_type, "bool") == 0)
+          {
+               int nr_int = getInt($1);
+               if (nr_int != 0 && nr_int != 1)
+               {
+                    MyError("The type of the variable in the function call does not match the function definition!");
+               }
+          }
+          param_no++;
+     }
+     | ID {
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkVar(variable, nr_vars, $1) == 0)
+          {
+               MyError("The variable used in the function call is not declared!");
+          }
+          int current_var_id = getVarId(variable, nr_vars, $1);
+          char *current_type = getVarType(variable, nr_vars, current_var_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
+     | VID {
+          if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          {
+               MyError("The type of the variable in the function call does not match the function definition!");
+          }
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          if(checkArr(array, nr_arrays, $1) == 0)
+          {
+               MyError("The array used in the function call is not declared!");
+          }
+          int current_arr_id = getVecId(array, nr_arrays, $1);
+          char *current_type = getArrType(array, nr_arrays, current_arr_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               MyError("The type of the array in the function call does not match the function definition!");
+          }
+          param_no++;
+     }
 
 group_statement_list : /* empty */
                      | group_statement ';'
@@ -505,10 +731,19 @@ group_statement_list : /* empty */
                      ;
 
 group_statement : ID ASSIGN ID
+<<<<<<<<< Temporary merge branch 1
+                | ID ASSIGN NR {
+                               }
+                | VID'['NR']' ASSIGN ID {}
+                | VID'['NR']' ASSIGN NR {}
+                | PRINT ID 
+                | PRINT 
+=========
                 | ID ASSIGN NR {}
                 | VID'['NR']' ASSIGN ID {}
                 | VID'['NR']' ASSIGN NR {}
                 | PRINT ID 
+>>>>>>>>> Temporary merge branch 2
                 ;
 
 
@@ -522,15 +757,8 @@ void MyError(char *s){
      exit(EXIT_FAILURE);
 }
 
-void createSymbolTable(){
-     FILE* var_file;
-     FILE* fun_file;
-     var_file = fopen("./symbol_table.txt", "w");
-     if(var_file == NULL){
-          printf("Error printing to variable file!\n");
-          exit(1);
-     }
-     fprintf(var_file, "Predefined variables: ('type' 'name' = 'value')\n");
+void printAll(){
+     printf("----  identifiers  ----\n\n");
      for(int i=0; i<nr_vars; i++)
      {
           if(variable[i].value == NULL)
@@ -697,6 +925,18 @@ int checkVar(varmap *m, int size, char *var)
      return 0;
 }
 
+int checkArr(vecmap *m, int size, char *arr)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].key, arr) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
 int checkMethod(methodmap *m, int size, char *method)
 {
      for(int i=0; i<size; i++)
@@ -707,6 +947,30 @@ int checkMethod(methodmap *m, int size, char *method)
           }
      }
      return 0;
+}
+
+int checkFunction(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
+
+int getFunctionId(fnctmap *m, int size, char *function)
+{
+     for(int i=0; i<size; i++)
+     {
+          if(strcmp(m[i].name, function) == 0)
+          {
+               return i;
+          }
+     }
+     return -1;
 }
 
 char* getVarType(varmap *m, int size, int index)
