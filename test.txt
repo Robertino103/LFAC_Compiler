@@ -38,6 +38,7 @@ int $age;
 int @x[58];
 float @vec[5];
 float $salary;
+float $myfl;
 int $n;
 int $a;
 int $b;
@@ -78,10 +79,12 @@ begin_progr
     $a = $s.$z;
     $b = $moc.@studarr[2];
     
+    $a := 1+2+3+4+$n;
     
     $scndfunction (@vec);
-	
-    23*((5-2/3))*1+2-3;
+    $n := 23+$d*((5-2/3))*1+$age-$n;
+    $n := $salary+$myfl*(($salary-$myfl));
+    $d = $age;
     
 end_progr
 

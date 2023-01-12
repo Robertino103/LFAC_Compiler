@@ -57,31 +57,32 @@ extern int yydebug;
     BGIN = 263,
     END = 264,
     ASSIGN = 265,
-    PRINT = 266,
-    BGINGLOBAL = 267,
-    ENDGLOBAL = 268,
-    BGINFNCT = 269,
-    ENDFNCT = 270,
-    GROUP = 271,
-    GROUP_ACCESS = 272,
-    BGINFIELDS = 273,
-    ENDFIELDS = 274,
-    BGINMETHODS = 275,
-    ENDMETHODS = 276,
-    IF = 277,
-    FOR = 278,
-    WHILE = 279,
-    CHECK = 280,
-    LE = 281,
-    GE = 282,
-    LT = 283,
-    GT = 284,
-    PLUS = 285,
-    MINUS = 286,
-    TIMES = 287,
-    DIVIDE = 288,
-    LPAREN = 289,
-    RPAREN = 290
+    ASSIGNEXP = 266,
+    PRINT = 267,
+    BGINGLOBAL = 268,
+    ENDGLOBAL = 269,
+    BGINFNCT = 270,
+    ENDFNCT = 271,
+    GROUP = 272,
+    GROUP_ACCESS = 273,
+    BGINFIELDS = 274,
+    ENDFIELDS = 275,
+    BGINMETHODS = 276,
+    ENDMETHODS = 277,
+    IF = 278,
+    FOR = 279,
+    WHILE = 280,
+    CHECK = 281,
+    LE = 282,
+    GE = 283,
+    LT = 284,
+    GT = 285,
+    PLUS = 286,
+    MINUS = 287,
+    TIMES = 288,
+    DIVIDE = 289,
+    LPAREN = 290,
+    RPAREN = 291
   };
 #endif
 /* Tokens.  */
@@ -93,42 +94,43 @@ extern int yydebug;
 #define BGIN 263
 #define END 264
 #define ASSIGN 265
-#define PRINT 266
-#define BGINGLOBAL 267
-#define ENDGLOBAL 268
-#define BGINFNCT 269
-#define ENDFNCT 270
-#define GROUP 271
-#define GROUP_ACCESS 272
-#define BGINFIELDS 273
-#define ENDFIELDS 274
-#define BGINMETHODS 275
-#define ENDMETHODS 276
-#define IF 277
-#define FOR 278
-#define WHILE 279
-#define CHECK 280
-#define LE 281
-#define GE 282
-#define LT 283
-#define GT 284
-#define PLUS 285
-#define MINUS 286
-#define TIMES 287
-#define DIVIDE 288
-#define LPAREN 289
-#define RPAREN 290
+#define ASSIGNEXP 266
+#define PRINT 267
+#define BGINGLOBAL 268
+#define ENDGLOBAL 269
+#define BGINFNCT 270
+#define ENDFNCT 271
+#define GROUP 272
+#define GROUP_ACCESS 273
+#define BGINFIELDS 274
+#define ENDFIELDS 275
+#define BGINMETHODS 276
+#define ENDMETHODS 277
+#define IF 278
+#define FOR 279
+#define WHILE 280
+#define CHECK 281
+#define LE 282
+#define GE 283
+#define LT 284
+#define GT 285
+#define PLUS 286
+#define MINUS 287
+#define TIMES 288
+#define DIVIDE 289
+#define LPAREN 290
+#define RPAREN 291
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 78 "limbaj.y"
+#line 93 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 132 "y.tab.h"
+#line 134 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
