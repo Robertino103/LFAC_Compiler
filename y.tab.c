@@ -116,6 +116,7 @@ typedef struct{
      char *name;
      char *type;
      int nr_params;
+     int param_no;
      varmap params[MAX_PARAMS];
 } fnctmap;
 fnctmap function[MAX_FUNCTIONS];
@@ -145,6 +146,7 @@ void printAll();
 void MyError(char *err);
 char* getVarType(varmap *m, int size, int index);
 char* getArrType(vecmap *m, int size, int index);
+char* getFnctType(fnctmap *m, int size, int index);
 void createSymbolTable();
 void checkExprType(char* var_name);
 void addExpression();
@@ -156,10 +158,11 @@ int nr_functions = 0;
 int nr_expr = 0;
 int param_no = 0;
 int fnctId = -1;
+int fnctId2 = -1;
 char *expr_current_type;
 
 
-#line 163 "y.tab.c"
+#line 166 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -283,12 +286,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 93 "limbaj.y"
+#line 96 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 292 "y.tab.c"
+#line 295 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -667,20 +670,20 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   114,   114,   117,   118,   121,   122,   125,   126,   129,
-     130,   133,   144,   145,   146,   149,   158,   169,   170,   171,
-     174,   177,   178,   179,   183,   194,   195,   196,   199,   210,
-     231,   232,   233,   235,   244,   245,   246,   269,   273,   297,
-     298,   299,   302,   311,   322,   323,   324,   327,   333,   337,
-     338,   339,   345,   346,   349,   350,   351,   351,   352,   352,
-     353,   353,   354,   354,   355,   355,   358,   359,   364,   376,
-     384,   396,   408,   424,   425,   425,   432,   441,   455,   472,
-     489,   509,   521,   533,   542,   558,   577,   590,   606,   625,
-     647,   648,   649,   652,   666,   667,   677,   689,   699,   705,
-     711,   712,   722,   728,   734,   735,   745,   751,   757,   758,
-     768,   774,   780,   781,   791,   797,   803,   806,   807,   808,
-     810,   830,   848,   867,   868,   869,   872,   873,   874,   875,
-     876
+       0,   117,   117,   120,   121,   124,   125,   128,   129,   132,
+     133,   136,   149,   150,   151,   154,   165,   178,   179,   180,
+     183,   186,   187,   188,   192,   205,   206,   207,   210,   223,
+     244,   245,   246,   248,   259,   260,   261,   282,   291,   315,
+     316,   317,   320,   331,   344,   345,   346,   349,   355,   359,
+     360,   361,   367,   368,   371,   372,   373,   373,   374,   374,
+     375,   375,   376,   376,   377,   377,   380,   381,   392,   416,
+     428,   452,   472,   500,   501,   501,   510,   527,   553,   586,
+     615,   651,   665,   685,   698,   722,   753,   774,   802,   833,
+     871,   872,   873,   876,   896,   897,   911,   927,   941,   949,
+     957,   958,   972,   980,   988,   989,  1003,  1011,  1019,  1020,
+    1034,  1042,  1050,  1051,  1065,  1073,  1081,  1084,  1085,  1086,
+    1088,  1114,  1138,  1264,  1265,  1266,  1269,  1270,  1271,  1272,
+    1273
 };
 #endif
 
@@ -1667,73 +1670,83 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 114 "limbaj.y"
+#line 117 "limbaj.y"
                                            {printf("\nSuccesfully compiled!\n"); createSymbolTable();}
-#line 1673 "y.tab.c"
+#line 1676 "y.tab.c"
     break;
 
   case 11:
-#line 133 "limbaj.y"
+#line 136 "limbaj.y"
                                           {
      if(checkFunction(function, nr_functions, (yyvsp[-3].id)))
      {
-          MyError("A function with the same name was already declared !");
+          char err[MAX_MSG];
+          sprintf(err,"The function '%s' was already declared !", (yyvsp[-3].id));
+          MyError(err);
      }
      function[nr_functions].type = (yyvsp[-4].id);
      function[nr_functions].name = (yyvsp[-3].id);
      nr_functions++;
 }
-#line 1687 "y.tab.c"
+#line 1692 "y.tab.c"
     break;
 
   case 15:
-#line 149 "limbaj.y"
+#line 154 "limbaj.y"
                     { 
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[0].id)))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err,"Duplicate usage of parameter '%s'!", (yyvsp[0].id));
+          MyError(err);
      }
      function[nr_functions].params[function[nr_functions].nr_params].type = (yyvsp[-1].id);
      function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[0].id);
      function[nr_functions].nr_params++;
 }
-#line 1701 "y.tab.c"
+#line 1708 "y.tab.c"
     break;
 
   case 16:
-#line 158 "limbaj.y"
+#line 165 "limbaj.y"
                               {
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[-3].id)))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of parameter '%s'!", (yyvsp[-3].id));
+          MyError(err);
      }
      function[nr_functions].params[function[nr_functions].nr_params].type = (yyvsp[-4].id);
      function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[-3].id);
      function[nr_functions].nr_params++;
 }
-#line 1715 "y.tab.c"
+#line 1724 "y.tab.c"
     break;
 
   case 24:
-#line 183 "limbaj.y"
+#line 192 "limbaj.y"
                                                                  {
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, (yyvsp[-6].id)))
          {
-               MyError("Method already defined!");
+               char err[MAX_MSG];
+               sprintf(err, "Method '%s' already defined!", (yyvsp[-6].id));
+               MyError(err);
          }
          group[nr_groups].methods[group[nr_groups].nr_methods].name = (yyvsp[-6].id);
          group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
          group[nr_groups].nr_methods++;
          }
-#line 1729 "y.tab.c"
+#line 1740 "y.tab.c"
     break;
 
   case 28:
-#line 199 "limbaj.y"
+#line 210 "limbaj.y"
                {
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, (yyvsp[0].id)))
           {
-               MyError("Field variable already declared!");
+               char err[MAX_MSG];
+               sprintf(err, "Duplicate usage of the field variable '%s'", (yyvsp[0].id));
+               MyError(err);
           }
           for(int i = 0; i < MAX_OBJECTS; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = (yyvsp[-1].id);
@@ -1741,11 +1754,11 @@ yyreduce:
           }
           group[nr_groups].nr_vars++; 
           }
-#line 1745 "y.tab.c"
+#line 1758 "y.tab.c"
     break;
 
   case 29:
-#line 210 "limbaj.y"
+#line 223 "limbaj.y"
                         {
           if(getInt((yyvsp[-1].val)) > MAX_EL_ARRAY){
                char err[MAX_MSG];
@@ -1765,38 +1778,38 @@ yyreduce:
           }
           group[nr_groups].nr_arrays++;
           }
-#line 1769 "y.tab.c"
+#line 1782 "y.tab.c"
     break;
 
   case 33:
-#line 235 "limbaj.y"
+#line 248 "limbaj.y"
                     {
                if(checkVar(variable, nr_vars, (yyvsp[0].id)))
                {
-                    MyError("Variable already declared!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' already declared!", (yyvsp[0].id));
+                    MyError(err);
                }
                variable[nr_vars].type = (yyvsp[-1].id);
                variable[nr_vars].key = (yyvsp[0].id);
                nr_vars++;     
           }
-#line 1783 "y.tab.c"
+#line 1798 "y.tab.c"
     break;
 
   case 36:
-#line 246 "limbaj.y"
+#line 261 "limbaj.y"
                             {
                if(checkArr(array, nr_arrays, (yyvsp[-3].id))){
-                    MyError("Array already declared!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' already declared!", (yyvsp[-3].id));
+                    MyError(err);
                }
                int val = getInt((yyvsp[-1].val));
                if(val > MAX_EL_ARRAY)
                {
-                    char err[MAX_MSG] = "Sorry! We can't hold more than ";
-                    char max_el[MAX_MSG_DIGITS];
-                    sprintf(max_el, "%d", MAX_EL_ARRAY);
-                    max_el[strlen(max_el)] = '\0';
-                    strcat(err, max_el);
-                    strcat(err, " elements in an array ! Go try writing in RUST! \n");
+                    char err[MAX_MSG];
+                    sprintf(err, "Sorry! We can't hold more than %d elements in an array ! Go try writing in RUST!", MAX_EL_ARRAY);
                     MyError(err);
                }
 
@@ -1807,20 +1820,25 @@ yyreduce:
                     array[nr_arrays].value[i] = "0";
                nr_arrays++;
            }
-#line 1811 "y.tab.c"
+#line 1824 "y.tab.c"
     break;
 
   case 37:
-#line 269 "limbaj.y"
+#line 282 "limbaj.y"
                                                                                           {
+               if(checkGroup(group, nr_groups, (yyvsp[-8].id))){
+                    char err[MAX_MSG];
+                    sprintf(err, "Group '%s' already declared previously!", (yyvsp[-8].id));
+                    MyError(err);
+               }
                group[nr_groups].name = (yyvsp[-8].id);
                nr_groups++;
            }
-#line 1820 "y.tab.c"
+#line 1838 "y.tab.c"
     break;
 
   case 38:
-#line 273 "limbaj.y"
+#line 291 "limbaj.y"
                                                        {
                bool found_class = 0;
                bool found_method = 0;
@@ -1843,169 +1861,215 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
-#line 1847 "y.tab.c"
+#line 1865 "y.tab.c"
     break;
 
   case 42:
-#line 302 "limbaj.y"
+#line 320 "limbaj.y"
                       {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[0].id)))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of the parameter '%s'", (yyvsp[0].id));
+          MyError(err);
      }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = (yyvsp[-1].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1861 "y.tab.c"
+#line 1881 "y.tab.c"
     break;
 
   case 43:
-#line 311 "limbaj.y"
+#line 331 "limbaj.y"
                                 {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, (yyvsp[-3].id)))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of the parameter '%s'", (yyvsp[-3].id));
+          MyError(err);
      }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = (yyvsp[-4].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[-3].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1875 "y.tab.c"
+#line 1897 "y.tab.c"
     break;
 
   case 47:
-#line 327 "limbaj.y"
+#line 349 "limbaj.y"
                             {
      
 }
-#line 1883 "y.tab.c"
+#line 1905 "y.tab.c"
     break;
 
   case 54:
-#line 349 "limbaj.y"
+#line 371 "limbaj.y"
                 {strcat(expression[nr_expr].expr, (yyvsp[0].val));}
-#line 1889 "y.tab.c"
+#line 1911 "y.tab.c"
     break;
 
   case 55:
-#line 350 "limbaj.y"
+#line 372 "limbaj.y"
                 {checkExprType((yyvsp[0].id)); strcat(expression[nr_expr].expr, (yyvsp[0].id));}
-#line 1895 "y.tab.c"
+#line 1917 "y.tab.c"
     break;
 
   case 56:
-#line 351 "limbaj.y"
+#line 373 "limbaj.y"
                              {strcat(expression[nr_expr].expr, "+");}
-#line 1901 "y.tab.c"
+#line 1923 "y.tab.c"
     break;
 
   case 58:
-#line 352 "limbaj.y"
+#line 374 "limbaj.y"
                               {strcat(expression[nr_expr].expr, "-");}
-#line 1907 "y.tab.c"
+#line 1929 "y.tab.c"
     break;
 
   case 60:
-#line 353 "limbaj.y"
+#line 375 "limbaj.y"
                               {strcat(expression[nr_expr].expr, "*");}
-#line 1913 "y.tab.c"
+#line 1935 "y.tab.c"
     break;
 
   case 62:
-#line 354 "limbaj.y"
+#line 376 "limbaj.y"
                                {strcat(expression[nr_expr].expr, "/");}
-#line 1919 "y.tab.c"
-    break;
-
-  case 64:
-#line 355 "limbaj.y"
-                    {strcat(expression[nr_expr].expr, "((");}
-#line 1925 "y.tab.c"
-    break;
-
-  case 65:
-#line 355 "limbaj.y"
-                                                                                {strcat(expression[nr_expr].expr, "))");}
-#line 1931 "y.tab.c"
-    break;
-
-  case 67:
-#line 359 "limbaj.y"
-                                   {
-                                    expression[nr_expr].type = expr_current_type;
-                                    expr_current_type = NULL;
-                                    nr_expr++;
-                                    }
 #line 1941 "y.tab.c"
     break;
 
+  case 64:
+#line 377 "limbaj.y"
+                    {strcat(expression[nr_expr].expr, "((");}
+#line 1947 "y.tab.c"
+    break;
+
+  case 65:
+#line 377 "limbaj.y"
+                                                                                {strcat(expression[nr_expr].expr, "))");}
+#line 1953 "y.tab.c"
+    break;
+
+  case 67:
+#line 381 "limbaj.y"
+                                   {
+               if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+               {
+                    char err[MAX_MSG];
+                    sprintf(err,"Variable '%s' not declared previously!", (yyvsp[-2].id));
+                    MyError(err);
+               }
+               expression[nr_expr].type = expr_current_type;
+               expr_current_type = NULL;
+               nr_expr++;
+          }
+#line 1969 "y.tab.c"
+    break;
+
   case 68:
-#line 364 "limbaj.y"
+#line 392 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
                if(id == -1)
-                    MyError("First variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf("Variable '%s' not declared previously", (yyvsp[-2].id));
+                    MyError(err);
+               }
                else if(id2 == -1)
-                    MyError("Second variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[0].id));
+                    MyError(err);
+               }
                else if(variable[id2].value == NULL)
-                    MyError("Second variable does not store a value!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' does't have a stored value!", (yyvsp[0].id));
+                    MyError(err);
+               }
                else
                     variable[id].value = variable[id2].value;
           }
-#line 1958 "y.tab.c"
+#line 1998 "y.tab.c"
     break;
 
   case 69:
-#line 376 "limbaj.y"
+#line 416 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                if(id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[-2].id));
+                    MyError(err);
+               }
                else
                     variable[id].value = (yyvsp[0].val);
                         
           }
-#line 1971 "y.tab.c"
+#line 2015 "y.tab.c"
     break;
 
   case 70:
-#line 384 "limbaj.y"
+#line 428 "limbaj.y"
                                 {
                int id = getVarId(variable, nr_vars, (yyvsp[-5].id));
                int vid = getVecId(array, nr_arrays, (yyvsp[-3].id));
                int index = getInt((yyvsp[-1].val));
                if(id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[-5].id));
+                    MyError(err);
+               }
                if(vid == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-3].id));
+                    MyError(err);
+               }
                if(index < 0 || index >= array[vid].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                variable[id].value = array[vid].value[index];
          }
-#line 1988 "y.tab.c"
+#line 2044 "y.tab.c"
     break;
 
   case 71:
-#line 396 "limbaj.y"
+#line 452 "limbaj.y"
                                        {
                int group_id = getObjGroupId((yyvsp[-2].id));
                int obj_id = getObjId((yyvsp[-2].id), group_id);
                int var_id = getObjVarId((yyvsp[0].id), group_id, obj_id);
                int id = getVarId(variable, nr_vars, (yyvsp[-4].id));
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' does not exist!", (yyvsp[-2].id), (yyvsp[0].id));
+                    MyError(err);
+               }
                if(id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[-4].id));
+                    MyError(err);
+               }
                else
                     variable[id].value = group[group_id].vars[obj_id][var_id].value;
          }
-#line 2005 "y.tab.c"
+#line 2069 "y.tab.c"
     break;
 
   case 72:
-#line 408 "limbaj.y"
+#line 472 "limbaj.y"
                                                 {
                int group_id = getObjGroupId((yyvsp[-5].id));
                int obj_id = getObjId((yyvsp[-5].id), group_id);
@@ -2014,70 +2078,104 @@ yyreduce:
                int id = getVarId(variable, nr_vars, (yyvsp[-7].id));
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' does not exist!", (yyvsp[-5].id), (yyvsp[-3].id));
+                    MyError(err);
+               }
                if(id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[-7].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                else
                     variable[id].value = group[group_id].arrays[obj_id][arr_id].value[index];
          }
-#line 2026 "y.tab.c"
+#line 2102 "y.tab.c"
     break;
 
   case 74:
-#line 425 "limbaj.y"
+#line 501 "limbaj.y"
               { fnctId = getFunctionId(function, nr_functions, (yyvsp[0].id)); }
-#line 2032 "y.tab.c"
+#line 2108 "y.tab.c"
     break;
 
   case 75:
-#line 425 "limbaj.y"
+#line 501 "limbaj.y"
                                                                                          {
                if(checkFunction(function, nr_functions, (yyvsp[-4].id)) == 0)
                {
-                    MyError("Called function has not been defined in the function definition section!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Called function '%s' has not been defined!", (yyvsp[-4].id));
+                    MyError(err);
                }
-               param_no = 0;
+               function[fnctId].param_no = 0;
          }
-#line 2044 "y.tab.c"
+#line 2122 "y.tab.c"
     break;
 
   case 76:
-#line 432 "limbaj.y"
+#line 510 "limbaj.y"
                                  {
                int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int index = getInt((yyvsp[-3].val));
                if(vid == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-5].id));
+                    MyError(err);
+               }
                if(index < 0 || index >= array[vid].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                array[vid].value[index] = (yyvsp[0].val);
          }
-#line 2058 "y.tab.c"
+#line 2144 "y.tab.c"
     break;
 
   case 77:
-#line 441 "limbaj.y"
+#line 527 "limbaj.y"
                                  {
                int arr_id = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int var_id = getVarId(variable, nr_vars, (yyvsp[0].id));
                int index = getInt((yyvsp[-3].val));
 
                if(arr_id == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-5].id));
+                    MyError(err);
+               }
                if(var_id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[0].id));
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                
                array[arr_id].value[index] = variable[var_id].value;
          }
-#line 2077 "y.tab.c"
+#line 2175 "y.tab.c"
     break;
 
   case 78:
-#line 455 "limbaj.y"
+#line 553 "limbaj.y"
                                          {
                int arr_id = getVecId(array, nr_arrays, (yyvsp[-8].id));
                int index = getInt((yyvsp[-6].val));
@@ -2085,21 +2183,37 @@ yyreduce:
                int index2 = getInt((yyvsp[-1].val));
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-8].id));
+                    MyError(err);
+               }
                if(arr_id2 == -1)
-                    MyError("Second array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-3].id));
+                    MyError(err);
+               }
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index, (yyvsp[-8].id));
+                    MyError(err);
+               }
                if(index2 < 0 || index2 >= array[arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index2, (yyvsp[-3].id));
+                    MyError(err);
+               }
                
                array[arr_id].value[index] = array[arr_id2].value[index2];
          }
-#line 2099 "y.tab.c"
+#line 2213 "y.tab.c"
     break;
 
   case 79:
-#line 472 "limbaj.y"
+#line 586 "limbaj.y"
                                                 {
                int arr_id = getVecId(array, nr_arrays, (yyvsp[-7].id));
                int index = getInt((yyvsp[-5].val));
@@ -2109,19 +2223,31 @@ yyreduce:
                int var_id = getObjVarId((yyvsp[0].id), group_id, obj_id);
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-7].id));
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-2].id), (yyvsp[0].id));
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                
                array[arr_id].value[index] = group[group_id].vars[obj_id][var_id].value;
          }
-#line 2121 "y.tab.c"
+#line 2247 "y.tab.c"
     break;
 
   case 80:
-#line 489 "limbaj.y"
+#line 615 "limbaj.y"
                                                          {
                int arr_id = getVecId(array, nr_arrays, (yyvsp[-10].id));
                int index = getInt((yyvsp[-8].val));
@@ -2132,26 +2258,44 @@ yyreduce:
                int index2 = getInt((yyvsp[-1].val));
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", (yyvsp[-10].id));
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-5].id), (yyvsp[-3].id));
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index, (yyvsp[-10].id));
+                    MyError(err);
+               }
                if(index2 < 0 || index2 >= array[arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index2, (yyvsp[-3].id));
+                    MyError(err);
+               }
                
                array[arr_id].value[index] = group[group_id].arrays[obj_id][arr_id2].value[index2];
          }
-#line 2146 "y.tab.c"
+#line 2288 "y.tab.c"
     break;
 
   case 81:
-#line 509 "limbaj.y"
+#line 651 "limbaj.y"
                   {
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
                {
-                    MyError("No such group defined!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Group '%s' not defined previously!", (yyvsp[-1].id));
+                    MyError(err);
                }
                else{
                     group[group_id].object[group[group_id].nr_objects].key = (yyvsp[0].id);
@@ -2159,42 +2303,54 @@ yyreduce:
                     group[group_id].nr_objects++;
                }
          }
-#line 2163 "y.tab.c"
+#line 2307 "y.tab.c"
     break;
 
   case 82:
-#line 521 "limbaj.y"
+#line 665 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
                int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
                int assign_id = getVarId(variable, nr_vars, (yyvsp[0].id));
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-4].id), (yyvsp[-2].id));
+                    MyError(err);
+               } 
                if(assign_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[0].id));
+                    MyError(err);
+               } 
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
-#line 2180 "y.tab.c"
+#line 2332 "y.tab.c"
     break;
 
   case 83:
-#line 533 "limbaj.y"
+#line 685 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
                int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-4].id), (yyvsp[-2].id));
+                    MyError(err);
+               } 
                else
                     group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
          }
-#line 2194 "y.tab.c"
+#line 2350 "y.tab.c"
     break;
 
   case 84:
-#line 542 "limbaj.y"
+#line 698 "limbaj.y"
                                                         {
                int group_id = getObjGroupId((yyvsp[-6].id));
                int obj_id = getObjId((yyvsp[-6].id), group_id);
@@ -2205,17 +2361,25 @@ yyreduce:
                int var_id2 = getObjVarId((yyvsp[0].id), group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-6].id), (yyvsp[-4].id));
+                    MyError(err);
+               } 
                else if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-2].id), (yyvsp[0].id));
+                    MyError(err);
+               } 
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 2215 "y.tab.c"
+#line 2379 "y.tab.c"
     break;
 
   case 85:
-#line 558 "limbaj.y"
+#line 722 "limbaj.y"
                                                                  {
                int group_id = getObjGroupId((yyvsp[-9].id));
                int obj_id = getObjId((yyvsp[-9].id), group_id);
@@ -2227,19 +2391,31 @@ yyreduce:
                int index = getInt((yyvsp[-1].val));
 
                if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-5].id), (yyvsp[-3].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id2].arrays[obj_id2][arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-9].id), (yyvsp[-7].id));
+                    MyError(err);
+               } 
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].arrays[obj_id2][arr_id2].value[index];
          }
-#line 2239 "y.tab.c"
+#line 2415 "y.tab.c"
     break;
 
   case 86:
-#line 577 "limbaj.y"
+#line 753 "limbaj.y"
                                                 {
                int group_id = getObjGroupId((yyvsp[-7].id));
                int obj_id = getObjId((yyvsp[-7].id), group_id);
@@ -2247,17 +2423,25 @@ yyreduce:
                int index = getInt((yyvsp[-3].val));
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-7].id), (yyvsp[-5].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                else
                     group[group_id].arrays[obj_id][arr_id].value[index] = (yyvsp[0].val);
          }
-#line 2257 "y.tab.c"
+#line 2441 "y.tab.c"
     break;
 
   case 87:
-#line 590 "limbaj.y"
+#line 774 "limbaj.y"
                                                 {
                int group_id = getObjGroupId((yyvsp[-7].id));
                int obj_id = getObjId((yyvsp[-7].id), group_id);
@@ -2266,19 +2450,31 @@ yyreduce:
                int assign_id = getVarId(variable, nr_vars, (yyvsp[0].id));
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-7].id), (yyvsp[-5].id));
+                    MyError(err);
+               }
                if(assign_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {    
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", (yyvsp[0].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                else
                     group[group_id].arrays[obj_id][arr_id].value[index] = variable[assign_id].value;
          }
-#line 2278 "y.tab.c"
+#line 2474 "y.tab.c"
     break;
 
   case 88:
-#line 606 "limbaj.y"
+#line 802 "limbaj.y"
                                                                  {
                int group_id = getObjGroupId((yyvsp[-9].id));
                int obj_id = getObjId((yyvsp[-9].id), group_id);
@@ -2290,19 +2486,31 @@ yyreduce:
                int var_id2 = getObjVarId((yyvsp[0].id), group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-9].id), (yyvsp[-7].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", (yyvsp[-2].id), (yyvsp[0].id));
+                    MyError(err);
+               } 
                else
                     group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 2302 "y.tab.c"
+#line 2510 "y.tab.c"
     break;
 
   case 89:
-#line 625 "limbaj.y"
+#line 833 "limbaj.y"
                                                                           {
                int group_id = getObjGroupId((yyvsp[-12].id));
                int obj_id = getObjId((yyvsp[-12].id), group_id);
@@ -2315,344 +2523,432 @@ yyreduce:
                int index2 = getInt((yyvsp[-1].val));
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-12].id), (yyvsp[-10].id));
+                    MyError(err);
+               }
                if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", (yyvsp[-5].id), (yyvsp[-3].id));
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s.%s' array!", index, (yyvsp[-12].id), (yyvsp[-10].id));
+                    MyError(err);
+               }
                if(index2 < 0 || index2 > group[group_id].arrays[obj_id][arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s.%s' array!", index2, (yyvsp[-5].id), (yyvsp[-3].id));
+                    MyError(err);
+               }
                else
                     group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].arrays[obj_id2][arr_id2].value[index2];
          }
-#line 2329 "y.tab.c"
+#line 2553 "y.tab.c"
     break;
 
   case 93:
-#line 652 "limbaj.y"
+#line 876 "limbaj.y"
                                     {
      if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-4].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2348 "y.tab.c"
+#line 2578 "y.tab.c"
     break;
 
   case 95:
-#line 667 "limbaj.y"
+#line 897 "limbaj.y"
                                     {
      if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-4].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2363 "y.tab.c"
+#line 2597 "y.tab.c"
     break;
 
   case 96:
-#line 677 "limbaj.y"
+#line 911 "limbaj.y"
                                     {
      if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-4].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2378 "y.tab.c"
+#line 2616 "y.tab.c"
     break;
 
   case 97:
-#line 689 "limbaj.y"
+#line 927 "limbaj.y"
                             {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2393 "y.tab.c"
+#line 2635 "y.tab.c"
     break;
 
   case 98:
-#line 699 "limbaj.y"
+#line 941 "limbaj.y"
                             {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2404 "y.tab.c"
+#line 2648 "y.tab.c"
     break;
 
   case 99:
-#line 705 "limbaj.y"
+#line 949 "limbaj.y"
                             {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2415 "y.tab.c"
+#line 2661 "y.tab.c"
     break;
 
   case 101:
-#line 712 "limbaj.y"
+#line 958 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2430 "y.tab.c"
+#line 2680 "y.tab.c"
     break;
 
   case 102:
-#line 722 "limbaj.y"
+#line 972 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2441 "y.tab.c"
+#line 2693 "y.tab.c"
     break;
 
   case 103:
-#line 728 "limbaj.y"
+#line 980 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2452 "y.tab.c"
+#line 2706 "y.tab.c"
     break;
 
   case 105:
-#line 735 "limbaj.y"
+#line 989 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2467 "y.tab.c"
+#line 2725 "y.tab.c"
     break;
 
   case 106:
-#line 745 "limbaj.y"
+#line 1003 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2478 "y.tab.c"
+#line 2738 "y.tab.c"
     break;
 
   case 107:
-#line 751 "limbaj.y"
+#line 1011 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2489 "y.tab.c"
+#line 2751 "y.tab.c"
     break;
 
   case 109:
-#line 758 "limbaj.y"
+#line 1020 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2504 "y.tab.c"
+#line 2770 "y.tab.c"
     break;
 
   case 110:
-#line 768 "limbaj.y"
+#line 1034 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2515 "y.tab.c"
+#line 2783 "y.tab.c"
     break;
 
   case 111:
-#line 774 "limbaj.y"
+#line 1042 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2526 "y.tab.c"
+#line 2796 "y.tab.c"
     break;
 
   case 113:
-#line 781 "limbaj.y"
+#line 1051 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2541 "y.tab.c"
+#line 2815 "y.tab.c"
     break;
 
   case 114:
-#line 791 "limbaj.y"
+#line 1065 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[-2].id));
+          MyError(err);
      }
 }
-#line 2552 "y.tab.c"
+#line 2828 "y.tab.c"
     break;
 
   case 115:
-#line 797 "limbaj.y"
+#line 1073 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", (yyvsp[0].id));
+          MyError(err);
      }
 }
-#line 2563 "y.tab.c"
+#line 2841 "y.tab.c"
     break;
 
   case 120:
-#line 810 "limbaj.y"
+#line 1088 "limbaj.y"
           {
-          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].val));
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if (strcmp(def_type, "char") == 0)
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].val));
+               MyError(err);
           }
           else if (strcmp(def_type, "bool") == 0)
           {
                int nr_int = getInt((yyvsp[0].val));
                if (nr_int != 0 && nr_int != 1)
                {
-                    MyError("The type of the variable in the function call does not match the function definition!");
+                    char err[MAX_MSG];
+                    sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].val));
+                    MyError(err);
                }
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
-#line 2588 "y.tab.c"
+#line 2872 "y.tab.c"
     break;
 
   case 121:
-#line 830 "limbaj.y"
+#line 1114 "limbaj.y"
           {
-          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if(checkVar(variable, nr_vars, (yyvsp[0].id)) == 0)
           {
-               MyError("The variable used in the function call is not declared!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
           int current_var_id = getVarId(variable, nr_vars, (yyvsp[0].id));
           char *current_type = getVarType(variable, nr_vars, current_var_id);
           if (strcmp(def_type, current_type) != 0)
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
-#line 2611 "y.tab.c"
+#line 2901 "y.tab.c"
     break;
 
   case 122:
-#line 848 "limbaj.y"
+#line 1138 "limbaj.y"
            {
-          if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(!isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if(checkArr(array, nr_arrays, (yyvsp[0].id)) == 0)
           {
-               MyError("The array used in the function call is not declared!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
           int current_arr_id = getVecId(array, nr_arrays, (yyvsp[0].id));
           char *current_type = getArrType(array, nr_arrays, current_arr_id);
           if (strcmp(def_type, current_type) != 0)
           {
-               MyError("The type of the array in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", (yyvsp[0].id));
+               MyError(err);
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
-#line 2634 "y.tab.c"
+#line 2930 "y.tab.c"
     break;
 
   case 127:
-#line 873 "limbaj.y"
+#line 1270 "limbaj.y"
                                {}
-#line 2640 "y.tab.c"
+#line 2936 "y.tab.c"
     break;
 
   case 128:
-#line 874 "limbaj.y"
+#line 1271 "limbaj.y"
                                         {}
-#line 2646 "y.tab.c"
+#line 2942 "y.tab.c"
     break;
 
   case 129:
-#line 875 "limbaj.y"
+#line 1272 "limbaj.y"
                                         {}
-#line 2652 "y.tab.c"
+#line 2948 "y.tab.c"
     break;
 
 
-#line 2656 "y.tab.c"
+#line 2952 "y.tab.c"
 
       default: break;
     }
@@ -2884,7 +3180,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 880 "limbaj.y"
+#line 1277 "limbaj.y"
 
 int yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s,yylineno);
@@ -3147,6 +3443,11 @@ char* getArrType(vecmap *m, int size, int index)
      return m[index].type;
 }
 
+char* getFnctType(fnctmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
 int isArray(varmap *m, int size, int index)
 {
      char *varname = m[index].key;
@@ -3167,6 +3468,18 @@ void checkExprType(char *var_name) {
 
 void addExpression(){
 
+}
+
+int checkGroup(groupmap *m, int size, char *group)
+{
+     for(int i = 0; i < size; i++)
+     {
+          if(strcmp(m[i].name, group) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
 }
 
 int main(int argc, char** argv){
