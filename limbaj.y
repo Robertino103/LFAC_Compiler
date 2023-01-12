@@ -86,6 +86,7 @@ int fnctId = -1;
 %token <id> TIP
 %token BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
+%token IF FOR WHILE CHECK LE GE LT GT
 %start progr
 %%
 progr: global function_def declaratii bloc {printf("\nSuccesfully compiled!\n");}
@@ -346,7 +347,7 @@ statement: ID ASSIGN ID {
          | PRINT ID
          | PRINT { printAll(variable, nr_vars); }
          | ID { fnctId = getFunctionId(function, nr_functions, $1); } '(' lista_apel ')' {
-               if(checkFunction(function, nr_functions, $1))
+               if(checkFunction(function, nr_functions, $1) == 0)
                {
                     MyError("Called function has not been defined in the function definition section!");
                }
@@ -409,8 +410,165 @@ statement: ID ASSIGN ID {
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
+         | IF '(' ctrl_statement ')' '{' list '}'
+         | FOR '(' for_statement ')' '{' list '}'
+         | WHILE '(' ctrl_statement ')' '{' list '}'
          ;
+
+for_statement : ID ASSIGN ID ',' ID {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $5))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              | ID ASSIGN NR ',' NR
+              | ID ASSIGN ID ',' NR {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              | ID ASSIGN NR ',' ID {
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $5))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+              ;
         
+ctrl_statement : ID CHECK ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID CHECK NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR CHECK ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR CHECK NR
+               | ID LT ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID LT NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LT ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LT NR
+               | ID LE ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID LE NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LE ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR LE NR
+               | ID GT ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID GT NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GT ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GT NR
+               | ID GE ID{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | ID GE NR{
+     if(!checkVar(variable, nr_vars, $1))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GE ID{
+     if(!checkVar(variable, nr_vars, $3))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+               | NR GE NR
+               ;
+
 lista_apel : /* empty */
            | apel
            | lista_apel ',' apel

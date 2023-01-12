@@ -16,7 +16,15 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return ID;}
 @[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return VID;}
+"if" {return IF;}
+"for" {return FOR;}
+"while" {return WHILE;}
 "=" {return ASSIGN;}
+"==" {return CHECK;}
+"<" {return LT;}
+"<=" {return LE;}
+">" {return GT;}
+">=" {return GE;}
 "." {return GROUP_ACCESS;}
 "print" {return PRINT;}
 "group" {return GROUP;}

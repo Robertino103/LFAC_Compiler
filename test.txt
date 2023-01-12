@@ -1,6 +1,6 @@
 begin_fnct
-int $function (int @z[50]);
-int $scndfnct (float $z, bool $bl);
+int $function (int $integer);
+int $scndfunction (float @vector[70]);
 end_fnct
 
 group student{
@@ -35,7 +35,7 @@ group teacher{
 
 int $age;
 int @x[58];
-int @vec[5];
+float @vec[5];
 float $salary;
 int $n;
 
@@ -52,6 +52,6 @@ begin_progr
     $patrut.$salary = $s.$z;
     @x[5] = 3;
     @vec[2] = 12;
-    $function(@vec);
+    $scndfunction (@vec);
     print;
 end_progr
