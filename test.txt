@@ -1,5 +1,5 @@
 begin_fnct
-int $function (int $integer);
+int $function (int $integer, float $dl);
 int $scndfunction (float @vector[70]);
 end_fnct
 
@@ -84,8 +84,8 @@ begin_progr
     $scndfunction (@vec);
     $n := 23+$d*((5-2/3))*1+$age-$n;
     $n := $salary+$myfl*(($salary-$myfl));
-    $d = $age;
-    
+    $d = $n;
+    $function ( $age , $salary);
 end_progr
 
 

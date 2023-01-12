@@ -11,5 +11,5 @@ teacher:
 
 Functions: 'return_type' 'name'('param_type' 'param_name', ...)
 
-    int $function(int $integer)
+    int $function(int $integer, float $dl)
     int $scndfunction(float @vector)
