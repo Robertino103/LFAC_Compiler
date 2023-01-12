@@ -67,7 +67,15 @@ extern int yydebug;
     BGINFIELDS = 273,
     ENDFIELDS = 274,
     BGINMETHODS = 275,
-    ENDMETHODS = 276
+    ENDMETHODS = 276,
+    IF = 277,
+    FOR = 278,
+    WHILE = 279,
+    CHECK = 280,
+    LE = 281,
+    GE = 282,
+    LT = 283,
+    GT = 284
   };
 #endif
 /* Tokens.  */
@@ -90,6 +98,14 @@ extern int yydebug;
 #define ENDFIELDS 274
 #define BGINMETHODS 275
 #define ENDMETHODS 276
+#define IF 277
+#define FOR 278
+#define WHILE 279
+#define CHECK 280
+#define LE 281
+#define GE 282
+#define LT 283
+#define GT 284
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -100,7 +116,7 @@ union YYSTYPE
      char* id;
      char* val;
 
-#line 104 "y.tab.h"
+#line 120 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
