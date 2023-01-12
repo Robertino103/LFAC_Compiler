@@ -88,6 +88,12 @@ int fnctId = -1;
 %token BGIN END ASSIGN PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
 %token IF FOR WHILE CHECK LE GE LT GT
+%token PLUS MINUS TIMES DIVIDE
+%token LPAREN RPAREN
+
+%left PLUS MINUS
+%left TIMES DIVIDE
+
 %start progr
 %%
 progr: global function_def declaratii bloc {printf("\nSuccesfully compiled!\n"); createSymbolTable();}
@@ -325,7 +331,21 @@ list : /* empty */
 
 /* instructiune */
 
-statement: ID ASSIGN ID {
+
+expression : arithmetic
+           | expression arithmetic
+           ;
+
+arithmetic : NR
+           | arithmetic PLUS arithmetic
+           | arithmetic MINUS arithmetic
+           | arithmetic TIMES arithmetic
+           | arithmetic DIVIDE arithmetic
+           | LPAREN arithmetic RPAREN
+           ;
+
+statement: expression
+         | ID ASSIGN ID {
                int id = getVarId(variable, nr_vars, $1);
                int id2 = getVarId(variable, nr_vars, $3);
                if(id == -1)
@@ -344,7 +364,47 @@ statement: ID ASSIGN ID {
                else
                     variable[id].value = $3;
                         
-          } //TODO
+          }
+         | ID ASSIGN VID'['NR']'{
+               int id = getVarId(variable, nr_vars, $1);
+               int vid = getVecId(array, nr_arrays, $3);
+               int index = getInt($5);
+               if(id == -1)
+                    MyError("Variable not found!\n");
+               if(vid == -1)
+                    MyError("Array not found!\n");
+               if(index < 0 || index >= array[vid].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               variable[id].value = array[vid].value[index];
+         }
+         | ID ASSIGN ID GROUP_ACCESS ID{
+               int group_id = getObjGroupId($3);
+               int obj_id = getObjId($3, group_id);
+               int var_id = getObjVarId($5, group_id, obj_id);
+               int id = getVarId(variable, nr_vars, $1);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the second variable does not exist!\n");
+               if(id == -1)
+                    MyError("Can't assign that becah the first variable does not exist!\n");
+               else
+                    variable[id].value = group[group_id].vars[obj_id][var_id].value;
+         }
+         | ID ASSIGN ID GROUP_ACCESS VID'['NR']'{
+               int group_id = getObjGroupId($3);
+               int obj_id = getObjId($3, group_id);
+               int arr_id = getObjVecId($5, group_id, obj_id);
+               int index = getInt($7);
+               int id = getVarId(variable, nr_vars, $1);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(id == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    variable[id].value = group[group_id].arrays[obj_id][arr_id].value[index];
+         }
          | PRINT ID
          | ID { fnctId = getFunctionId(function, nr_functions, $1); } '(' lista_apel ')' {
                if(checkFunction(function, nr_functions, $1) == 0)
@@ -478,6 +538,25 @@ statement: ID ASSIGN ID {
                     MyError("Can't assign that becah the second variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
+         }
+         | ID GROUP_ACCESS ID ASSIGN ID GROUP_ACCESS VID'['NR']' {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int var_id = getObjVarId($3, group_id, obj_id);
+
+               int group_id2 = getObjGroupId($5);
+               int obj_id2 = getObjId($5, group_id2);
+               int arr_id2 = getObjVecId($7, group_id2, obj_id2);
+               int index = getInt($9);
+
+               if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(index < 0 || index > group[group_id2].arrays[obj_id2][arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               else
+                    group[group_id].vars[obj_id][var_id].value = group[group_id2].arrays[obj_id2][arr_id2].value[index];
          }
          | ID GROUP_ACCESS VID'['NR']' ASSIGN NR{
                int group_id = getObjGroupId($1);
