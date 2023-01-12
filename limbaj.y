@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define OK 1
 #define MAX_VARIABLES 100
 #define MAX_ARRAYS 100
 #define MAX_EL_ARRAY 100
