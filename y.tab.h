@@ -75,7 +75,13 @@ extern int yydebug;
     LE = 281,
     GE = 282,
     LT = 283,
-    GT = 284
+    GT = 284,
+    PLUS = 285,
+    MINUS = 286,
+    TIMES = 287,
+    DIVIDE = 288,
+    LPAREN = 289,
+    RPAREN = 290
   };
 #endif
 /* Tokens.  */
@@ -106,6 +112,12 @@ extern int yydebug;
 #define GE 282
 #define LT 283
 #define GT 284
+#define PLUS 285
+#define MINUS 286
+#define TIMES 287
+#define DIVIDE 288
+#define LPAREN 289
+#define RPAREN 290
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -116,7 +128,7 @@ union YYSTYPE
      char* id;
      char* val;
 
-#line 120 "y.tab.h"
+#line 132 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

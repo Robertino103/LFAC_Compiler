@@ -4,8 +4,9 @@
 %}
 %option noyywrap
 %%
-"int"|"float"|"char"|"string"|"bool" {  yylval.id = strdup(yytext);
-                                        return TIP;}
+"int"|"float"|"char"|"string"|"bool"|"const int"|"const float"|"const char"|"const string" {  
+    yylval.id = strdup(yytext);
+    return TIP;}
 "begin_globaldef" {return BGINGLOBAL;}
 "end_globaldef" {return ENDGLOBAL;}
 "begin_fnct" {return BGINFNCT;}
@@ -16,6 +17,12 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return ID;}
 @[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return VID;}
+"+" { return PLUS;}
+"-" { return MINUS; }
+"*" { return TIMES; }
+"/" { return DIVIDE; }
+"((" { return LPAREN; }
+"))" { return RPAREN; }
 "if" {return IF;}
 "for" {return FOR;}
 "while" {return WHILE;}
