@@ -1,0 +1,9 @@
+Methods: 'return_type' 'name'('param_type' 'param_name', ...)
+
+student:
+    int $y(float $z)
+    float $getName(char $name, int $age, bool $sex)
+teacher:
+    bool $isGay(int @x)
+    float $getSalary()
+

@@ -55,6 +55,9 @@ groupmap group[MAX_GROUPS];
 
 void printAll();
 void MyError(char *err);
+char* getVarType(varmap *m, int size, int index);
+char* getArrType(vecmap *m, int size, int index);
+void createSymbolTable();
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
@@ -74,7 +77,7 @@ int nr_groups = 0;
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
 %start progr
 %%
-progr: global function_def declaratii bloc {printf("\nSuccesfully compiled!\n");}
+progr: global function_def declaratii bloc {printf("\nSuccesfully compiled!\n"); createSymbolTable();}
      ;
 
 global : /* empty */ 
@@ -271,6 +274,7 @@ list : /* empty */
      ;
 
 /* instructiune */
+
 statement: ID ASSIGN ID {
                int id = getVarId(variable, nr_vars, $1);
                int id2 = getVarId(variable, nr_vars, $3);
@@ -292,9 +296,7 @@ statement: ID ASSIGN ID {
                         
           }
          | PRINT ID
-         | PRINT { printAll(variable, nr_vars); }
          | ID '(' lista_apel ')'
-         | VID'['NR']' ASSIGN ID
          | VID'['NR']' ASSIGN NR {
                int vid = getVecId(array, nr_arrays, $1);
                int index = getInt($3);
@@ -303,6 +305,74 @@ statement: ID ASSIGN ID {
                if(index < 0 || index >= array[vid].size)
                     MyError("Segmentation fault! (core dumped)\n");
                array[vid].value[index] = $6;
+         }
+         | VID'['NR']' ASSIGN ID {
+               int arr_id = getVecId(array, nr_arrays, $1);
+               int var_id = getVarId(variable, nr_vars, $6);
+               int index = getInt($3);
+
+               if(arr_id == -1)
+                    MyError("Array not found!\n");
+               if(var_id == -1)
+                    MyError("Variable not found!\n");
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = variable[var_id].value;
+         }
+         | VID'['NR']' ASSIGN VID'['NR']'{
+               int arr_id = getVecId(array, nr_arrays, $1);
+               int index = getInt($3);
+               int arr_id2 = getVecId(array, nr_arrays, $6);
+               int index2 = getInt($8);
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(arr_id2 == -1)
+                    MyError("Second array not found!\n");
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 >= array[arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = array[arr_id2].value[index2];
+         }
+         | VID'['NR']' ASSIGN ID GROUP_ACCESS ID{
+               int arr_id = getVecId(array, nr_arrays, $1);
+               int index = getInt($3);
+
+               int group_id = getObjGroupId($6);
+               int obj_id = getObjId($6, group_id);
+               int var_id = getObjVarId($8, group_id, obj_id);
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = group[group_id].vars[obj_id][var_id].value;
+         }
+         | VID'['NR']' ASSIGN ID GROUP_ACCESS VID'['NR']'{
+               int arr_id = getVecId(array, nr_arrays, $1);
+               int index = getInt($3);
+
+               int group_id = getObjGroupId($6);
+               int obj_id = getObjId($6, group_id);
+               int arr_id2 = getObjVecId($8, group_id, obj_id);
+               int index2 = getInt($10);
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(group_id == -1 || obj_id == -1 || arr_id2 == -1)
+                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 >= array[arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = group[group_id].arrays[obj_id][arr_id2].value[index2];
          }
          | GID ID {
                int group_id = getGroupId($1);
@@ -321,8 +391,10 @@ statement: ID ASSIGN ID {
                int obj_id = getObjId($1, group_id);
                int var_id = getObjVarId($3, group_id, obj_id);
                int assign_id = getVarId(variable, nr_vars, $5);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the first variable does not exist!\n");
                if(assign_id == -1)
-                    MyError("Can't assign that becah doesnt not exist!\n");
+                    MyError("Can't assign that becah the second variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
@@ -331,7 +403,7 @@ statement: ID ASSIGN ID {
                int obj_id = getObjId($1, group_id);
                int var_id = getObjVarId($3, group_id, obj_id);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not not exist!\n");
+                    MyError("Can't assign that becah the variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = $5;
          }
@@ -345,11 +417,81 @@ statement: ID ASSIGN ID {
                int var_id2 = getObjVarId($7, group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not not exist!\n");
+                    MyError("Can't assign that becah the first variable does not exist!\n");
                else if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not not exist!\n");
+                    MyError("Can't assign that becah the second variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN NR{
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = $8;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID{
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+               int assign_id = getVarId(variable, nr_vars, $8);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(assign_id == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = variable[assign_id].value;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID GROUP_ACCESS ID {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+
+               int group_id2 = getObjGroupId($8);
+               int obj_id2 = getObjId($8, group_id2);
+               int var_id2 = getObjVarId($10, group_id2, obj_id2);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].vars[obj_id2][var_id2].value;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN ID GROUP_ACCESS VID'['NR']' {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+
+               int group_id2 = getObjGroupId($8);
+               int obj_id2 = getObjId($8, group_id2);
+               int arr_id2 = getObjVecId($10, group_id2, obj_id2);
+               int index2 = getInt($12);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 > group[group_id].arrays[obj_id][arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].arrays[obj_id2][arr_id2].value[index2];
          }
          ;
         
@@ -380,77 +522,96 @@ void MyError(char *s){
      exit(EXIT_FAILURE);
 }
 
-void printAll(){
-     printf("----  identifiers  ----\n\n");
+void createSymbolTable(){
+     FILE* var_file;
+     FILE* fun_file;
+     var_file = fopen("./symbol_table.txt", "w");
+     if(var_file == NULL){
+          printf("Error printing to variable file!\n");
+          exit(1);
+     }
+     fprintf(var_file, "Predefined variables: ('type' 'name' = 'value')\n");
      for(int i=0; i<nr_vars; i++)
      {
           if(variable[i].value == NULL)
-               printf("    %s %s\n", variable[i].type, variable[i].key);
+               fprintf(var_file, "    %s %s\n", variable[i].type, variable[i].key);
           else
-               printf("    %s %s = %s\n", variable[i].type, variable[i].key, variable[i].value);
+               fprintf(var_file, "    %s %s = %s\n", variable[i].type, variable[i].key, variable[i].value);
      }
      for(int i = 0; i < nr_arrays; i++)
      {
-          printf("    %s[%d] = {", array[i].key, array[i].size);
+          fprintf(var_file, "    %s %s[%d] = {", array[i].type, array[i].key, array[i].size);
           if(array[i].size == 1){
-               printf("%s}\n", array[i].value[0]);
+               fprintf(var_file, "%s}\n", array[i].value[0]);
           }
           else{
                int j;
                for(j = 0; j < array[i].size-1; j++)
-                    printf("%s, ", array[i].value[j]);
-               printf("%s}\n", array[i].value[j]);
+                    fprintf(var_file, "%s, ", array[i].value[j]);
+               fprintf(var_file, "%s}\n", array[i].value[j]);
           }
      }
+
+     fprintf(var_file, "\nUser defined variables: ('type' 'name' = 'value')\n");
      for(int i = 0; i < nr_groups; i++){
           for(int j = 0; j < group[i].nr_objects; j++)
-               printf("    %s %s\n", group[i].object[j].type, group[i].object[j].key);
+               fprintf(var_file, "    %s %s\n", group[i].object[j].type, group[i].object[j].key);
      }
      for(int i = 0; i < nr_groups; i++){
           for(int k = 0; k < group[i].nr_objects; k++)
                for(int j = 0; j < group[i].nr_vars; j++)
                     if(group[i].vars[k][j].value != NULL)
-                         printf("    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
+                         fprintf(var_file, "    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
                     else
-                         printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
+                         fprintf(var_file, "    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
           for(int k = 0; k < group[i].nr_objects; k++)
                for(int j = 0; j < group[i].nr_arrays; j++)
                {
-                    printf("    %s %s.%s[%d] = {", group[i].arrays[k][j].type, group[i].object[k].key, group[i].arrays[k][j].key, group[i].arrays[k][j].size);
+                    fprintf(var_file, "    %s %s.%s[%d] = {", group[i].arrays[k][j].type, group[i].object[k].key, group[i].arrays[k][j].key, group[i].arrays[k][j].size);
                     if(group[i].arrays[k][j].size == 1)
                     {
-                         printf("%s}", group[i].arrays[k][j].value[0]);
+                         fprintf(var_file, "%s}", group[i].arrays[k][j].value[0]);
                     }
                     else
                     {
                          int z;
                          for(z = 0; z < group[i].arrays[k][j].size - 1; z++)
                          {
-                              printf("%s, ", group[i].arrays[k][j].value[z]);
+                              fprintf(var_file, "%s, ", group[i].arrays[k][j].value[z]);
                          }
-                         printf("%s}\n", group[i].arrays[k][j].value[z]);
+                         fprintf(var_file, "%s}\n", group[i].arrays[k][j].value[z]);
                     }
                }
                ;
      }
-     printf("\n----  methods  ----\n\n");
+     fclose(var_file);
+
+     fun_file = fopen("./symbol_table_functions.txt", "w");
+     if(fun_file == NULL){
+          printf("Error printing to functions file!\n");
+          exit(1);
+     }     
+
+     fprintf(fun_file, "Methods: 'return_type' 'name'('param_type' 'param_name', ...)\n\n");
      for(int i = 0; i < nr_groups; i++){
-          printf("%s:\n", group[i].name);
+          fprintf(fun_file, "%s:\n", group[i].name);
           for(int j = 0; j < group[i].nr_methods; j++){
-               printf("    %s %s(", group[i].methods[j].type, group[i].methods[j].name);
+               fprintf(fun_file, "    %s %s(", group[i].methods[j].type, group[i].methods[j].name);
                if(group[i].methods[j].nr_params == 1)
-                    printf("%s %s)\n", group[i].methods[j].params[0].type, group[i].methods[j].params[0].key);
+                    fprintf(fun_file, "%s %s)\n", group[i].methods[j].params[0].type, group[i].methods[j].params[0].key);
                else if(group[i].methods[j].nr_params == 0)
-                    printf(")\n");
+                    fprintf(fun_file, ")\n");
                else{
                     int k = 0;
                     for(k = 0; k < group[i].methods[j].nr_params - 1; k++)
-                         printf("%s %s, ", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key);
-                    printf("%s %s)\n", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key) ;
+                         fprintf(fun_file, "%s %s, ", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key);
+                    fprintf(fun_file, "%s %s)\n", group[i].methods[j].params[k].type, group[i].methods[j].params[k].key) ;
                }
           }
      }
-     printf("\n");
+     fprintf(fun_file, "\n");
+
+     fclose(fun_file);
 }
 
 int getInt(char *var){
@@ -463,6 +624,13 @@ int getInt(char *var){
 int getVecId(vecmap *m, int size, char *vec){
      for(int i = 0; i < size; i++)
           if(strcmp(vec, m[i].key) == 0)
+               return i;
+     return -1;
+}
+
+int getObjVecId(char *name, int group_id, int obj_id){
+     for(int i = 0; i < group[group_id].nr_arrays; i++)
+          if(strcmp(name, group[group_id].arrays[obj_id][i].key) == 0)
                return i;
      return -1;
 }
@@ -539,6 +707,23 @@ int checkMethod(methodmap *m, int size, char *method)
           }
      }
      return 0;
+}
+
+char* getVarType(varmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+char* getArrType(vecmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
+int isArray(varmap *m, int size, int index)
+{
+     char *varname = m[index].key;
+     if(varname[0]=='@') return 1;
+          else return 0;
 }
 
 int main(int argc, char** argv){
