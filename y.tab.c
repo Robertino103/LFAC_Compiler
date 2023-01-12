@@ -135,6 +135,7 @@ void printAll();
 void MyError(char *err);
 char* getVarType(varmap *m, int size, int index);
 char* getArrType(vecmap *m, int size, int index);
+void createSymbolTable();
 int nr_vars = 0;
 int nr_arrays = 0;
 int nr_groups = 0;
@@ -143,49 +144,7 @@ int param_no = 0;
 int fnctId = -1;
 
 
-#line 147 "y.tab.c"
-
-typedef struct{
-     char *key;
-     int size;
-     char *type;
-     char *value[50];
-} vecmap;
-vecmap array[100];
-
-typedef struct{
-     char *name;
-     char *type;
-     int nr_params;
-    varmap params[100];
-} methodmap;
-methodmap method[100];
-
-typedef struct{
-     char *name;
-     int nr_methods;
-     int nr_vars;
-     int nr_arrays;
-     int nr_objects;
-     varmap vars[50][50];
-     vecmap arrays[50];
-     methodmap methods[100];
-     varmap object[100];
-} groupmap;
-groupmap group[100];
-
-void printAll();
-void MyError(char *err);
-char* getVarType(varmap *m, int size, int index);
-char* getArrType(vecmap *m, int size, int index);
-void createSymbolTable();
-int nr_vars = 0;
-int nr_arrays = 0;
-int nr_groups = 0;
-
-
-#line 122 "y.tab.c"
->>>>>>> 522b6ef5b65ee2c8a98d8e93a089d92f54954ac6
+#line 148 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -295,12 +254,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 77 "limbaj.y"
+#line 78 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 262 "y.tab.c"
+#line 263 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -619,16 +578,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  9
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   266
+#define YYLAST   283
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  39
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  31
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  104
+#define YYNRULES  110
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  225
+#define YYNSTATES  248
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   284
@@ -678,17 +637,18 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,    92,    92,    95,    96,    99,   100,   103,   104,   107,
-     108,   111,   122,   123,   124,   127,   136,   147,   148,   149,
-     152,   155,   156,   157,   161,   172,   173,   174,   177,   188,
-     214,   215,   216,   218,   227,   228,   229,   253,   257,   281,
+       0,    93,    93,    96,    97,   100,   101,   104,   105,   108,
+     109,   112,   123,   124,   125,   128,   137,   148,   149,   150,
+     153,   156,   157,   158,   162,   173,   174,   175,   178,   189,
+     215,   216,   217,   219,   228,   229,   230,   253,   257,   281,
      282,   283,   286,   295,   306,   307,   308,   311,   317,   321,
-     322,   323,   327,   339,   347,   348,   349,   349,   356,   357,
-     366,   378,   388,   397,   413,   414,   415,   418,   432,   433,
-     443,   455,   465,   471,   477,   478,   488,   494,   500,   501,
-     511,   517,   523,   524,   534,   540,   546,   547,   557,   563,
-     569,   572,   573,   574,   576,   596,   614,   633,   634,   635,
-     638,   639,   640,   641,   642
+     322,   323,   328,   340,   348,   349,   349,   356,   365,   379,
+     396,   413,   433,   445,   457,   466,   482,   495,   511,   530,
+     552,   553,   554,   557,   571,   572,   582,   594,   604,   610,
+     616,   617,   627,   633,   639,   640,   650,   656,   662,   663,
+     673,   679,   685,   686,   696,   702,   708,   711,   712,   713,
+     715,   735,   753,   772,   773,   774,   777,   778,   779,   780,
+     781
 };
 #endif
 
@@ -724,7 +684,7 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-152)
+#define YYPACT_NINF (-155)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -738,29 +698,31 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int16 yypact[] =
 {
-      -2,    57,    18,    22,    89,    37,    26,    57,    30,  -152,
-     147,    57,    28,    31,    16,  -152,    46,   143,   121,    55,
-      51,    47,   123,     6,   151,   154,   141,   145,   129,  -152,
-     131,  -152,    45,   133,  -152,  -152,   158,  -152,    69,  -152,
-     135,   137,   157,   160,  -152,    65,   161,   139,   164,   144,
-     149,   150,    24,   152,  -152,  -152,  -152,   162,   163,  -152,
-      90,    34,   153,    93,    71,  -152,   102,   167,   155,  -152,
-     171,  -152,   104,   172,   104,  -152,   159,  -152,  -152,   173,
-      77,  -152,  -152,   156,   165,   166,  -152,  -152,   168,  -152,
-     160,  -152,  -152,   169,    74,   170,    58,    63,   174,   177,
-     175,   176,  -152,  -152,  -152,   163,   181,   184,  -152,   185,
-    -152,   108,  -152,  -152,  -152,    81,  -152,   182,   112,   114,
-     116,   118,   120,   124,   128,   130,   132,   134,   178,   136,
-     179,   180,  -152,   183,   189,    10,   187,   186,  -152,   192,
-    -152,    74,   138,  -152,  -152,  -152,  -152,  -152,  -152,  -152,
-    -152,  -152,  -152,  -152,  -152,  -152,  -152,  -152,  -152,  -152,
-    -152,  -152,  -152,    45,   190,   191,    45,    45,  -152,   188,
-     193,   195,  -152,  -152,   194,  -152,  -152,  -152,    -3,   140,
-     142,     0,    21,   196,  -152,  -152,  -152,  -152,  -152,  -152,
-    -152,  -152,  -152,  -152,    94,   115,  -152,  -152,   197,   198,
-     196,   201,    68,  -152,   200,   202,   199,   206,     3,   207,
-    -152,   146,   208,  -152,  -152,   209,  -152,  -152,  -152,   203,
-    -152,   210,   148,  -152,  -152
+      -2,    57,    18,    22,    91,    37,    26,    57,    30,  -155,
+      69,    57,    28,    31,    16,  -155,    51,   150,   126,    55,
+     132,    47,   134,     6,   161,   163,   152,   154,   138,  -155,
+     142,  -155,    45,   144,  -155,  -155,   164,  -155,    78,  -155,
+     140,   146,   166,   168,  -155,    65,   172,   148,   173,   153,
+     156,   158,    24,   160,  -155,  -155,  -155,   171,   176,  -155,
+      94,    34,   162,    95,    80,  -155,   111,    98,   165,  -155,
+     177,  -155,   113,   175,   113,  -155,   167,  -155,  -155,   181,
+      86,  -155,  -155,   159,   174,   169,  -155,  -155,   170,  -155,
+     168,  -155,  -155,   178,   179,    74,   180,    58,    63,   182,
+     185,   184,   186,  -155,  -155,  -155,   176,   183,   191,  -155,
+     188,  -155,   117,   197,  -155,  -155,  -155,    92,  -155,   192,
+     119,   123,   125,   129,   133,   135,   137,   139,   141,   143,
+     187,   145,   189,   190,  -155,   193,   199,    10,   194,   195,
+    -155,   200,   196,  -155,    74,    90,  -155,  -155,  -155,  -155,
+    -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,  -155,
+    -155,  -155,  -155,  -155,  -155,  -155,    45,   201,   202,    45,
+      45,  -155,   198,   203,   206,  -155,  -155,   204,   209,  -155,
+    -155,   205,   207,    -3,   147,   149,     0,    21,   213,  -155,
+    -155,  -155,   151,    99,   208,  -155,  -155,  -155,  -155,  -155,
+    -155,  -155,   102,   124,  -155,  -155,   210,  -155,   211,   212,
+    -155,   214,   215,   213,   103,   218,  -155,   229,    68,  -155,
+    -155,   216,   217,   219,   223,   221,   233,     3,   226,   235,
+    -155,  -155,   155,   236,  -155,  -155,   227,  -155,   224,  -155,
+    -155,   225,  -155,  -155,   232,   157,  -155,  -155
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -772,43 +734,45 @@ static const yytype_int8 yydefact[] =
        0,    30,    33,     0,     0,     4,     0,    31,     0,     0,
        0,     0,     0,    17,     0,     0,     0,    32,     0,     8,
        0,     9,    49,     0,     2,    31,     0,    35,     0,    18,
-       0,     0,    25,    12,    10,    56,     0,     0,    55,     0,
+       0,     0,    25,    12,    10,    55,     0,     0,     0,     0,
        0,     0,     0,     0,    32,    20,    34,     0,    44,    36,
-       0,     0,     0,     0,     0,    13,     0,     0,     0,    60,
+       0,     0,     0,     0,     0,    13,     0,     0,     0,    62,
        0,    54,     0,     0,     0,    48,     0,    50,    19,     0,
        0,    45,    28,     0,     0,     0,    26,    15,     0,    11,
-       0,    53,    52,     0,    91,     0,     0,     0,     0,     0,
-       0,     0,    51,    47,    38,     0,     0,    21,    27,     0,
-      14,     0,    94,    95,    96,     0,    92,     0,     0,     0,
+       0,    53,    52,     0,     0,    97,     0,     0,     0,     0,
+       0,     0,     0,    51,    47,    38,     0,     0,    21,    27,
+       0,    14,     0,     0,   100,   101,   102,     0,    98,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    46,     0,     0,     0,     0,     0,    62,    61,
-      57,     0,     0,    74,    73,    82,    81,    90,    89,    78,
-      77,    86,    85,    72,    71,    80,    79,    88,    87,    76,
-      75,    84,    83,    49,     0,     0,    49,    49,    29,     0,
-       0,     0,    22,    16,     0,    93,    59,    58,     0,     0,
-       0,     0,     0,    39,    37,    23,    63,    64,    68,    70,
-      69,    67,    65,    66,     0,     0,    40,    42,     0,     0,
-       0,     0,    97,    41,     0,     0,     0,     0,     0,     0,
-      43,     0,     0,   104,    24,     0,    98,   101,   100,     0,
-      99,     0,     0,   103,   102
+       0,     0,     0,     0,    46,     0,     0,     0,     0,     0,
+      64,    63,     0,    56,     0,     0,    80,    79,    88,    87,
+      96,    95,    84,    83,    92,    91,    78,    77,    86,    85,
+      94,    93,    82,    81,    90,    89,    49,     0,     0,    49,
+      49,    29,     0,     0,     0,    22,    16,     0,     0,    99,
+      57,    58,     0,     0,     0,     0,     0,     0,    39,    37,
+      23,    65,     0,     0,     0,    70,    74,    76,    75,    73,
+      71,    72,     0,     0,    40,    66,    67,    60,     0,     0,
+      42,     0,     0,     0,     0,     0,    59,     0,   103,    41,
+      68,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      61,    43,     0,     0,   110,    24,     0,   104,     0,   107,
+     106,     0,   105,    69,     0,     0,   109,   108
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int16 yypgoto[] =
 {
-    -152,  -152,  -152,  -152,  -152,  -152,   213,  -152,    88,  -152,
-     204,  -152,    59,  -152,   205,   211,    50,  -152,    -5,  -152,
-      92,  -152,  -151,   -52,  -152,  -152,   125,  -152,    60,  -152,
-      -8
+    -155,  -155,  -155,  -155,  -155,  -155,   230,  -155,   115,  -155,
+     220,  -155,    64,  -155,   222,   242,    50,  -155,    -7,  -155,
+     101,  -155,  -154,   -52,  -155,  -155,   136,  -155,   100,  -155,
+     -18
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int16 yydefgoto[] =
 {
       -1,     2,     3,     6,    11,    19,    20,    64,    65,    38,
-      39,   135,   136,    61,    62,     7,     8,   195,   196,    80,
-      81,    34,    52,    53,    68,   100,    98,   115,   116,   208,
-     209
+      39,   137,   138,    61,    62,     7,     8,   203,   204,    80,
+      81,    34,    52,    53,    68,   101,    99,   117,   118,   227,
+     228
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -816,64 +780,68 @@ static const yytype_int16 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int16 yytable[] =
 {
-      76,    45,    46,    47,    45,    46,    47,   205,    48,   206,
-       1,    48,   178,    36,   207,   181,   182,   134,     9,    49,
+      76,    45,    46,    47,    45,    46,    47,   224,    48,   225,
+       1,    48,   183,    36,   226,   186,   187,   136,     9,    49,
       50,    51,    49,    50,    51,    45,    46,    47,    45,    46,
-      47,   170,    48,    75,   187,    48,    10,   192,    37,    15,
-     214,    60,    14,    49,    50,    51,    49,    50,    51,    45,
-      46,    47,    26,    84,     4,    32,    48,    16,   193,    23,
+      47,   173,    48,    75,   195,    48,    10,   200,    37,    15,
+     235,    60,    14,    49,    50,    51,    49,    50,    51,    45,
+      46,    47,    26,    84,     4,    32,    48,    16,   201,    23,
       17,    22,    18,     5,     4,    25,    24,    49,    50,    51,
-      29,    33,   205,     5,   206,    66,    27,   112,   113,   207,
-     114,    31,    67,   118,   119,   120,   121,   122,   123,   124,
-     125,   126,   127,    12,    82,    13,    83,    87,   197,    88,
-     198,    56,    57,    89,    90,    91,    92,    96,    97,   104,
-     105,   138,   139,   140,   141,   143,   144,   145,   146,   147,
-     148,   149,   150,   151,   152,    28,    76,   153,   154,    76,
-      76,   155,   156,   157,   158,   159,   160,   161,   162,   164,
-     165,   176,   177,   188,   189,   190,   191,   199,   200,   217,
-     218,   223,   224,    35,    18,    40,    -5,    41,    -6,    42,
-      43,    44,    55,    54,    60,    69,    58,    63,    71,    36,
-      79,    93,    59,    70,    95,    72,    99,   103,   110,   111,
-      73,    74,    77,    86,   133,   107,    94,   129,   137,   102,
-     106,   134,   142,   169,   171,   203,   108,   132,   186,   101,
-     215,   175,   109,   194,   204,   117,   128,   130,   131,   174,
-     213,   219,   211,     0,   163,   166,   167,   172,   168,   183,
-     222,   173,    21,   179,   180,   185,     0,     0,     0,     0,
-     184,   201,    30,   212,   202,   210,     0,   216,   221,   220,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    78,     0,     0,     0,     0,    85
+      29,    33,   224,     5,   225,    66,    18,   114,   115,   226,
+     116,    27,    67,   120,   121,   122,   123,   124,   125,   126,
+     127,   128,   129,   180,   181,    12,   182,    13,    82,    87,
+      83,    88,    93,   207,    94,   208,   210,   220,   211,   221,
+      56,    57,    89,    90,    91,    92,    97,    98,   105,   106,
+     140,   141,   146,   147,   143,   144,   148,   149,   150,   151,
+      28,    76,   152,   153,    76,    76,   154,   155,   156,   157,
+     158,   159,   160,   161,   162,   163,   164,   165,   167,   168,
+     196,   197,   198,   199,   205,   206,   212,   213,   239,   240,
+     246,   247,    31,    -5,    35,    40,    41,    -6,    55,    43,
+      42,    58,    44,    60,    54,    63,    69,    71,    36,   100,
+      96,    59,    70,    79,    72,   104,   135,    73,   112,    74,
+      77,   139,    86,   107,   108,   131,    95,   103,   136,   109,
+     142,   174,   145,   172,   110,   111,   219,   134,   191,   236,
+     102,   209,     0,   113,   130,   119,   132,   177,   133,   192,
+     202,   222,   193,   166,   175,   169,   170,   214,   171,   188,
+     176,   178,   223,   232,   184,   185,   190,   234,   238,   241,
+     189,   194,   245,     0,   179,   215,     0,   216,   217,    30,
+     229,   218,   230,    21,   231,   233,   237,   242,     0,   243,
+     244,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,     0,     0,    78,     0,     0,
+       0,     0,     0,    85
 };
 
 static const yytype_int16 yycheck[] =
 {
       52,     4,     5,     6,     4,     5,     6,     4,    11,     6,
-      12,    11,   163,     7,    11,   166,   167,     7,     0,    22,
+      12,    11,   166,     7,    11,   169,   170,     7,     0,    22,
       23,    24,    22,    23,    24,     4,     5,     6,     4,     5,
        6,    21,    11,     9,    37,    11,    14,    37,    32,    13,
       37,     7,     5,    22,    23,    24,    22,    23,    24,     4,
        5,     6,    36,    19,     7,     8,    11,     7,    37,    31,
       30,    11,     7,    16,     7,    34,    38,    22,    23,    24,
-      15,    21,     4,    16,     6,    10,    30,     3,     4,    11,
+      15,    21,     4,    16,     6,    10,     7,     3,     4,    11,
        6,    30,    17,    25,    26,    27,    28,    29,    25,    26,
-      27,    28,    29,     4,     4,     6,     6,     4,     4,     6,
-       6,    32,    33,    32,    33,     3,     4,     3,     4,    32,
-      33,     3,     4,    32,    33,     3,     4,     3,     4,     3,
-       4,     3,     4,     3,     4,     4,   178,     3,     4,   181,
-     182,     3,     4,     3,     4,     3,     4,     3,     4,     3,
-       4,     3,     4,     3,     4,     3,     4,    32,    33,     3,
-       4,     3,     4,    30,     7,     4,    13,     3,    13,    18,
-      31,    30,     4,    30,     7,     4,    31,     7,     4,     7,
-       7,     4,    35,    34,     3,    31,     4,     4,    90,    10,
-      31,    31,    30,    30,     3,    20,    31,    10,     3,    30,
-      34,     7,    10,     4,   135,   200,    30,   105,     4,    74,
-     208,   141,    34,     7,     3,    35,    32,    32,    32,    17,
-       4,     3,    10,    -1,    36,    36,    36,    30,    35,    31,
-      10,    35,    11,    33,    33,    30,    -1,    -1,    -1,    -1,
-      37,    34,    19,    34,    36,    35,    -1,    30,    35,    30,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    57,    -1,    -1,    -1,    -1,    61
+      27,    28,    29,     3,     4,     4,     6,     6,     4,     4,
+       6,     6,     4,     4,     6,     6,     4,     4,     6,     6,
+      32,    33,    32,    33,     3,     4,     3,     4,    32,    33,
+       3,     4,     3,     4,    32,    33,     3,     4,     3,     4,
+       4,   183,     3,     4,   186,   187,     3,     4,     3,     4,
+       3,     4,     3,     4,     3,     4,     3,     4,     3,     4,
+       3,     4,     3,     4,     3,     4,    32,    33,     3,     4,
+       3,     4,    30,    13,    30,     4,     3,    13,     4,    31,
+      18,    31,    30,     7,    30,     7,     4,     4,     7,     4,
+       3,    35,    34,     7,    31,     4,     3,    31,    10,    31,
+      30,     3,    30,    34,    20,    10,    31,    30,     7,    30,
+       3,   137,    10,     4,    34,    90,   213,   106,     4,   227,
+      74,     3,    -1,    34,    32,    35,    32,    17,    32,    10,
+       7,     3,    17,    36,    30,    36,    36,    17,    35,    31,
+      35,    35,     3,    10,    33,    33,    30,     4,     3,     3,
+      37,    34,    10,    -1,   144,    34,    -1,    35,    34,    19,
+      34,    36,    35,    11,    35,    34,    30,    30,    -1,    35,
+      35,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      -1,    -1,    -1,    -1,    -1,    -1,    -1,    57,    -1,    -1,
+      -1,    -1,    -1,    61
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -889,20 +857,22 @@ static const yytype_int8 yystos[] =
        7,    52,    53,     7,    46,    47,    10,    17,    63,     4,
       34,     4,    31,    31,    31,     9,    62,    30,    49,     7,
       58,    59,     4,     6,    19,    53,    30,     4,     6,    32,
-      33,     3,     4,     4,    31,     3,     3,     4,    65,     4,
-      64,    65,    30,     4,    32,    33,    34,    20,    30,    34,
-      47,    10,     3,     4,     6,    66,    67,    35,    25,    26,
-      27,    28,    29,    25,    26,    27,    28,    29,    32,    10,
-      32,    32,    59,     3,     7,    50,    51,     3,     3,     4,
-      32,    33,    10,     3,     4,     3,     4,     3,     4,     3,
-       4,     3,     4,     3,     4,     3,     4,     3,     4,     3,
-       4,     3,     4,    36,     3,     4,    36,    36,    35,     4,
-      21,    51,    30,    35,    17,    67,     3,     4,    61,    33,
-      33,    61,    61,    31,    37,    30,     4,    37,     3,     4,
-       3,     4,    37,    37,     7,    56,    57,     4,     6,    32,
-      33,    34,    36,    57,     3,     4,     6,    11,    68,    69,
-      35,    10,    34,     4,    37,    69,    30,     3,     4,     3,
-      30,    35,    10,     3,     4
+      33,     3,     4,     4,     6,    31,     3,     3,     4,    65,
+       4,    64,    65,    30,     4,    32,    33,    34,    20,    30,
+      34,    47,    10,    34,     3,     4,     6,    66,    67,    35,
+      25,    26,    27,    28,    29,    25,    26,    27,    28,    29,
+      32,    10,    32,    32,    59,     3,     7,    50,    51,     3,
+       3,     4,     3,    32,    33,    10,     3,     4,     3,     4,
+       3,     4,     3,     4,     3,     4,     3,     4,     3,     4,
+       3,     4,     3,     4,     3,     4,    36,     3,     4,    36,
+      36,    35,     4,    21,    51,    30,    35,    17,    35,    67,
+       3,     4,     6,    61,    33,    33,    61,    61,    31,    37,
+      30,     4,    10,    17,    34,    37,     3,     4,     3,     4,
+      37,    37,     7,    56,    57,     3,     4,     4,     6,     3,
+       4,     6,    32,    33,    17,    34,    35,    34,    36,    57,
+       4,     6,     3,     3,     4,     6,    11,    68,    69,    34,
+      35,    35,    10,    34,     4,    37,    69,    30,     3,     3,
+       4,     3,    30,    35,    35,    10,     3,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -913,12 +883,13 @@ static const yytype_int8 yyr1[] =
       49,    50,    50,    50,    51,    52,    52,    52,    53,    53,
       54,    54,    54,    55,    55,    55,    55,    55,    55,    56,
       56,    56,    57,    57,    58,    58,    58,    59,    60,    61,
-      61,    61,    62,    62,    62,    62,    63,    62,    62,    62,
-      62,    62,    62,    62,    62,    62,    62,    64,    64,    64,
-      64,    65,    65,    65,    65,    65,    65,    65,    65,    65,
+      61,    61,    62,    62,    62,    63,    62,    62,    62,    62,
+      62,    62,    62,    62,    62,    62,    62,    62,    62,    62,
+      62,    62,    62,    64,    64,    64,    64,    65,    65,    65,
       65,    65,    65,    65,    65,    65,    65,    65,    65,    65,
-      65,    66,    66,    66,    67,    67,    67,    68,    68,    68,
-      69,    69,    69,    69,    69
+      65,    65,    65,    65,    65,    65,    65,    66,    66,    66,
+      67,    67,    67,    68,    68,    68,    69,    69,    69,    69,
+      69
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -929,12 +900,13 @@ static const yytype_int8 yyr2[] =
        2,     0,     2,     3,     8,     0,     2,     3,     2,     5,
        0,     2,     3,     2,     5,     4,     5,    10,     7,     0,
        1,     3,     2,     5,     0,     1,     3,     2,     3,     0,
-       2,     3,     3,     3,     2,     1,     0,     5,     6,     6,
-       2,     5,     5,     7,     7,     7,     7,     5,     5,     5,
-       5,     3,     3,     3,     3,     3,     3,     3,     3,     3,
+       2,     3,     3,     3,     2,     0,     5,     6,     6,     9,
+       8,    11,     2,     5,     5,     7,     8,     8,    10,    13,
+       7,     7,     7,     5,     5,     5,     5,     3,     3,     3,
        3,     3,     3,     3,     3,     3,     3,     3,     3,     3,
-       3,     0,     1,     3,     1,     1,     1,     0,     2,     3,
-       3,     3,     6,     6,     2
+       3,     3,     3,     3,     3,     3,     3,     0,     1,     3,
+       1,     1,     1,     0,     2,     3,     3,     3,     6,     6,
+       2
 };
 
 
@@ -1630,13 +1602,13 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 92 "limbaj.y"
-                                           {printf("\nSuccesfully compiled!\n");}
-#line 1594 "y.tab.c"
+#line 93 "limbaj.y"
+                                           {printf("\nSuccesfully compiled!\n"); createSymbolTable();}
+#line 1608 "y.tab.c"
     break;
 
   case 11:
-#line 111 "limbaj.y"
+#line 112 "limbaj.y"
                                           {
      if(checkFunction(function, nr_functions, (yyvsp[-3].id)))
      {
@@ -1646,11 +1618,11 @@ yyreduce:
      function[nr_functions].name = (yyvsp[-3].id);
      nr_functions++;
 }
-#line 1608 "y.tab.c"
+#line 1622 "y.tab.c"
     break;
 
   case 15:
-#line 127 "limbaj.y"
+#line 128 "limbaj.y"
                     { 
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[0].id)))
      {
@@ -1660,11 +1632,11 @@ yyreduce:
      function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[0].id);
      function[nr_functions].nr_params++;
 }
-#line 1622 "y.tab.c"
+#line 1636 "y.tab.c"
     break;
 
   case 16:
-#line 136 "limbaj.y"
+#line 137 "limbaj.y"
                               {
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, (yyvsp[-3].id)))
      {
@@ -1674,11 +1646,11 @@ yyreduce:
      function[nr_functions].params[function[nr_functions].nr_params].key = (yyvsp[-3].id);
      function[nr_functions].nr_params++;
 }
-#line 1636 "y.tab.c"
+#line 1650 "y.tab.c"
     break;
 
   case 24:
-#line 161 "limbaj.y"
+#line 162 "limbaj.y"
                                                                  {
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, (yyvsp[-6].id)))
          {
@@ -1688,11 +1660,11 @@ yyreduce:
          group[nr_groups].methods[group[nr_groups].nr_methods].type = (yyvsp[-7].id);
          group[nr_groups].nr_methods++;
          }
-#line 1650 "y.tab.c"
+#line 1664 "y.tab.c"
     break;
 
   case 28:
-#line 177 "limbaj.y"
+#line 178 "limbaj.y"
                {
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, (yyvsp[0].id)))
           {
@@ -1704,11 +1676,11 @@ yyreduce:
           }
           group[nr_groups].nr_vars++; 
           }
-#line 1666 "y.tab.c"
+#line 1680 "y.tab.c"
     break;
 
   case 29:
-#line 188 "limbaj.y"
+#line 189 "limbaj.y"
                         {
           if(getInt((yyvsp[-1].val)) > MAX_EL_ARRAY)
           {
@@ -1733,11 +1705,11 @@ yyreduce:
           }
           group[nr_groups].nr_arrays++;
           }
-#line 1695 "y.tab.c"
+#line 1709 "y.tab.c"
     break;
 
   case 33:
-#line 218 "limbaj.y"
+#line 219 "limbaj.y"
                     {
                if(checkVar(variable, nr_vars, (yyvsp[0].id)))
                {
@@ -1747,14 +1719,13 @@ yyreduce:
                variable[nr_vars].key = (yyvsp[0].id);
                nr_vars++;     
           }
-#line 1709 "y.tab.c"
+#line 1723 "y.tab.c"
     break;
 
   case 36:
-#line 229 "limbaj.y"
+#line 230 "limbaj.y"
                             {
-               if(checkArr(array, nr_arrays, (yyvsp[-3].id)))
-               {
+               if(checkArr(array, nr_arrays, (yyvsp[-3].id))){
                     MyError("Array already declared!");
                }
                int val = getInt((yyvsp[-1].val));
@@ -1776,7 +1747,7 @@ yyreduce:
                     array[nr_arrays].value[i] = "0";
                nr_arrays++;
            }
-#line 1738 "y.tab.c"
+#line 1751 "y.tab.c"
     break;
 
   case 37:
@@ -1785,7 +1756,7 @@ yyreduce:
                group[nr_groups].name = (yyvsp[-8].id);
                nr_groups++;
            }
-#line 1747 "y.tab.c"
+#line 1760 "y.tab.c"
     break;
 
   case 38:
@@ -1812,7 +1783,7 @@ yyreduce:
                if (found_class == 0) MyError("No such class found!");
                else if (found_method == 0) MyError("No such method found!");
            }
-#line 1774 "y.tab.c"
+#line 1787 "y.tab.c"
     break;
 
   case 42:
@@ -1826,7 +1797,7 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[0].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1788 "y.tab.c"
+#line 1801 "y.tab.c"
     break;
 
   case 43:
@@ -1840,7 +1811,7 @@ yyreduce:
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = (yyvsp[-3].id);
      group[nr_groups].methods[group[nr_groups].nr_methods].nr_params++;
      }
-#line 1802 "y.tab.c"
+#line 1815 "y.tab.c"
     break;
 
   case 47:
@@ -1848,11 +1819,11 @@ yyreduce:
                             {
      
 }
-#line 1810 "y.tab.c"
+#line 1823 "y.tab.c"
     break;
 
   case 52:
-#line 327 "limbaj.y"
+#line 328 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                int id2 = getVarId(variable, nr_vars, (yyvsp[0].id));
@@ -1865,11 +1836,11 @@ yyreduce:
                else
                     variable[id].value = variable[id2].value;
           }
-#line 1827 "y.tab.c"
+#line 1840 "y.tab.c"
     break;
 
   case 53:
-#line 339 "limbaj.y"
+#line 340 "limbaj.y"
                         {
                int id = getVarId(variable, nr_vars, (yyvsp[-2].id));
                if(id == -1)
@@ -1878,22 +1849,16 @@ yyreduce:
                     variable[id].value = (yyvsp[0].val);
                         
           }
-#line 1840 "y.tab.c"
+#line 1853 "y.tab.c"
     break;
 
   case 55:
-#line 348 "limbaj.y"
-                 { printAll(variable, nr_vars); }
-#line 1846 "y.tab.c"
+#line 349 "limbaj.y"
+              { fnctId = getFunctionId(function, nr_functions, (yyvsp[0].id)); }
+#line 1859 "y.tab.c"
     break;
 
   case 56:
-#line 349 "limbaj.y"
-              { fnctId = getFunctionId(function, nr_functions, (yyvsp[0].id)); }
-#line 1852 "y.tab.c"
-    break;
-
-  case 57:
 #line 349 "limbaj.y"
                                                                                          {
                if(checkFunction(function, nr_functions, (yyvsp[-4].id)) == 0)
@@ -1902,11 +1867,11 @@ yyreduce:
                }
                param_no = 0;
          }
-#line 1864 "y.tab.c"
+#line 1871 "y.tab.c"
     break;
 
-  case 59:
-#line 357 "limbaj.y"
+  case 57:
+#line 356 "limbaj.y"
                                  {
                int vid = getVecId(array, nr_arrays, (yyvsp[-5].id));
                int index = getInt((yyvsp[-3].val));
@@ -1916,11 +1881,99 @@ yyreduce:
                     MyError("Segmentation fault! (core dumped)\n");
                array[vid].value[index] = (yyvsp[0].val);
          }
-#line 1878 "y.tab.c"
+#line 1885 "y.tab.c"
+    break;
+
+  case 58:
+#line 365 "limbaj.y"
+                                 {
+               int arr_id = getVecId(array, nr_arrays, (yyvsp[-5].id));
+               int var_id = getVarId(variable, nr_vars, (yyvsp[0].id));
+               int index = getInt((yyvsp[-3].val));
+
+               if(arr_id == -1)
+                    MyError("Array not found!\n");
+               if(var_id == -1)
+                    MyError("Variable not found!\n");
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = variable[var_id].value;
+         }
+#line 1904 "y.tab.c"
+    break;
+
+  case 59:
+#line 379 "limbaj.y"
+                                         {
+               int arr_id = getVecId(array, nr_arrays, (yyvsp[-8].id));
+               int index = getInt((yyvsp[-6].val));
+               int arr_id2 = getVecId(array, nr_arrays, (yyvsp[-3].id));
+               int index2 = getInt((yyvsp[-1].val));
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(arr_id2 == -1)
+                    MyError("Second array not found!\n");
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 >= array[arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = array[arr_id2].value[index2];
+         }
+#line 1926 "y.tab.c"
     break;
 
   case 60:
-#line 366 "limbaj.y"
+#line 396 "limbaj.y"
+                                                {
+               int arr_id = getVecId(array, nr_arrays, (yyvsp[-7].id));
+               int index = getInt((yyvsp[-5].val));
+
+               int group_id = getObjGroupId((yyvsp[-2].id));
+               int obj_id = getObjId((yyvsp[-2].id), group_id);
+               int var_id = getObjVarId((yyvsp[0].id), group_id, obj_id);
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = group[group_id].vars[obj_id][var_id].value;
+         }
+#line 1948 "y.tab.c"
+    break;
+
+  case 61:
+#line 413 "limbaj.y"
+                                                         {
+               int arr_id = getVecId(array, nr_arrays, (yyvsp[-10].id));
+               int index = getInt((yyvsp[-8].val));
+
+               int group_id = getObjGroupId((yyvsp[-5].id));
+               int obj_id = getObjId((yyvsp[-5].id), group_id);
+               int arr_id2 = getObjVecId((yyvsp[-3].id), group_id, obj_id);
+               int index2 = getInt((yyvsp[-1].val));
+
+               if(arr_id == -1)
+                    MyError("First array not found!\n");
+               if(group_id == -1 || obj_id == -1 || arr_id2 == -1)
+                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               if(index < 0 || index >= array[arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 >= array[arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               
+               array[arr_id].value[index] = group[group_id].arrays[obj_id][arr_id2].value[index2];
+         }
+#line 1973 "y.tab.c"
+    break;
+
+  case 62:
+#line 433 "limbaj.y"
                   {
                int group_id = getGroupId((yyvsp[-1].id));
                if(group_id == -1)
@@ -1933,40 +1986,42 @@ yyreduce:
                     group[group_id].nr_objects++;
                }
          }
-#line 1895 "y.tab.c"
+#line 1990 "y.tab.c"
     break;
 
-  case 61:
-#line 378 "limbaj.y"
+  case 63:
+#line 445 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
                int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
                int assign_id = getVarId(variable, nr_vars, (yyvsp[0].id));
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+                    MyError("Can't assign that becah the first variable does not exist!\n");
                if(assign_id == -1)
-                    MyError("Can't assign that becah doesnt not exist!\n");
+                    MyError("Can't assign that becah the second variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
-#line 1910 "y.tab.c"
+#line 2007 "y.tab.c"
     break;
 
-  case 62:
-#line 388 "limbaj.y"
+  case 64:
+#line 457 "limbaj.y"
                                         {
                int group_id = getObjGroupId((yyvsp[-4].id));
                int obj_id = getObjId((yyvsp[-4].id), group_id);
                int var_id = getObjVarId((yyvsp[-2].id), group_id, obj_id);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not not exist!\n");
+                    MyError("Can't assign that becah the variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = (yyvsp[0].val);
          }
-#line 1924 "y.tab.c"
+#line 2021 "y.tab.c"
     break;
 
-  case 63:
-#line 397 "limbaj.y"
+  case 65:
+#line 466 "limbaj.y"
                                                         {
                int group_id = getObjGroupId((yyvsp[-6].id));
                int obj_id = getObjId((yyvsp[-6].id), group_id);
@@ -1977,177 +2032,193 @@ yyreduce:
                int var_id2 = getObjVarId((yyvsp[0].id), group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not not exist!\n");
+                    MyError("Can't assign that becah the first variable does not exist!\n");
                else if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not not exist!\n");
+                    MyError("Can't assign that becah the second variable does not exist!\n");
                else
                     group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
-#line 1945 "y.tab.c"
+#line 2042 "y.tab.c"
+    break;
+
+  case 66:
+#line 482 "limbaj.y"
+                                                {
+               int group_id = getObjGroupId((yyvsp[-7].id));
+               int obj_id = getObjId((yyvsp[-7].id), group_id);
+               int arr_id = getObjVecId((yyvsp[-5].id), group_id, obj_id);
+               int index = getInt((yyvsp[-3].val));
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = (yyvsp[0].val);
+         }
+#line 2060 "y.tab.c"
     break;
 
   case 67:
-#line 418 "limbaj.y"
-                                    {
-     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 1964 "y.tab.c"
+#line 495 "limbaj.y"
+                                                {
+               int group_id = getObjGroupId((yyvsp[-7].id));
+               int obj_id = getObjId((yyvsp[-7].id), group_id);
+               int arr_id = getObjVecId((yyvsp[-5].id), group_id, obj_id);
+               int index = getInt((yyvsp[-3].val));
+               int assign_id = getVarId(variable, nr_vars, (yyvsp[0].id));
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(assign_id == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = variable[assign_id].value;
+         }
+#line 2081 "y.tab.c"
     break;
 
-  case 69:
-#line 433 "limbaj.y"
-                                    {
-     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 1979 "y.tab.c"
-    break;
-
-  case 70:
-#line 443 "limbaj.y"
-                                    {
-     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 1994 "y.tab.c"
-    break;
-
-  case 71:
-#line 455 "limbaj.y"
-                            {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2009 "y.tab.c"
-    break;
-
-  case 72:
-#line 465 "limbaj.y"
-                            {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2020 "y.tab.c"
-    break;
-
-  case 73:
-#line 471 "limbaj.y"
-                            {
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2031 "y.tab.c"
-    break;
-
-  case 75:
-#line 478 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2046 "y.tab.c"
-    break;
-
-  case 76:
-#line 488 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2057 "y.tab.c"
-    break;
-
-  case 77:
-#line 494 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2068 "y.tab.c"
-    break;
-
-  case 79:
-#line 501 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2083 "y.tab.c"
-    break;
-
-  case 80:
+  case 68:
 #line 511 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2094 "y.tab.c"
-    break;
+                                                                 {
+               int group_id = getObjGroupId((yyvsp[-9].id));
+               int obj_id = getObjId((yyvsp[-9].id), group_id);
+               int arr_id = getObjVecId((yyvsp[-7].id), group_id, obj_id);
+               int index = getInt((yyvsp[-5].val));
 
-  case 81:
-#line 517 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
+               int group_id2 = getObjGroupId((yyvsp[-2].id));
+               int obj_id2 = getObjId((yyvsp[-2].id), group_id2);
+               int var_id2 = getObjVarId((yyvsp[0].id), group_id2, obj_id2);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].vars[obj_id2][var_id2].value;
+         }
 #line 2105 "y.tab.c"
     break;
 
-  case 83:
-#line 524 "limbaj.y"
+  case 69:
+#line 530 "limbaj.y"
+                                                                          {
+               int group_id = getObjGroupId((yyvsp[-12].id));
+               int obj_id = getObjId((yyvsp[-12].id), group_id);
+               int arr_id = getObjVecId((yyvsp[-10].id), group_id, obj_id);
+               int index = getInt((yyvsp[-8].val));
+
+               int group_id2 = getObjGroupId((yyvsp[-5].id));
+               int obj_id2 = getObjId((yyvsp[-5].id), group_id2);
+               int arr_id2 = getObjVecId((yyvsp[-3].id), group_id2, obj_id2);
+               int index2 = getInt((yyvsp[-1].val));
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+                    MyError("Can't assign that becah the vector does not exist!\n");
+               if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
+                    MyError("Can't assign that becah the variable does not exist!\n");
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               if(index2 < 0 || index2 > group[group_id].arrays[obj_id][arr_id2].size)
+                    MyError("Segmentation fault! (core dumped)\n");
+               else
+                    group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].arrays[obj_id2][arr_id2].value[index2];
+         }
+#line 2132 "y.tab.c"
+    break;
+
+  case 73:
+#line 557 "limbaj.y"
+                                    {
+     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2151 "y.tab.c"
+    break;
+
+  case 75:
+#line 572 "limbaj.y"
+                                    {
+     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2166 "y.tab.c"
+    break;
+
+  case 76:
+#line 582 "limbaj.y"
+                                    {
+     if(!checkVar(variable, nr_vars, (yyvsp[-4].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2181 "y.tab.c"
+    break;
+
+  case 77:
+#line 594 "limbaj.y"
+                            {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2196 "y.tab.c"
+    break;
+
+  case 78:
+#line 604 "limbaj.y"
+                            {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2207 "y.tab.c"
+    break;
+
+  case 79:
+#line 610 "limbaj.y"
+                            {
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2218 "y.tab.c"
+    break;
+
+  case 81:
+#line 617 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
@@ -2158,70 +2229,144 @@ yyreduce:
           MyError("Variable used in control statement not declared!");
      }
 }
-#line 2120 "y.tab.c"
+#line 2233 "y.tab.c"
     break;
 
-  case 84:
-#line 534 "limbaj.y"
+  case 82:
+#line 627 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
      {
           MyError("Variable used in control statement not declared!");
      }
 }
-#line 2131 "y.tab.c"
+#line 2244 "y.tab.c"
+    break;
+
+  case 83:
+#line 633 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2255 "y.tab.c"
     break;
 
   case 85:
-#line 540 "limbaj.y"
+#line 640 "limbaj.y"
                          {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
           MyError("Variable used in control statement not declared!");
      }
 }
-#line 2142 "y.tab.c"
+#line 2270 "y.tab.c"
+    break;
+
+  case 86:
+#line 650 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2281 "y.tab.c"
     break;
 
   case 87:
-#line 547 "limbaj.y"
+#line 656 "limbaj.y"
                          {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
           MyError("Variable used in control statement not declared!");
      }
 }
-#line 2157 "y.tab.c"
-    break;
-
-  case 88:
-#line 557 "limbaj.y"
-                         {
-     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
-     {
-          MyError("Variable used in control statement not declared!");
-     }
-}
-#line 2168 "y.tab.c"
+#line 2292 "y.tab.c"
     break;
 
   case 89:
-#line 563 "limbaj.y"
+#line 663 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2307 "y.tab.c"
+    break;
+
+  case 90:
+#line 673 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2318 "y.tab.c"
+    break;
+
+  case 91:
+#line 679 "limbaj.y"
                          {
      if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
      {
           MyError("Variable used in control statement not declared!");
      }
 }
-#line 2179 "y.tab.c"
+#line 2329 "y.tab.c"
+    break;
+
+  case 93:
+#line 686 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2344 "y.tab.c"
     break;
 
   case 94:
-#line 576 "limbaj.y"
+#line 696 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[-2].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2355 "y.tab.c"
+    break;
+
+  case 95:
+#line 702 "limbaj.y"
+                         {
+     if(!checkVar(variable, nr_vars, (yyvsp[0].id)))
+     {
+          MyError("Variable used in control statement not declared!");
+     }
+}
+#line 2366 "y.tab.c"
+    break;
+
+  case 100:
+#line 715 "limbaj.y"
           {
           if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
           {
@@ -2242,11 +2387,11 @@ yyreduce:
           }
           param_no++;
      }
-#line 2204 "y.tab.c"
+#line 2391 "y.tab.c"
     break;
 
-  case 95:
-#line 596 "limbaj.y"
+  case 101:
+#line 735 "limbaj.y"
           {
           if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
           {
@@ -2265,11 +2410,11 @@ yyreduce:
           }
           param_no++;
      }
-#line 2227 "y.tab.c"
+#line 2414 "y.tab.c"
     break;
 
-  case 96:
-#line 614 "limbaj.y"
+  case 102:
+#line 753 "limbaj.y"
            {
           if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
           {
@@ -2288,29 +2433,29 @@ yyreduce:
           }
           param_no++;
      }
-#line 2250 "y.tab.c"
+#line 2437 "y.tab.c"
     break;
 
-  case 101:
-#line 639 "limbaj.y"
+  case 107:
+#line 778 "limbaj.y"
                                {}
-#line 2256 "y.tab.c"
+#line 2443 "y.tab.c"
     break;
 
-  case 102:
-#line 640 "limbaj.y"
+  case 108:
+#line 779 "limbaj.y"
                                         {}
-#line 2262 "y.tab.c"
+#line 2449 "y.tab.c"
     break;
 
-  case 103:
-#line 641 "limbaj.y"
+  case 109:
+#line 780 "limbaj.y"
                                         {}
-#line 2268 "y.tab.c"
+#line 2455 "y.tab.c"
     break;
 
 
-#line 2272 "y.tab.c"
+#line 2459 "y.tab.c"
 
       default: break;
     }
@@ -2542,7 +2687,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 646 "limbaj.y"
+#line 785 "limbaj.y"
 
 int yyerror(char * s){
      printf("eroare: %s la linia:%d\n",s,yylineno);
@@ -2553,18 +2698,15 @@ void MyError(char *s){
      exit(EXIT_FAILURE);
 }
 
-void printAll(){
-     printf("----  functions  ----\n\n");
-     for(int i=0; i<nr_functions; i++)
-     {
-          printf("%s -> %s\n", function[i].name, function[i].type);
-          for(int j=0; j<function[i].nr_params; j++)
-          {
-               printf("     %s %s = %s\n", function[i].params[j].type, function[i].params[j].key, function[i].params[j].value);
-          }
+void createSymbolTable(){
+     FILE* var_file;
+     FILE* fun_file;
+     var_file = fopen("./symbol_table.txt", "w");
+     if(var_file == NULL){
+          printf("Error printing to variable file!\n");
+          exit(1);
      }
-
-     printf("\n----  identifiers  ----\n\n");
+     fprintf(var_file, "Predefined variables: ('type' 'name' = 'value')\n");
      for(int i=0; i<nr_vars; i++)
      {
           if(variable[i].value == NULL)
@@ -2597,7 +2739,7 @@ void printAll(){
                     if(group[i].vars[k][j].value != NULL)
                          fprintf(var_file, "    %s %s.%s = %s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key, group[i].vars[k][j].value);
                     else
-                         printf("    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
+                         fprintf(var_file, "    %s %s.%s\n", group[i].vars[k][j].type, group[i].object[k].key, group[i].vars[k][j].key);
           for(int k = 0; k < group[i].nr_objects; k++)
                for(int j = 0; j < group[i].nr_arrays; j++)
                {
@@ -2643,7 +2785,21 @@ void printAll(){
                }
           }
      }
-     fprintf(fun_file, "\n");
+
+     fprintf(fun_file, "\n\n\nFunctions: 'return_type' 'name'('param_type' 'param_name', ...)\n\n");
+     for(int i = 0; i < nr_functions; i++){
+          fprintf(fun_file, "    %s %s(", function[i].type, function[i].name);
+               if(function[i].nr_params == 1)
+                    fprintf(fun_file, "%s %s)\n", function[i].params[0].type, function[i].params[0].key);
+               else if(function[i].nr_params == 0)
+                    fprintf(fun_file, ")\n");
+               else{
+                    int k = 0;
+                    for(k = 0; k < function[i].nr_params - 1; k++)
+                         fprintf(fun_file, "%s %s, ", function[i].params[k].type, function[i].params[k].key);
+                    fprintf(fun_file, "%s %s)\n", function[i].params[k].type, function[i].params[k].key) ;
+               }
+     }
 
      fclose(fun_file);
 }
@@ -2799,4 +2955,4 @@ int isArray(varmap *m, int size, int index)
 int main(int argc, char** argv){
 yyin=fopen(argv[1],"r");
 yyparse();
-} 
+}

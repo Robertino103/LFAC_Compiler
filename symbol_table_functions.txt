@@ -7,3 +7,9 @@ teacher:
     bool $isGay(int @x)
     float $getSalary()
 
+
+
+Functions: 'return_type' 'name'('param_type' 'param_name', ...)
+
+    int $function(int $integer)
+    int $scndfunction(float @vector)

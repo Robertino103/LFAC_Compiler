@@ -41,6 +41,11 @@ float $salary;
 int $n;
 
 begin_progr
+    
+    for($n=$age,20){};
+    
+    if($n <= 4){};
+    
     student $x;
     student $moc;
     teacher $patrut;
@@ -55,5 +60,4 @@ begin_progr
     @x[5] = 2222;
     @vec[2] = 12;
     $scndfunction (@vec);
-    print;
 end_progr
