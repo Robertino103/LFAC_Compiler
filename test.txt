@@ -1,5 +1,5 @@
 begin_fnct
-int $function (int $integer, float $dl);
+int $function (int $integer);
 int $scndfunction (float @vector[70]);
 end_fnct
 
@@ -44,6 +44,9 @@ int $a;
 int $b;
 int $c;
 int $d;
+const float $r = 5;
+bool $mybool;
+bool $bexp;
 
 begin_progr
 
@@ -51,41 +54,38 @@ begin_progr
     student $x;
     student $moc;
     teacher $patrut;
-    $salary = 8;
+    $patrut.$age = 69;
+    $age = $patrut.$age;
     $age = 2;
     $n = $age;
     student $s;
-    $s.$z = 690;
-    @x[5] = 2222;
-    @vec[2] = 12;
+
+    $s.$z = 0;
+    $moc.@studarr[2] = 2;
+    
     for($n=$age,20){};
     if($n <= 4){};
 
     $moc.@studarr[2] = 50;
-    $patrut.$age = 69;
-    $patrut.$age = $salary;
     $patrut.$salary = $s.$z;
     $patrut.$name = $moc.@studarr[2];    
-    $patrut.@teacharr[0] = 12;
-    $patrut.@teacharr[1] = $n;
-    $patrut.@teacharr[2] = $s.$z;
-    $patrut.@teacharr[3] = $moc.@studarr[2];
     @x[0] = 4;
     @x[1] = $n;
-    @x[2] = @vec[2];
     @x[3] = $s.$z;
-    @x[4] = $patrut.@teacharr[3];
-    $n = @x[4];
+    
     $a = $s.$z;
     $b = $moc.@studarr[2];
     
     $a := 1+2+3+4+$n;
+    $bexp := TRUE||FALSE&&(($mybool || TRUE));
     
     $scndfunction (@vec);
     $n := 23+$d*((5-2/3))*1+$age-$n;
-    $n := $salary+$myfl*(($salary-$myfl));
-    $d = $n;
-    $function ( $age , $salary);
+    $myfl := $salary+$myfl*(($myfl-$myfl))+9;
+    $mybool = TRUE;
+    
+    
+    
 end_progr
 
 

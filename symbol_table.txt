@@ -1,14 +1,17 @@
 Predefined variables: ('type' 'name' = 'value')
     int $age = 2
-    float $salary = 8
+    float $salary
     float $myfl
-    int $n = 50
-    int $a = 690
+    int $n = 2
+    int $a = 0
     int $b = 50
     int $c
-    int $d = 50
-    int @x[58] = {4, 2, 12, 690, 50, 2222, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    float @vec[5] = {0, 0, 12, 0, 0}
+    int $d
+    const float $r = 5
+    bool $mybool = TRUE
+    bool $bexp
+    int @x[58] = {4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    float @vec[5] = {0, 0, 0, 0, 0}
 
 User defined variables: ('type' 'name' = 'value')
     student $x
@@ -23,16 +26,17 @@ User defined variables: ('type' 'name' = 'value')
     int $moc.$z
     int $s.$x
     int $s.$y
-    int $s.$z = 690
+    int $s.$z = 0
     int $x.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $moc.@studarr[20] = {0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $s.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    int $patrut.$age = 8
+    int $patrut.$age = 69
     char $patrut.$name = 50
-    int $patrut.$salary = 690
-    float $patrut.@teacharr[56] = {12, 2, 690, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    int $patrut.$salary = 0
+    float $patrut.@teacharr[56] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 Used expressions:
-    1+2+3+4+$n   (type: int)
-    23+$d*((5-2/3))*1+$age-$n   (type: int)
-    $salary+$myfl*(($salary-$myfl))   (type: float)
+    1 + 2 + 3 + 4 + $n   (type: int)
+    TRUE && FALSE || (($mybool && TRUE))   (type: bool)
+    23 + $d * ((5 - 2 / 3)) * 1 + $age - $n   (type: int)
+    $salary + $myfl * (($myfl - $myfl)) + 9   (type: float)
