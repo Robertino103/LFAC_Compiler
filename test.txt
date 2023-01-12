@@ -59,8 +59,8 @@ begin_progr
     $age = 2;
     $n = $age;
     student $s;
-    @x[5] = 2222;
-    $s.$z = 5;
+
+    $s.$z = 0;
     $moc.@studarr[2] = 2;
     
     for($n=$age,20){};

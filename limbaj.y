@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define OK 1
 #define MAX_VARIABLES 100
 #define MAX_ARRAYS 100
 #define MAX_EL_ARRAY 100
@@ -47,6 +48,7 @@ typedef struct{
      char *name;
      char *type;
      int nr_params;
+     int param_no;
      varmap params[MAX_PARAMS];
 } fnctmap;
 fnctmap function[MAX_FUNCTIONS];
@@ -76,6 +78,7 @@ void printAll();
 void MyError(char *err);
 char* getVarType(varmap *m, int size, int index);
 char* getArrType(vecmap *m, int size, int index);
+char* getFnctType(fnctmap *m, int size, int index);
 void createSymbolTable();
 void checkExprType(char* var_name);
 void assignCheckTypes(varmap *m1, int size1, char *var1, varmap *m2, int size2, char *var2);
@@ -89,6 +92,7 @@ int nr_functions = 0;
 int nr_expr = 0;
 int param_no = 0;
 int fnctId = -1;
+int fnctId2 = -1;
 char *expr_current_type;
 
 %}
@@ -104,7 +108,6 @@ char *expr_current_type;
 %token <id> TIP
 %token <id> CTIP
 %token <id> BOOLVAL
-%token <id> SEMICO
 
 %token BGIN END ASSIGN ASSIGNEXP PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
@@ -140,7 +143,9 @@ functions : function ';'
 function : TIP ID '(' fnct_list_param ')' {
      if(checkFunction(function, nr_functions, $2))
      {
-          MyError("A function with the same name was already declared !");
+          char err[MAX_MSG];
+          sprintf(err,"The function '%s' was already declared !", $2);
+          MyError(err);
      }
      function[nr_functions].type = $1;
      function[nr_functions].name = $2;
@@ -156,7 +161,9 @@ fnct_list_param : /* empty */
 fnct_param : TIP ID { 
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err,"Duplicate usage of parameter '%s'!", $2);
+          MyError(err);
      }
      function[nr_functions].params[function[nr_functions].nr_params].type = $1;
      function[nr_functions].params[function[nr_functions].nr_params].key = $2;
@@ -165,7 +172,9 @@ fnct_param : TIP ID {
            | TIP VID '['NR']' {
      if (checkVar(function[nr_functions].params, function[nr_functions].nr_params, $2))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of parameter '%s'!", $2);
+          MyError(err);
      }
      function[nr_functions].params[function[nr_functions].nr_params].type = $1;
      function[nr_functions].params[function[nr_functions].nr_params].key = $2;
@@ -190,7 +199,9 @@ methods : /* empty */
 method : TIP ID'('method_list_param')' '{'group_statement_list'}'{
          if(checkMethod(group[nr_groups].methods, group[nr_groups].nr_methods, $2))
          {
-               MyError("Method already defined!");
+               char err[MAX_MSG];
+               sprintf(err, "Method '%s' already defined!", $2);
+               MyError(err);
          }
          group[nr_groups].methods[group[nr_groups].nr_methods].name = $2;
          group[nr_groups].methods[group[nr_groups].nr_methods].type = $1;
@@ -206,7 +217,9 @@ fields : /* empty */
 field : TIP ID {
           if(checkVar(group[nr_groups].vars[0], group[nr_groups].nr_vars, $2))
           {
-               MyError("Field variable already declared!");
+               char err[MAX_MSG];
+               sprintf(err, "Duplicate usage of the field variable '%s'", $2);
+               MyError(err);
           }
           for(int i = 0; i < MAX_OBJECTS; i++){
                group[nr_groups].vars[i][group[nr_groups].nr_vars].type = $1;
@@ -240,8 +253,11 @@ declaratii : /* empty */
 	      | declaratii declaratie ';'
 	   ;
 declaratie : TIP ID {
-               if(checkVar(variable, nr_vars, $2)){
-                    MyError("Variable already declared!");
+               if(checkVar(variable, nr_vars, $2))
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' already declared!", $2);
+                    MyError(err);
                }
                variable[nr_vars].type = $1;
                variable[nr_vars].key = $2;
@@ -267,17 +283,15 @@ declaratie : TIP ID {
            | TIP ID '(' ')'
            | TIP VID'['NR']'{
                if(checkArr(array, nr_arrays, $2)){
-                    MyError("Array already declared!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' already declared!", $2);
+                    MyError(err);
                }
                int val = getInt($4);
                if(val > MAX_EL_ARRAY)
                {
-                    char err[MAX_MSG] = "Sorry! We can't hold more than ";
-                    char max_el[MAX_MSG_DIGITS];
-                    sprintf(max_el, "%d", MAX_EL_ARRAY);
-                    max_el[strlen(max_el)] = '\0';
-                    strcat(err, max_el);
-                    strcat(err, " elements in an array ! Go try writing in RUST! \n");
+                    char err[MAX_MSG];
+                    sprintf(err, "Sorry! We can't hold more than %d elements in an array ! Go try writing in RUST!", MAX_EL_ARRAY);
                     MyError(err);
                }
 
@@ -289,6 +303,11 @@ declaratie : TIP ID {
                nr_arrays++;
            }
            | GROUP GID '{' BGINFIELDS fields ENDFIELDS BGINMETHODS methods ENDMETHODS '}' {
+               if(checkGroup(group, nr_groups, $2)){
+                    char err[MAX_MSG];
+                    sprintf(err, "Group '%s' already declared previously!", $2);
+                    MyError(err);
+               }
                group[nr_groups].name = $2;
                nr_groups++;
            }
@@ -324,7 +343,9 @@ method_list_param : /* empty */
 method_param : TIP ID {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of the parameter '%s'", $2);
+          MyError(err);
      }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
@@ -333,7 +354,9 @@ method_param : TIP ID {
              | TIP VID '['NR']' {
      if (checkVar(group[nr_groups].methods[group[nr_groups].nr_methods].params, group[nr_groups].methods[group[nr_groups].nr_methods].nr_params, $2))
      {
-          MyError("Duplicate parameter used!");
+          char err[MAX_MSG];
+          sprintf(err, "Duplicate usage of the parameter '%s'", $2);
+          MyError(err);
      }
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].type = $1;
      group[nr_groups].methods[group[nr_groups].nr_methods].params[group[nr_groups].methods[group[nr_groups].nr_methods].nr_params].key = $2;
@@ -424,25 +447,42 @@ statement: ID ASSIGN BOOLVAL {
                int id = getVarId(variable, nr_vars, $1);
                int id2 = getVarId(variable, nr_vars, $3);
                if(id == -1)
-                    MyError("First variable not found!\n");
-               if(id2 == -1)
-                    MyError("Second variable not found!\n");
-               if(variable[id2].value == NULL)
-                    MyError("Second variable does not store a value!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf("Variable '%s' not declared previously", $1);
+                    MyError(err);
+               }
+               else if(id2 == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $3);
+                    MyError(err);
+               }
+               else if(variable[id2].value == NULL)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' does't have a stored value!", $3);
+                    MyError(err);
+               }
                
-               assignCheckTypes(variable, nr_vars, $1, variable, nr_vars, $3);
                variable[id].value = variable[id2].value;
+               assignCheckTypes(variable, nr_vars, $1, variable, nr_vars, $3);
           }
          | ID ASSIGN NR {
                int id = getVarId(variable, nr_vars, $1);
                if(id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $1);
+                    MyError(err);
+               }
+               
+               variable[id].value = $3;
                if(strcmp(variable[id].type, "int") != 0){
                     char err[MAX_MSG];
                     sprintf(err, "Cannot assign an integer value to '%s' because it expects a value of type '%s'!\n", $1, variable[id].type);
                     MyError(err);
                }
-               variable[id].value = $3;
                         
           }
          | ID ASSIGN VID'['NR']'{
@@ -450,11 +490,23 @@ statement: ID ASSIGN BOOLVAL {
                int vid = getVecId(array, nr_arrays, $3);
                int index = getInt($5);
                if(id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(vid == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $3);
+                    MyError(err);
+               }
                if(index < 0 || index >= array[vid].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                assignCheckTypesArr(variable, nr_vars, $1, array, nr_arrays, $3);
                variable[id].value = array[vid].value[index];
          }
@@ -464,9 +516,17 @@ statement: ID ASSIGN BOOLVAL {
                int var_id = getObjVarId($5, group_id, obj_id);
                int id = getVarId(variable, nr_vars, $1);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' does not exist!", $3, $5);
+                    MyError(err);
+               }
                if(id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                assignCheckTypes(variable, nr_vars, $1, group[group_id].vars[obj_id], group[group_id].nr_vars, $5);
                variable[id].value = group[group_id].vars[obj_id][var_id].value;
          }
@@ -478,11 +538,23 @@ statement: ID ASSIGN BOOLVAL {
                int id = getVarId(variable, nr_vars, $1);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' does not exist!", $3, $5);
+                    MyError(err);
+               }
                if(id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                assignCheckTypesArr(variable, nr_vars, $1, group[group_id].arrays[obj_id], group[group_id].nr_arrays, $5);
                variable[id].value = group[group_id].arrays[obj_id][arr_id].value[index];
          }
@@ -490,17 +562,27 @@ statement: ID ASSIGN BOOLVAL {
          | ID { fnctId = getFunctionId(function, nr_functions, $1); } '(' lista_apel ')' {
                if(checkFunction(function, nr_functions, $1) == 0)
                {
-                    MyError("Called function has not been defined in the function definition section!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Called function '%s' has not been defined!", $1);
+                    MyError(err);
                }
-               param_no = 0;
+               function[fnctId].param_no = 0;
          }
          | VID'['NR']' ASSIGN NR {
                int vid = getVecId(array, nr_arrays, $1);
                int index = getInt($3);
                if(vid == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(index < 0 || index >= array[vid].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(strcmp(array[vid].type, "int") != 0){
                     char err[MAX_MSG];
                     sprintf(err, "Cannot assign an integer value to '%s[%d]' because it expects a value of type '%s'!\n", $1, index, array[vid].type);
@@ -514,11 +596,23 @@ statement: ID ASSIGN BOOLVAL {
                int index = getInt($3);
 
                if(arr_id == -1)
-                    MyError("Array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(var_id == -1)
-                    MyError("Variable not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $6);
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                assignCheckTypesArr(variable, nr_vars, $6, array, nr_arrays, $1);
                array[arr_id].value[index] = variable[var_id].value;
          }
@@ -529,13 +623,29 @@ statement: ID ASSIGN BOOLVAL {
                int index2 = getInt($8);
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(arr_id2 == -1)
-                    MyError("Second array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $6);
+                    MyError(err);
+               }
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index, $1);
+                    MyError(err);
+               }
                if(index2 < 0 || index2 >= array[arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index2, $6);
+                    MyError(err);
+               }
                assignCheckTypesArrArr(array, nr_arrays, $1, array, nr_arrays, $6);
                array[arr_id].value[index] = array[arr_id2].value[index2];
          }
@@ -548,11 +658,23 @@ statement: ID ASSIGN BOOLVAL {
                int var_id = getObjVarId($8, group_id, obj_id);
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $6, $8);
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                assignCheckTypesArr(group[group_id].vars[obj_id], group[group_id].nr_vars, $8, array, nr_arrays, $1);
                array[arr_id].value[index] = group[group_id].vars[obj_id][var_id].value;
          }
@@ -566,13 +688,29 @@ statement: ID ASSIGN BOOLVAL {
                int index2 = getInt($10);
 
                if(arr_id == -1)
-                    MyError("First array not found!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");  
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $6, $8);
+                    MyError(err);
+               }     
                if(index < 0 || index >= array[arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index, $1);
+                    MyError(err);
+               }
                if(index2 < 0 || index2 >= array[arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s' array!", index2, $8);
+                    MyError(err);
+               }
                assignCheckTypesArrArr(group[group_id].arrays[obj_id], group[group_id].nr_arrays, $8, array, nr_arrays, $1);
                array[arr_id].value[index] = group[group_id].arrays[obj_id][arr_id2].value[index2];
          }
@@ -580,7 +718,9 @@ statement: ID ASSIGN BOOLVAL {
                int group_id = getGroupId($1);
                if(group_id == -1)
                {
-                    MyError("No such group defined!");
+                    char err[MAX_MSG];
+                    sprintf(err, "Group '%s' not defined previously!", $1);
+                    MyError(err);
                }
                else{
                     group[group_id].object[group[group_id].nr_objects].key = $2;
@@ -594,9 +734,17 @@ statement: ID ASSIGN BOOLVAL {
                int var_id = getObjVarId($3, group_id, obj_id);
                int assign_id = getVarId(variable, nr_vars, $5);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
                if(assign_id == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $5);
+                    MyError(err);
+               } 
                assignCheckTypes(variable, nr_vars, $5, group[group_id].vars[obj_id], group[group_id].nr_vars, $3);
                group[group_id].vars[obj_id][var_id].value = variable[assign_id].value;
          }
@@ -605,7 +753,11 @@ statement: ID ASSIGN BOOLVAL {
                int obj_id = getObjId($1, group_id);
                int var_id = getObjVarId($3, group_id, obj_id);
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
                if(strcmp(group[group_id].vars[obj_id][var_id].type, "int") != 0){
                     char err[MAX_MSG];
                     sprintf(err, "Cannot assign an integer value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].vars[obj_id][var_id].type);
@@ -623,9 +775,17 @@ statement: ID ASSIGN BOOLVAL {
                int var_id2 = getObjVarId($7, group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the first variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
                else if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the second variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $5, $7);
+                    MyError(err);
+               } 
                assignCheckTypes(group[group_id].vars[obj_id], group[group_id].nr_vars, $3, group[group_id2].vars[obj_id2], group[group_id2].nr_vars, $7);
                group[group_id].vars[obj_id][var_id].value = group[group_id2].vars[obj_id2][var_id2].value;
          }
@@ -640,11 +800,24 @@ statement: ID ASSIGN BOOLVAL {
                int index = getInt($9);
 
                if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $5, $7);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id2].arrays[obj_id2][arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(group_id == -1 || obj_id == -1 || var_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
+               //TODO
                group[group_id].vars[obj_id][var_id].value = group[group_id2].arrays[obj_id2][arr_id2].value[index];
          }
          | ID GROUP_ACCESS VID'['NR']' ASSIGN NR{
@@ -654,9 +827,17 @@ statement: ID ASSIGN BOOLVAL {
                int index = getInt($5);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(strcmp(group[group_id].arrays[obj_id][arr_id].type, "int") != 0){
                     char err[MAX_MSG];
                     sprintf(err, "Cannot assign an integer value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].arrays[obj_id][arr_id].type);
@@ -672,11 +853,23 @@ statement: ID ASSIGN BOOLVAL {
                int assign_id = getVarId(variable, nr_vars, $8);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
                if(assign_id == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {    
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $8);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                assignCheckTypesArr(variable, nr_vars, $8, group[group_id].arrays[obj_id], group[group_id].nr_arrays, $3);
                group[group_id].arrays[obj_id][arr_id].value[index] = variable[assign_id].value;
          }
@@ -691,11 +884,23 @@ statement: ID ASSIGN BOOLVAL {
                int var_id2 = getObjVarId($10, group_id2, obj_id2);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
                if(group_id2 == -1 || obj_id2 == -1 || var_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $8, $10);
+                    MyError(err);
+               } 
                assignCheckTypesArr(group[group_id2].vars[obj_id2], group[group_id2].nr_vars, $10, group[group_id].arrays[obj_id], group[group_id].nr_arrays, $3);
                group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].vars[obj_id2][var_id2].value;
          }
@@ -711,13 +916,29 @@ statement: ID ASSIGN BOOLVAL {
                int index2 = getInt($12);
 
                if(group_id == -1 || obj_id == -1 || arr_id == -1)
-                    MyError("Can't assign that becah the vector does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
                if(group_id2 == -1 || obj_id2 == -1 || arr_id2 == -1)
-                    MyError("Can't assign that becah the variable does not exist!\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $8, $10);
+                    MyError(err);
+               }
                if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s.%s' array!", index, $1, $3);
+                    MyError(err);
+               }
                if(index2 < 0 || index2 > group[group_id].arrays[obj_id][arr_id2].size)
-                    MyError("Segmentation fault! (core dumped)\n");
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d] at the '%s.%s' array!", index2, $8, $10);
+                    MyError(err);
+               }
                assignCheckTypesArrArr(group[group_id].arrays[obj_id], group[group_id].nr_arrays, $3, group[group_id2].arrays[obj_id2], group[group_id2].nr_arrays, $10);
                group[group_id].arrays[obj_id][arr_id].value[index] = group[group_id2].arrays[obj_id2][arr_id2].value[index2];
          }
@@ -729,36 +950,50 @@ statement: ID ASSIGN BOOLVAL {
 for_statement : ID ASSIGN ID ',' ID {
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $5))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $5);
+          MyError(err);
      }
 }
               | ID ASSIGN NR ',' NR
               | ID ASSIGN ID ',' NR {
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
               | ID ASSIGN NR ',' ID {
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $5))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $5);
+          MyError(err);
      }
 }
               ;
@@ -766,115 +1001,155 @@ for_statement : ID ASSIGN ID ',' ID {
 ctrl_statement : ID CHECK ID{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | ID CHECK NR{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
 }
                | NR CHECK ID{
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | NR CHECK NR
                | ID LT ID{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | ID LT NR{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
 }
                | NR LT ID{
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | NR LT NR
                | ID LE ID{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | ID LE NR{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
 }
                | NR LE ID{
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | NR LE NR
                | ID GT ID{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | ID GT NR{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
 }
                | NR GT ID{
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | NR GT NR
                | ID GE ID{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | ID GE NR{
      if(!checkVar(variable, nr_vars, $1))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $1);
+          MyError(err);
      }
 }
                | NR GE ID{
      if(!checkVar(variable, nr_vars, $3))
      {
-          MyError("Variable used in control statement not declared!");
+          char err[MAX_MSG];
+          sprintf(err, "Variable '%s' used in control statement not declared!", $3);
+          MyError(err);
      }
 }
                | NR GE NR
@@ -885,61 +1160,180 @@ lista_apel : /* empty */
            | lista_apel ',' apel
            ;
 apel : NR {
-          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if (strcmp(def_type, "char") == 0)
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
           else if (strcmp(def_type, "bool") == 0)
           {
                int nr_int = getInt($1);
                if (nr_int != 0 && nr_int != 1)
                {
-                    MyError("The type of the variable in the function call does not match the function definition!");
+                    char err[MAX_MSG];
+                    sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+                    MyError(err);
                }
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
      | ID {
-          if(isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if(checkVar(variable, nr_vars, $1) == 0)
           {
-               MyError("The variable used in the function call is not declared!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
           int current_var_id = getVarId(variable, nr_vars, $1);
           char *current_type = getVarType(variable, nr_vars, current_var_id);
           if (strcmp(def_type, current_type) != 0)
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
      | VID {
-          if(!isArray(function[fnctId].params, function[fnctId].nr_params, param_no))
+          if(!isArray(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no))
           {
-               MyError("The type of the variable in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
-          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, param_no);
+          char *def_type = getVarType(function[fnctId].params, function[fnctId].nr_params, function[fnctId].param_no);
           if(checkArr(array, nr_arrays, $1) == 0)
           {
-               MyError("The array used in the function call is not declared!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
           int current_arr_id = getVecId(array, nr_arrays, $1);
           char *current_type = getArrType(array, nr_arrays, current_arr_id);
           if (strcmp(def_type, current_type) != 0)
           {
-               MyError("The type of the array in the function call does not match the function definition!");
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
           }
-          param_no++;
+          function[fnctId].param_no++;
      }
+     /* | ID { fnctId2 = getFunctionId(function, nr_functions, $1); } '(' lista_apel2 ')' {
+               
+          if(checkFunction(function, nr_functions, $1) == 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "Called function '%s' has not been defined!", $1);
+               MyError(err);
+          }
+          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
+          printf("***def_type = %d***\n", );
+          char *current_type = getFnctType(function, nr_functions, fnctId);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          //function[fnctId2].param_no++;
+     } */
+     ;
+
+
+//lista_apel2 : /* empty */
+//           | apel2
+//           | lista_apel2 ',' apel2
+//           ;
+
+/* apel2 : NR {
+          if(isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
+          if (strcmp(def_type, "char") == 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          else if (strcmp(def_type, "bool") == 0)
+          {
+               int nr_int = getInt($1);
+               if (nr_int != 0 && nr_int != 1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+                    MyError(err);
+               }
+          }
+          function[fnctId2].param_no++;
+     }
+     | ID {
+          if(isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
+          if(checkVar(variable, nr_vars, $1) == 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          int current_var_id = getVarId(variable, nr_vars, $1);
+          char *current_type = getVarType(variable, nr_vars, current_var_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          function[fnctId2].param_no++;
+     }
+     | VID {
+          if(!isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
+          if(checkArr(array, nr_arrays, $1) == 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          int current_arr_id = getVecId(array, nr_arrays, $1);
+          char *current_type = getArrType(array, nr_arrays, current_arr_id);
+          if (strcmp(def_type, current_type) != 0)
+          {
+               char err[MAX_MSG];
+               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
+               MyError(err);
+          }
+          function[fnctId2].param_no++;
+     } */
 
 group_statement_list : /* empty */
                      | group_statement ';'
@@ -1216,6 +1610,11 @@ char* getArrType(vecmap *m, int size, int index)
      return m[index].type;
 }
 
+char* getFnctType(fnctmap *m, int size, int index)
+{
+     return m[index].type;
+}
+
 int isArray(varmap *m, int size, int index)
 {
      char *varname = m[index].key;
@@ -1272,6 +1671,18 @@ void assignCheckTypesArrArr(vecmap *m1, int size1, char *var1, vecmap *m2, int s
      return;
 }
 
+
+int checkGroup(groupmap *m, int size, char *group)
+{
+     for(int i = 0; i < size; i++)
+     {
+          if(strcmp(m[i].name, group) == 0)
+          {
+               return 1;
+          }
+     }
+     return 0;
+}
 
 int main(int argc, char** argv){
 yyin=fopen(argv[1],"r");

@@ -56,38 +56,37 @@ extern int yydebug;
     TIP = 262,
     CTIP = 263,
     BOOLVAL = 264,
-    SEMICO = 265,
-    BGIN = 266,
-    END = 267,
-    ASSIGN = 268,
-    ASSIGNEXP = 269,
-    PRINT = 270,
-    BGINGLOBAL = 271,
-    ENDGLOBAL = 272,
-    BGINFNCT = 273,
-    ENDFNCT = 274,
-    GROUP = 275,
-    GROUP_ACCESS = 276,
-    BGINFIELDS = 277,
-    ENDFIELDS = 278,
-    BGINMETHODS = 279,
-    ENDMETHODS = 280,
-    IF = 281,
-    FOR = 282,
-    WHILE = 283,
-    CHECK = 284,
-    LE = 285,
-    GE = 286,
-    LT = 287,
-    GT = 288,
-    PLUS = 289,
-    MINUS = 290,
-    TIMES = 291,
-    DIVIDE = 292,
-    LPAREN = 293,
-    RPAREN = 294,
-    OR = 295,
-    AND = 296
+    BGIN = 265,
+    END = 266,
+    ASSIGN = 267,
+    ASSIGNEXP = 268,
+    PRINT = 269,
+    BGINGLOBAL = 270,
+    ENDGLOBAL = 271,
+    BGINFNCT = 272,
+    ENDFNCT = 273,
+    GROUP = 274,
+    GROUP_ACCESS = 275,
+    BGINFIELDS = 276,
+    ENDFIELDS = 277,
+    BGINMETHODS = 278,
+    ENDMETHODS = 279,
+    IF = 280,
+    FOR = 281,
+    WHILE = 282,
+    CHECK = 283,
+    LE = 284,
+    GE = 285,
+    LT = 286,
+    GT = 287,
+    PLUS = 288,
+    MINUS = 289,
+    TIMES = 290,
+    DIVIDE = 291,
+    LPAREN = 292,
+    RPAREN = 293,
+    OR = 294,
+    AND = 295
   };
 #endif
 /* Tokens.  */
@@ -98,49 +97,48 @@ extern int yydebug;
 #define TIP 262
 #define CTIP 263
 #define BOOLVAL 264
-#define SEMICO 265
-#define BGIN 266
-#define END 267
-#define ASSIGN 268
-#define ASSIGNEXP 269
-#define PRINT 270
-#define BGINGLOBAL 271
-#define ENDGLOBAL 272
-#define BGINFNCT 273
-#define ENDFNCT 274
-#define GROUP 275
-#define GROUP_ACCESS 276
-#define BGINFIELDS 277
-#define ENDFIELDS 278
-#define BGINMETHODS 279
-#define ENDMETHODS 280
-#define IF 281
-#define FOR 282
-#define WHILE 283
-#define CHECK 284
-#define LE 285
-#define GE 286
-#define LT 287
-#define GT 288
-#define PLUS 289
-#define MINUS 290
-#define TIMES 291
-#define DIVIDE 292
-#define LPAREN 293
-#define RPAREN 294
-#define OR 295
-#define AND 296
+#define BGIN 265
+#define END 266
+#define ASSIGN 267
+#define ASSIGNEXP 268
+#define PRINT 269
+#define BGINGLOBAL 270
+#define ENDGLOBAL 271
+#define BGINFNCT 272
+#define ENDFNCT 273
+#define GROUP 274
+#define GROUP_ACCESS 275
+#define BGINFIELDS 276
+#define ENDFIELDS 277
+#define BGINMETHODS 278
+#define ENDMETHODS 279
+#define IF 280
+#define FOR 281
+#define WHILE 282
+#define CHECK 283
+#define LE 284
+#define GE 285
+#define LT 286
+#define GT 287
+#define PLUS 288
+#define MINUS 289
+#define TIMES 290
+#define DIVIDE 291
+#define LPAREN 292
+#define RPAREN 293
+#define OR 294
+#define AND 295
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 95 "limbaj.y"
+#line 99 "limbaj.y"
 
      char* id;
      char* val;
 
-#line 144 "y.tab.h"
+#line 142 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

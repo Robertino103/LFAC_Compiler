@@ -3,14 +3,14 @@ Predefined variables: ('type' 'name' = 'value')
     float $salary
     float $myfl
     int $n = 2
-    int $a = 5
+    int $a = 0
     int $b = 50
     int $c
     int $d
     const float $r = 5
     bool $mybool = TRUE
     bool $bexp
-    int @x[58] = {4, 2, 0, 5, 0, 2222, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    int @x[58] = {4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     float @vec[5] = {0, 0, 0, 0, 0}
 
 User defined variables: ('type' 'name' = 'value')
@@ -26,13 +26,13 @@ User defined variables: ('type' 'name' = 'value')
     int $moc.$z
     int $s.$x
     int $s.$y
-    int $s.$z = 5
+    int $s.$z = 0
     int $x.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $moc.@studarr[20] = {0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $s.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $patrut.$age = 69
     char $patrut.$name = 50
-    int $patrut.$salary = 5
+    int $patrut.$salary = 0
     float $patrut.@teacharr[56] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 Used expressions:
