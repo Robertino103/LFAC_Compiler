@@ -17,6 +17,9 @@
 #define MAX_FUNCTIONS 100
 #define MAX_EXPRESSIONS 100
 #define MAX_EXP_SIZE 100
+#define INT_MIN -2147483648
+#define MAX_STR 200
+#define MAX_VAR_SIZE 20
 
 extern FILE* yyin;
 extern char* yytext;
@@ -73,7 +76,6 @@ typedef struct{
 } expmap;
 expmap expression[MAX_EXPRESSIONS];
 
-
 void printAll();
 void MyError(char *err);
 char* getVarType(varmap *m, int size, int index);
@@ -84,6 +86,9 @@ void checkExprType(char* var_name);
 void assignCheckTypes(varmap *m1, int size1, char *var1, varmap *m2, int size2, char *var2);
 void assignCheckTypesArrArr(vecmap *m1, int size1, char *var1, vecmap *m2, int size2, char *var2);
 void assignCheckTypesArr(varmap *m1, int size1, char *var1, vecmap *m2, int size2, char *var2);
+void checkFunType(char *var_name);
+char *infixToPostfix(char *infix);
+char *swapWithValue(char *infix);
 
 int nr_vars = 0;
 int nr_arrays = 0;
@@ -95,6 +100,88 @@ int fnctId = -1;
 int fnctId2 = -1;
 char *expr_current_type;
 
+struct ASTNode {
+  char* type;
+  int value;
+  struct ASTNode* left;
+  struct ASTNode* right;
+};
+
+struct StackNode {
+    struct ASTNode* node;
+    struct StackNode* next;
+};
+
+struct ASTNode* pop(struct StackNode** root){
+    if (*root == NULL)
+        return NULL;
+    struct StackNode* temp = *root;
+    *root = (*root)->next;    
+    struct ASTNode* popped = temp->node;
+    free(temp);
+    return popped;
+}
+
+void push(struct StackNode** root, struct ASTNode* node){
+    struct StackNode* new_node = (struct StackNode*) malloc(sizeof(struct StackNode));
+    new_node->node = node;
+    new_node->next = *root;
+    *root = new_node;
+}
+
+struct ASTNode* buildAST(char* postfix){
+    struct StackNode* stack = NULL;
+    int i;
+    for (i = 0; i < strlen(postfix); i++) {
+        if (isdigit(postfix[i])) {
+            struct ASTNode* new_node = (struct ASTNode*) malloc(sizeof(struct ASTNode));
+            new_node->type = "operand";
+            new_node->value = postfix[i] - '0';
+            new_node->left = NULL;
+            new_node->right = NULL;
+            push(&stack, new_node);
+        } else {
+            struct ASTNode* new_node = (struct ASTNode*) malloc(sizeof(struct ASTNode));
+            new_node->type = "operator";
+            new_node->value = postfix[i];
+            new_node->right = pop(&stack);
+            new_node->left = pop(&stack);
+            push(&stack, new_node);
+        }
+    }
+    return pop(&stack);
+}
+
+void printAST(struct ASTNode* root) {
+    if (root != NULL) {
+        if (root->type == "operand") {
+            printf("%d ", root->value);
+        }
+        else {
+            printf("%c ", root->value);
+            printAST(root->left);
+            printAST(root->right);
+        }
+    }
+}
+
+int eval(struct ASTNode* node) {
+  if (node->type == "operand") {
+    return node->value;
+  } else if (node->type == "operator") {
+    switch (node->value) {
+      case '+':
+        return eval(node->left) + eval(node->right);
+      case '-':
+        return eval(node->left) - eval(node->right);
+      case '*':
+        return eval(node->left) * eval(node->right);
+      case '/':
+        return eval(node->left) / eval(node->right);
+    }
+  }
+}
+
 %}
 %union {
      char* id;
@@ -102,6 +189,9 @@ char *expr_current_type;
 }
 
 %token <val> NR
+%token <val> FNR
+%token <val> STRING
+%token <val> CHAR
 %token <id> ID
 %token <id> GID
 %token <id> VID
@@ -111,10 +201,11 @@ char *expr_current_type;
 
 %token BGIN END ASSIGN ASSIGNEXP PRINT BGINGLOBAL ENDGLOBAL BGINFNCT ENDFNCT GROUP GROUP_ACCESS
 %token BGINFIELDS ENDFIELDS BGINMETHODS ENDMETHODS
-%token IF FOR WHILE CHECK LE GE LT GT
+%token IF FOR WHILE CHECK LE GE LT GT 
 %token PLUS MINUS TIMES DIVIDE
 %token LPAREN RPAREN
 %token OR AND
+%token TYPEOF EVAL
 
 %left PLUS MINUS
 %left TIMES DIVIDE
@@ -233,7 +324,6 @@ field : TIP ID {
                sprintf(err, "Sorry! We can't hold more than %d elements in an array ! Go try writing in RUST! \n", MAX_EL_ARRAY);
                MyError(err); 
           }
-
           for(int i = 0; i < MAX_OBJECTS; i++)
           {
                group[nr_groups].arrays[i][group[nr_groups].nr_arrays].type = $1;
@@ -386,8 +476,8 @@ list : /* empty */
 
 /* instructiune */
 
-expressions : arithmexp
-            | booleanexp
+expressions : arithmexp 
+            | booleanexp 
             ;
           
 booleanexp : boolean
@@ -409,21 +499,39 @@ boolean : BOOLVAL {strcat(expression[nr_expr].expr, $1);}
                strcat(expression[nr_expr].expr, $1);
                expr_current_type = "bool";
           }
-        | boolean OR {strcat(expression[nr_expr].expr, " && " );} boolean
-        | boolean AND {strcat(expression[nr_expr].expr, " || ");} boolean
-        | LPAREN {strcat(expression[nr_expr].expr, "((");} boolean RPAREN {strcat(expression[nr_expr].expr, "))");}
+        | boolean OR {strcat(expression[nr_expr].expr, "||" );} boolean
+        | boolean AND {strcat(expression[nr_expr].expr, "&&");} boolean
+        | LPAREN {strcat(expression[nr_expr].expr, "(");} boolean RPAREN {strcat(expression[nr_expr].expr, ")");}
         ;
 
-arithmetic : NR {strcat(expression[nr_expr].expr, $1);}
+arithmetic : NR {strcat(expression[nr_expr].expr, $1); expr_current_type = "int";}
            | ID {checkExprType($1); strcat(expression[nr_expr].expr, $1);}
-           | arithmetic PLUS {strcat(expression[nr_expr].expr, " + ");} arithmetic
-           | arithmetic MINUS {strcat(expression[nr_expr].expr, " - ");} arithmetic
-           | arithmetic TIMES {strcat(expression[nr_expr].expr, " * ");} arithmetic
-           | arithmetic DIVIDE {strcat(expression[nr_expr].expr, " / ");} arithmetic
-           | LPAREN {strcat(expression[nr_expr].expr, "((");} arithmetic RPAREN {strcat(expression[nr_expr].expr, "))");} 
+           | arithmetic PLUS {strcat(expression[nr_expr].expr, "+");} arithmetic
+           | arithmetic MINUS {strcat(expression[nr_expr].expr, "-");} arithmetic
+           | arithmetic TIMES {strcat(expression[nr_expr].expr, "*");} arithmetic
+           | arithmetic DIVIDE {strcat(expression[nr_expr].expr, "/");} arithmetic
+           | LPAREN {strcat(expression[nr_expr].expr, "(");} arithmetic RPAREN {strcat(expression[nr_expr].expr, ")");} 
            ;
 
-statement: ID ASSIGN BOOLVAL {
+statement:| ID ASSIGN CHAR {
+               int id = getVarId(variable, nr_vars, $1);
+               if(strcmp(variable[id].type, "char") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' is not of char type!\n", $1);
+                    MyError(err);
+               }
+               variable[id].value = $3;
+          }
+          | ID ASSIGN STRING {
+               int id = getVarId(variable, nr_vars, $1);
+               if(strcmp(variable[id].type, "string") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' is not of string type!\n", $1);
+                    MyError(err);
+               }
+               variable[id].value = $3;
+          } 
+         | ID ASSIGN BOOLVAL {
                int id = getVarId(variable, nr_vars, $1);
                if(strcmp(variable[id].type, "bool") != 0){
                     char err[MAX_MSG];
@@ -434,14 +542,22 @@ statement: ID ASSIGN BOOLVAL {
           }
          | ID ASSIGNEXP expressions {
                int id = getVarId(variable, nr_vars, $1);
-               if(strcmp(variable[id].type, expr_current_type) != 0){
+               if(id == -1){
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable %s does not exist!\n", $1);
+                    MyError(err);
+               }
+               if(expr_current_type == NULL)
+                    expr_current_type = variable[id].type;
+               else if(strcmp(variable[id].type, expr_current_type) != 0){
                     char err[MAX_MSG];
                     sprintf(err, "Cannot assign '%s' expression because the variable '%s' expects a type of '%s'!\n", expr_current_type, $1, variable[id].type);
                     MyError(err);
                }
                expression[nr_expr].type = expr_current_type;
+               variable[id].value = expression[nr_expr].expr;
                expr_current_type = NULL;
-               nr_expr++;
+
          }
          | ID ASSIGN ID {
                int id = getVarId(variable, nr_vars, $1);
@@ -485,6 +601,66 @@ statement: ID ASSIGN BOOLVAL {
                }
                         
           }
+          | ID ASSIGN FNR {
+               int id = getVarId(variable, nr_vars, $1);
+               if(id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s' not declared previously!", $1);
+                    MyError(err);
+               }
+               variable[id].value = $3;
+               if(strcmp(variable[id].type, "float") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an float value to '%s' because it expects a value of type '%s'!\n", $1, variable[id].type);
+                    MyError(err);
+               }
+
+          }
+          | VID '['NR']' ASSIGN FNR {
+               int vid = getVecId(array, nr_arrays, $1);
+               int index = getInt($3);
+               if(vid == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
+               if(index < 0 || index >= array[vid].size)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
+               if(strcmp(array[vid].type, "float") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an float value to '%s[%d]' because it expects a value of type '%s'!\n", $1, index, array[vid].type);
+                    MyError(err);
+               }
+               array[vid].value[index] = $6;
+         }
+         | VID '['NR']' ASSIGN BOOLVAL {
+              int vid = getVecId(array, nr_arrays, $1);
+               int index = getInt($3);
+               if(vid == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s' not declared previously!", $1);
+                    MyError(err);
+               }
+               if(index < 0 || index >= array[vid].size)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
+               if(strcmp(array[vid].type, "bool") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an bool value to '%s[%d]' because it expects a value of type '%s'!\n", $1, index, array[vid].type);
+                    MyError(err);
+               }
+               array[vid].value[index] = $6;
+         }
          | ID ASSIGN VID'['NR']'{
                int id = getVarId(variable, nr_vars, $1);
                int vid = getVecId(array, nr_arrays, $3);
@@ -510,6 +686,74 @@ statement: ID ASSIGN BOOLVAL {
                assignCheckTypesArr(variable, nr_vars, $1, array, nr_arrays, $3);
                variable[id].value = array[vid].value[index];
          }
+         | ID GROUP_ACCESS ID ASSIGN CHAR {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int var_id = getObjVarId($3, group_id, obj_id);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
+               if(strcmp(group[group_id].vars[obj_id][var_id].type, "char") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an char value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].vars[obj_id][var_id].type);
+                    MyError(err);
+               }
+               group[group_id].vars[obj_id][var_id].value = $5;
+         }
+         | ID GROUP_ACCESS ID ASSIGN STRING {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int var_id = getObjVarId($3, group_id, obj_id);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
+               if(strcmp(group[group_id].vars[obj_id][var_id].type, "string") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an string value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].vars[obj_id][var_id].type);
+                    MyError(err);
+               }
+               group[group_id].vars[obj_id][var_id].value = $5;
+         }
+         | ID GROUP_ACCESS ID ASSIGN BOOLVAL {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int var_id = getObjVarId($3, group_id, obj_id);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
+               if(strcmp(group[group_id].vars[obj_id][var_id].type, "bool") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an bool value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].vars[obj_id][var_id].type);
+                    MyError(err);
+               }
+               group[group_id].vars[obj_id][var_id].value = $5;
+         }
+         | ID GROUP_ACCESS ID ASSIGN FNR {
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int var_id = getObjVarId($3, group_id, obj_id);
+               if(group_id == -1 || obj_id == -1 || var_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               } 
+               if(strcmp(group[group_id].vars[obj_id][var_id].type, "float") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an float value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].vars[obj_id][var_id].type);
+                    MyError(err);
+               }
+               group[group_id].vars[obj_id][var_id].value = $5;
+         }
          | ID ASSIGN ID GROUP_ACCESS ID{
                int group_id = getObjGroupId($3);
                int obj_id = getObjId($3, group_id);
@@ -529,6 +773,56 @@ statement: ID ASSIGN BOOLVAL {
                }
                assignCheckTypes(variable, nr_vars, $1, group[group_id].vars[obj_id], group[group_id].nr_vars, $5);
                variable[id].value = group[group_id].vars[obj_id][var_id].value;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN BOOLVAL{
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
+               if(strcmp(group[group_id].arrays[obj_id][arr_id].type, "bool") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an bool value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].arrays[obj_id][arr_id].type);
+                    MyError(err);
+               }
+               group[group_id].arrays[obj_id][arr_id].value[index] = $8;
+         }
+         | ID GROUP_ACCESS VID'['NR']' ASSIGN FNR{
+               int group_id = getObjGroupId($1);
+               int obj_id = getObjId($1, group_id);
+               int arr_id = getObjVecId($3, group_id, obj_id);
+               int index = getInt($5);
+
+               if(group_id == -1 || obj_id == -1 || arr_id == -1)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Array '%s.%s' not declared previously!", $1, $3);
+                    MyError(err);
+               }
+               if(index < 0 || index > group[group_id].arrays[obj_id][arr_id].size)
+               {
+                    char err[MAX_MSG];
+                    sprintf(err, "Incorrect access for index [%d]!", index);
+                    MyError(err);
+               }
+               if(strcmp(group[group_id].arrays[obj_id][arr_id].type, "float") != 0){
+                    char err[MAX_MSG];
+                    sprintf(err, "Cannot assign an float value to '%s' because it expects a value of type '%s'!\n", $3, group[group_id].arrays[obj_id][arr_id].type);
+                    MyError(err);
+               }
+               group[group_id].arrays[obj_id][arr_id].value[index] = $8;
          }
          | ID ASSIGN ID GROUP_ACCESS VID'['NR']'{
                int group_id = getObjGroupId($3);
@@ -817,7 +1111,7 @@ statement: ID ASSIGN BOOLVAL {
                     sprintf(err, "Variable '%s.%s' not declared previously!", $1, $3);
                     MyError(err);
                } 
-               //TODO
+               assignCheckTypesArr(group[group_id].vars[obj_id], group[group_id].nr_vars, $3, group[group_id2].arrays[obj_id2], group[group_id2].nr_arrays, $7);
                group[group_id].vars[obj_id][var_id].value = group[group_id2].arrays[obj_id2][arr_id2].value[index];
          }
          | ID GROUP_ACCESS VID'['NR']' ASSIGN NR{
@@ -909,7 +1203,6 @@ statement: ID ASSIGN BOOLVAL {
                int obj_id = getObjId($1, group_id);
                int arr_id = getObjVecId($3, group_id, obj_id);
                int index = getInt($5);
-
                int group_id2 = getObjGroupId($8);
                int obj_id2 = getObjId($8, group_id2);
                int arr_id2 = getObjVecId($10, group_id2, obj_id2);
@@ -945,6 +1238,46 @@ statement: ID ASSIGN BOOLVAL {
          | IF '(' ctrl_statement ')' '{' list '}'
          | FOR '(' for_statement ')' '{' list '}'
          | WHILE '(' ctrl_statement ')' '{' list '}'
+         | EVAL '(' expressions ')'{
+               expression[nr_expr].type = expr_current_type;
+               expr_current_type = NULL;
+               char *infix;
+               infix = expression[nr_expr].expr;
+               infix = swapWithValue(infix);
+               char *postfix = infixToPostfix(infix);
+               printf("Postfix expression: %s\n", postfix);
+               struct ASTNode* root = buildAST(postfix);
+               printf("AST in preorder: ");
+               printAST(root);
+               int val_exp = eval(root);
+               printf("\nEval(%s) = %d\n", expression[nr_expr].expr, val_exp);
+               
+               strcpy(expression[nr_expr].expr, "");
+               expression[nr_expr].type = NULL;
+         }
+         | TYPEOF '(' ID GROUP_ACCESS ID ')' {
+               int group_id = getObjGroupId($3);
+               int obj_id = getObjId($3, group_id);
+               int var_id = getObjVarId($5, group_id, obj_id);
+               printf("TypeOf(%s.%s) = %s\n", $3, $5, getVarType(group[group_id].vars[obj_id], group[group_id].nr_vars, var_id));
+         }
+         | TYPEOF '(' ID ')' {
+               printf("TypeOf(%s) = %s\n", $3, getVarType(variable, nr_vars, getVarId(variable, nr_vars, $3)));
+         }
+         | TYPEOF '(' VID ')' {
+               printf("TypeOf(%s) = %s\n", $3, getArrType(array, nr_arrays, getVecId(array,nr_arrays, $3)));
+         }
+         | TYPEOF '(' NR ')' {
+               printf("TypeOf(%s) = int\n", $3);
+         }
+         | TYPEOF '(' expressions ')' {
+               expression[nr_expr].type = expr_current_type;
+               expr_current_type = NULL;
+               printf("TypeOf(%s) = %s\n", expression[nr_expr].expr, expression[nr_expr].type);
+               strcpy(expression[nr_expr].expr, "");
+               expression[nr_expr].type = NULL;
+         }
+         ;
          ;
 
 for_statement : ID ASSIGN ID ',' ID {
@@ -1233,107 +1566,6 @@ apel : NR {
           }
           function[fnctId].param_no++;
      }
-     /* | ID { fnctId2 = getFunctionId(function, nr_functions, $1); } '(' lista_apel2 ')' {
-               
-          if(checkFunction(function, nr_functions, $1) == 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "Called function '%s' has not been defined!", $1);
-               MyError(err);
-          }
-          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
-          printf("***def_type = %d***\n", );
-          char *current_type = getFnctType(function, nr_functions, fnctId);
-          if (strcmp(def_type, current_type) != 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          //function[fnctId2].param_no++;
-     } */
-     ;
-
-
-//lista_apel2 : /* empty */
-//           | apel2
-//           | lista_apel2 ',' apel2
-//           ;
-
-/* apel2 : NR {
-          if(isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
-          if (strcmp(def_type, "char") == 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          else if (strcmp(def_type, "bool") == 0)
-          {
-               int nr_int = getInt($1);
-               if (nr_int != 0 && nr_int != 1)
-               {
-                    char err[MAX_MSG];
-                    sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-                    MyError(err);
-               }
-          }
-          function[fnctId2].param_no++;
-     }
-     | ID {
-          if(isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
-          if(checkVar(variable, nr_vars, $1) == 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          int current_var_id = getVarId(variable, nr_vars, $1);
-          char *current_type = getVarType(variable, nr_vars, current_var_id);
-          if (strcmp(def_type, current_type) != 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          function[fnctId2].param_no++;
-     }
-     | VID {
-          if(!isArray(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no))
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          char *def_type = getVarType(function[fnctId2].params, function[fnctId2].nr_params, function[fnctId2].param_no);
-          if(checkArr(array, nr_arrays, $1) == 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          int current_arr_id = getVecId(array, nr_arrays, $1);
-          char *current_type = getArrType(array, nr_arrays, current_arr_id);
-          if (strcmp(def_type, current_type) != 0)
-          {
-               char err[MAX_MSG];
-               sprintf(err, "The type of variable '%s' in the function call does not match the definition!", $1);
-               MyError(err);
-          }
-          function[fnctId2].param_no++;
-     } */
 
 group_statement_list : /* empty */
                      | group_statement ';'
@@ -1638,6 +1870,22 @@ void checkExprType(char *var_name) {
      }
 }
 
+void checkFunType(char *var_name){
+     int id = getFunctionId(function, nr_functions, var_name);
+     if(id == -1){
+          char errMsg[100];
+          sprintf(errMsg,"Function '%s' does not exist!\n", var_name);
+          MyError(errMsg);
+     }
+     if(expr_current_type == NULL)
+          expr_current_type = function[id].type;
+     else if(strcmp(function[id].type, expr_current_type) != 0){
+          char errMsg[100];
+          sprintf(errMsg,"Function '%s' has return type '%s' but expected '%s'\n", var_name, function[id].type, expr_current_type);
+          MyError(errMsg);
+     }
+}
+
 void assignCheckTypes(varmap *m1, int size1, char *var1, varmap *m2, int size2, char *var2){
      int id1 = getVarId(m1, size1, var1);
      int id2 = getVarId(m2, size2, var2);
@@ -1684,7 +1932,95 @@ int checkGroup(groupmap *m, int size, char *group)
      return 0;
 }
 
+int orderOperator(char operator) {
+     switch (operator) {
+          case '+':
+          case '-':
+               return 1;
+          case '*':
+          case '/':
+               return 2;
+          case '^':
+               return 3;
+          default:
+               return -1;
+     }
+}
+ 
+int isOperator(char ch) {
+     return (ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '^');
+}
+ 
+char *infixToPostfix(char *infix){
+     int i, j;
+     int len = strlen(infix);
+     char *postfix = (char *)malloc(sizeof(char) * (len + 2));
+     char stack[MAX_EXP_SIZE];
+     int top = -1;
+     
+     for (i = 0, j = 0; i < len; i++) {
+          if (infix[i] == ' ' || infix[i] == '\t')
+               continue;
+          while (isalnum(infix[i]) || infix[i] == '$') {
+               postfix[j++] = infix[i];
+               i++;
+          } 
+          //postfix[j++] = ' ';
+          if (infix[i] == '(') {
+               stack[++top] = infix[i];
+          } else if (infix[i] == ')') {
+               while (top > -1 && stack[top] != '(')
+                    postfix[j++] = stack[top--];
+               if (top > -1 && stack[top] != '(')
+                    return "Invalid Expression";
+               else
+                    top--;
+          } else if (isOperator(infix[i])) {
+               while (top > -1 && orderOperator(stack[top]) >= orderOperator(infix[i])){
+                    postfix[j++] = stack[top--];
+                    //postfix[j++] = ' ';
+               }
+               stack[++top] = infix[i];
+          }
+     }
+     
+     while (top > -1)
+          postfix[j++] = stack[top--];
+     
+     postfix[j] = '\0';
+     return postfix;
+}
+
+char *swapWithValue(char *infix){
+     char result[MAX_EXP_SIZE] = {""};
+     int k = 0;
+     for(int i = 0; i < strlen(infix); i++){
+          if(infix[i] == '$'){
+               char temp_var[MAX_EXP_SIZE] = {""};
+               int temp_k = 0;
+               while(strchr("+-*/()", infix[i]) == NULL){
+                    temp_var[temp_k++] = infix[i++];
+               }
+               int var_id = getVarId(variable, nr_vars, temp_var);
+               if(var_id == -1){
+                    char err[MAX_MSG*2];
+                    sprintf(err, "Variable %s not declared!\n", temp_var);
+                    MyError(err);
+               }
+               char *value = variable[var_id].value;
+               for(int j = 0; j < strlen(value); j++)
+                    result[k++] = value[j];
+               result[k++] = infix[i];
+          }
+          else
+               result[k++] = infix[i];
+     }
+     result[k]= '\0';
+     char *p = result;
+     return p  ;
+}
+
 int main(int argc, char** argv){
-yyin=fopen(argv[1],"r");
-yyparse();
+     yyin=fopen(argv[1],"r");
+     yyparse();
 }

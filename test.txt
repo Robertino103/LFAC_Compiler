@@ -24,12 +24,12 @@ group student{
 group teacher{
     begin_fields
         int $age;
-        char $name;
+        string $name;
         int $salary;
         float @teacharr[56];
     end_fields
     begin_methods
-        bool $isGay(int @x[99]){};
+        bool $isOk(int @x[99]){};
         float $getSalary(){};
     end_methods
 };
@@ -39,6 +39,7 @@ int @x[58];
 float @vec[5];
 float $salary;
 float $myfl;
+char $mychar;
 int $n;
 int $a;
 int $b;
@@ -47,44 +48,44 @@ int $d;
 const float $r = 5;
 bool $mybool;
 bool $bexp;
+string $mystr;
 
 begin_progr
 
 
     student $x;
     student $moc;
-    teacher $patrut;
-    $patrut.$age = 69;
-    $age = $patrut.$age;
-    $age = 2;
+    teacher $claudiu;
+    $claudiu.$age = 69;
+    $age = $claudiu.$age;
     $n = $age;
     student $s;
 
     $s.$z = 0;
     $moc.@studarr[2] = 2;
-    
+
     for($n=$age,20){};
+    while($n < 3){
+    	$n = 2;
+    };
+    
     if($n <= 4){};
 
     $moc.@studarr[2] = 50;
-    $patrut.$salary = $s.$z;
-    $patrut.$name = $moc.@studarr[2];    
+    $claudiu.$salary = $s.$z;
+    $mystr = "Piratu din taifun"; 
+    $claudiu.$name = $mystr;
+    $mybool = FALSE;
+    
     @x[0] = 4;
     @x[1] = $n;
     @x[3] = $s.$z;
-    
+    $c = 3;
     $a = $s.$z;
     $b = $moc.@studarr[2];
     
-    $a := 1+2+3+4+$n;
-    $bexp := TRUE||FALSE&&(($mybool || TRUE));
-    
-    $scndfunction (@vec);
-    $n := 23+$d*((5-2/3))*1+$age-$n;
-    $myfl := $salary+$myfl*(($myfl-$myfl))+9;
-    $mybool = TRUE;
-    
-    
+    TypeOf($s.$z);
+    Eval(1+4*2-3*((5-2*4))+7/2);
     
 end_progr
 

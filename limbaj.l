@@ -10,6 +10,7 @@
 "const int"|"const float"|"const char"|"const string" {  
     yylval.id = strdup(yytext);
     return CTIP;}
+"TypeOf" {return TYPEOF;}
 "begin_globaldef" {return BGINGLOBAL;}
 "end_globaldef" {return ENDGLOBAL;}
 "begin_fnct" {return BGINFNCT;}
@@ -24,8 +25,8 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
     yylval.id = strdup(yytext);
     return BOOLVAL;
 }
-
-"+" { return PLUS;}
+"Eval" {return EVAL;}
+"+" { return PLUS; }
 "-" { return MINUS; }
 "*" { return TIMES; }
 "/" { return DIVIDE; }
@@ -50,10 +51,26 @@ $[_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
 "end_fields" {return ENDFIELDS;}
 "begin_methods" {return BGINMETHODS;}
 "end_methods" {return ENDMETHODS;}
+
+\"[_a-zA-Z]\" {
+    yylval.val = strdup(yytext);
+    return CHAR;
+}
+
+\"(\\.|[^"\\])*\" {
+    yylval.val = strdup(yytext);               
+    return STRING;
+}
+
 [0-9]+ {
     yylval.val = strdup(yytext);
     return NR;
 }
+[0-9]+[.][0-9]+ {
+    yylval.val = strdup(yytext);
+    return FNR;
+}
+
 [_a-zA-Z][_a-zA-Z0-9]* {   yylval.id = strdup(yytext);
                             return GID;}
 [ \t] ;
