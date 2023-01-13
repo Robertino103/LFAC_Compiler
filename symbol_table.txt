@@ -1,15 +1,17 @@
 Predefined variables: ('type' 'name' = 'value')
-    int $age = 2
+    int $age = 69
     float $salary
     float $myfl
+    char $mychar
     int $n = 2
     int $a = 0
     int $b = 50
-    int $c
+    int $c = 3
     int $d
     const float $r = 5
-    bool $mybool = TRUE
+    bool $mybool = FALSE
     bool $bexp
+    string $mystr = "Piratu din taifun"
     int @x[58] = {4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     float @vec[5] = {0, 0, 0, 0, 0}
 
@@ -17,7 +19,7 @@ User defined variables: ('type' 'name' = 'value')
     student $x
     student $moc
     student $s
-    teacher $patrut
+    teacher $claudiu
     int $x.$x
     int $x.$y
     int $x.$z
@@ -30,13 +32,9 @@ User defined variables: ('type' 'name' = 'value')
     int $x.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $moc.@studarr[20] = {0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     int $s.@studarr[20] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-    int $patrut.$age = 69
-    char $patrut.$name = 50
-    int $patrut.$salary = 0
-    float $patrut.@teacharr[56] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    int $claudiu.$age = 69
+    string $claudiu.$name = "Piratu din taifun"
+    int $claudiu.$salary = 0
+    float $claudiu.@teacharr[56] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 Used expressions:
-    1 + 2 + 3 + 4 + $n   (type: int)
-    TRUE && FALSE || (($mybool && TRUE))   (type: bool)
-    23 + $d * ((5 - 2 / 3)) * 1 + $age - $n   (type: int)
-    $salary + $myfl * (($myfl - $myfl)) + 9   (type: float)
